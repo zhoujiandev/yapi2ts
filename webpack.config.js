@@ -37,6 +37,13 @@ const extensionConfig = {
             loader: 'ts-loader'
           }
         ]
+      },
+      {
+        test: /\.(svg|png|jpg|jpeg|gif|ico)$/,
+        type: 'asset/resource',
+        generator: {
+          filename: 'media/[name][ext]'
+        }
       }
     ]
   },

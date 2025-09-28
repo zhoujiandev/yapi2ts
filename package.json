@@ -1,23 +1,75 @@
 {
 	"name": "yapi2ts",
-	"displayName": "yapi2ts",
-	"description": "",
+	"displayName": "YAPI to TypeScript",
+	"description": "Generate TypeScript interfaces and API definitions from YAPI",
 	"version": "0.0.1",
+	"publisher": "yapi2ts",
 	"engines": {
 		"vscode": "^1.100.0"
 	},
 	"categories": [
 		"Other"
 	],
-	"activationEvents": [],
+	"activationEvents": [
+		"*"
+	],
 	"main": "./dist/extension.js",
 	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "yapi2ts",
+					"title": "YAPI to TypeScript",
+					"icon": "$(symbol-interface)"
+				}
+			]
+		},
+		"views": {
+			"yapi2ts": [
+				{
+					"id": "yapi2ts.explorer",
+					"name": "YAPI Interface Explorer",
+					"type": "webview",
+					"when": "true"
+				}
+			]
+		},
 		"commands": [
 			{
-				"command": "yapi2ts.helloWorld",
-				"title": "Hello World"
+				"command": "yapi2ts.openPanel",
+				"title": "Open YAPI Panel",
+				"icon": "$(globe)"
+			},
+			{
+				"command": "yapi2ts.refresh",
+				"title": "Refresh",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "yapi2ts.generateTypes",
+				"title": "Generate Types",
+				"icon": "$(file-code)"
+			},
+			{
+				"command": "yapi2ts.generateApi",
+				"title": "Generate API",
+				"icon": "$(symbol-method)"
 			}
-		]
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "yapi2ts.openPanel",
+					"when": "view == yapi2ts.explorer",
+					"group": "navigation"
+				},
+				{
+					"command": "yapi2ts.refresh",
+					"when": "view == yapi2ts.explorer",
+					"group": "navigation"
+				}
+			]
+		}
 	},
   "scripts": {
     "vscode:prepublish": "pnpm run package",

@@ -1,0 +1,64 @@
+/* VSCode Theme Variables */
+:root {
+  --vscode-font-family: var(--vscode-font-family);
+  --vscode-font-size: var(--vscode-font-size);
+  --vscode-font-weight: var(--vscode-font-weight);
+  
+  --vscode-foreground: var(--vscode-foreground);
+  --vscode-errorForeground: var(--vscode-errorForeground);
+  --vscode-descriptionForeground: var(--vscode-descriptionForeground);
+  
+  --vscode-textLink-foreground: var(--vscode-textLink-foreground);
+  --vscode-textLink-activeForeground: var(--vscode-textLink-activeForeground);
+  
+  --vscode-button-background: var(--vscode-button-background);
+  --vscode-button-foreground: var(--vscode-button-foreground);
+  --vscode-button-hoverBackground: var(--vscode-button-hoverBackground);
+  
+  --vscode-input-background: var(--vscode-input-background);
+  --vscode-input-border: var(--vscode-input-border);
+  --vscode-input-foreground: var(--vscode-input-foreground);
+  --vscode-input-placeholderForeground: var(--vscode-input-placeholderForeground);
+  
+  --vscode-dropdown-background: var(--vscode-dropdown-background);
+  --vscode-dropdown-border: var(--vscode-dropdown-border);
+  --vscode-dropdown-foreground: var(--vscode-dropdown-foreground);
+  
+  --vscode-list-activeSelectionBackground: var(--vscode-list-activeSelectionBackground);
+  --vscode-list-activeSelectionForeground: var(--vscode-list-activeSelectionForeground);
+  --vscode-list-hoverBackground: var(--vscode-list-hoverBackground);
+  --vscode-list-hoverForeground: var(--vscode-list-hoverForeground);
+  
+  --vscode-tree-indentGuidesStroke: var(--vscode-tree-indentGuidesStroke);
+  
+  --vscode-panel-background: var(--vscode-panel-background);
+  --vscode-panel-border: var(--vscode-panel-border);
+  
+  --vscode-tab-activeBackground: var(--vscode-tab-activeBackground);
+  --vscode-tab-activeForeground: var(--vscode-tab-activeForeground);
+  --vscode-tab-inactiveBackground: var(--vscode-tab-inactiveBackground);
+  --vscode-tab-inactiveForeground: var(--vscode-tab-inactiveForeground);
+  --vscode-tab-border: var(--vscode-tab-border);
+}
+
+body {
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  font-weight: var(--vscode-font-weight);
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-editor-background);
+}
+
+a {
+  color: var(--vscode-textLink-foreground);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--vscode-textLink-activeForeground);
+}
+
+code {
+  font-family: var(--vscode-editor-font-family);
+  font-size: var(--vscode-editor-font-size);
+}
