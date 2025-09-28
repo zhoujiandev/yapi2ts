@@ -11,7 +11,7 @@
         "Other"
     ],
     "activationEvents": [
-        "*"
+        "onView:yapi2ts.explorer"
     ],
     "main": "./dist/extension.js",
     "contributes": {

@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
-import { YapiService } from './yapiService';
 import { CodeGenerator } from './codeGenerator';
-import { YapiCategory, YapiInterface, YapiInterfaceDetail, TemplateConfig } from './types';
+import { TemplateConfig } from './types';
+import { YapiService } from './yapiService';
 
 export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'yapi2ts.explorer';
@@ -19,7 +18,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         this.yapiService = new YapiService();
         this.codeGenerator = new CodeGenerator();
         this.loadTemplates();
-        console.log('constructor --->');
     }
 
     public resolveWebviewView(
@@ -27,10 +25,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         context: vscode.WebviewViewResolveContext,
         _token: vscode.CancellationToken
     ) {
-        console.log('resolveWebviewView called');
         this._view = webviewView;
-
-        console.log('resolve--->');
 
         webviewView.webview.options = {
             enableScripts: true,
@@ -41,7 +36,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         };
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-        console.log('HTML content set for webview');
 
         // 监听来自WebView的消息
         webviewView.webview.onDidReceiveMessage(
@@ -55,7 +49,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
 
         // 发送初始数据
         setTimeout(() => {
-            console.log('Sending initial data to webview');
             this.sendInitialData();
         }, 100);
     }
@@ -259,9 +252,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         // 使用nonce来确保安全
         const nonce = getNonce();
 
-        console.log('Script URI:', scriptUri.toString());
-        console.log('Extension URI:', this._extensionUri.toString());
-
         return `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -331,10 +321,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         </div>
 
         <script nonce="${nonce}" src="${scriptUri}"></script>
-        <script nonce="${nonce}">
-          console.log('Inline script loaded');
-          console.log('Script URI:', '${scriptUri}');
-        </script>
       </body>
       </html>`;
     }

@@ -11,11 +11,9 @@ export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "yapi2ts" is now active!');
 
     // 创建WebView提供者
-    console.log('Creating YapiWebviewProvider...');
     const provider = new YapiWebviewProvider(context.extensionUri, context);
 
     // 注册WebView提供者
-    console.log('Registering webview provider with viewType:', YapiWebviewProvider.viewType);
     const disposable = vscode.window.registerWebviewViewProvider(
         YapiWebviewProvider.viewType,
         provider,
@@ -26,11 +24,9 @@ export function activate(context: vscode.ExtensionContext) {
         }
     );
     context.subscriptions.push(disposable);
-    console.log('WebView provider registered successfully');
 
     // 强制显示视图容器
     vscode.commands.executeCommand('workbench.view.extension.yapi2ts');
-    console.log('Attempted to show yapi2ts view container');
 
     // 注册命令
     const openPanelCommand = vscode.commands.registerCommand('yapi2ts.openPanel', () => {
