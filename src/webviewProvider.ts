@@ -138,15 +138,10 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
       const interfaces = await this.yapiService.getInterfaceDetails(interfaceIds);
       const typeDefinitions = this.codeGenerator.generateTypeDefinitions(interfaces);
       
-      // 创建新文档显示生成的类型
-      const doc = await vscode.workspace.openTextDocument({
-        content: typeDefinitions,
-        language: 'typescript'
-      });
+      // 复制到剪贴板
+      await vscode.env.clipboard.writeText(typeDefinitions);
       
-      await vscode.window.showTextDocument(doc);
-      
-      vscode.window.showInformationMessage(`成功生成 ${interfaceIds.length} 个接口的类型定义`);
+      vscode.window.showInformationMessage(`已复制 ${interfaceIds.length} 个接口的类型定义到剪贴板`);
     } catch (error) {
       vscode.window.showErrorMessage(`生成类型定义失败: ${error}`);
     }
