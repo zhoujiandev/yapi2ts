@@ -1,24 +1,24 @@
 {
-  "name": "yapi2ts",
-  "displayName": "yapi2ts",
-  "description": "",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.104.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [],
-  "main": "./dist/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "yapi2ts.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
+	"name": "yapi2ts",
+	"displayName": "yapi2ts",
+	"description": "",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.100.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "yapi2ts.helloWorld",
+				"title": "Hello World"
+			}
+		]
+	},
   "scripts": {
     "vscode:prepublish": "pnpm run package",
     "compile": "webpack",
