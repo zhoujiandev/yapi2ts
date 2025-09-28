@@ -12,5 +12,22 @@
 	"typescript.tsc.autoDetect": "off",
 	"cSpell.words": [
 		"yapi"
-	]
+	],
+	// 保存时自动格式化
+	 "editor.formatOnSave": true,
+	  "editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit",
+		"source.organizeImports": "explicit"
+	},
+	// 设置默认格式化程序
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
 }
