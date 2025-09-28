@@ -39,11 +39,13 @@
 ### 4. 生成代码
 
 #### 生成类型定义
+
 1. 在接口列表中勾选需要生成类型的接口
 2. 点击 "生成参数" 按钮
 3. 插件会自动生成TypeScript接口类型定义
 
 #### 生成API接口代码
+
 1. 在接口列表中勾选需要生成API的接口
 2. 在模板下拉框中选择代码模板
 3. 点击 "生成API定义" 按钮
@@ -73,6 +75,7 @@
 插件提供两个内置模板：
 
 ### Axios模板
+
 ```typescript
 /**
  * {{description}}
@@ -88,6 +91,7 @@ export const {{methodName}} = (params: {{queryType}}, data: {{requestType}}): Pr
 ```
 
 ### Fetch模板
+
 ```typescript
 /**
  * {{description}}
@@ -113,8 +117,8 @@ export const {{methodName}} = async (params: {{queryType}}, data: {{requestType}
 
 ```json
 {
-  "yapi2ts.yapiUrl": "http://yapi.example.com",
-  "yapi2ts.projectToken": "your-project-token"
+    "yapi2ts.yapiUrl": "http://yapi.example.com",
+    "yapi2ts.projectToken": "your-project-token"
 }
 ```
 
@@ -161,6 +165,7 @@ MIT License
 ## 更新日志
 
 ### 0.0.1
+
 - 初始版本
 - 基础的YAPI接口获取功能
 - TypeScript类型生成

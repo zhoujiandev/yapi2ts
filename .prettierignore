@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+out/
+*.vsix
+
+# Generated files
+*.d.ts
+
+# Configuration files
+.vscode/
+.git/
+
+# Media files
+media/
+
+# Test files
+coverage/
+
+# Logs
+*.log

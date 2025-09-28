@@ -1,99 +1,117 @@
 {
-	"name": "yapi2ts",
-	"displayName": "YAPI to TypeScript",
-	"description": "Generate TypeScript interfaces and API definitions from YAPI",
-	"version": "0.0.1",
-	"publisher": "yapi2ts",
-	"engines": {
-		"vscode": "^1.100.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"*"
-	],
-	"main": "./dist/extension.js",
-	"contributes": {
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "yapi2ts",
-					"title": "YAPI to TypeScript",
-					"icon": "$(symbol-interface)"
-				}
-			]
-		},
-		"views": {
-			"yapi2ts": [
-				{
-					"id": "yapi2ts.explorer",
-					"name": "YAPI Interface Explorer",
-					"type": "webview",
-					"when": "true"
-				}
-			]
-		},
-		"commands": [
-			{
-				"command": "yapi2ts.openPanel",
-				"title": "Open YAPI Panel",
-				"icon": "$(globe)"
-			},
-			{
-				"command": "yapi2ts.refresh",
-				"title": "Refresh",
-				"icon": "$(refresh)"
-			},
-			{
-				"command": "yapi2ts.generateTypes",
-				"title": "Generate Types",
-				"icon": "$(file-code)"
-			},
-			{
-				"command": "yapi2ts.generateApi",
-				"title": "Generate API",
-				"icon": "$(symbol-method)"
-			}
-		],
-		"menus": {
-			"view/title": [
-				{
-					"command": "yapi2ts.openPanel",
-					"when": "view == yapi2ts.explorer",
-					"group": "navigation"
-				},
-				{
-					"command": "yapi2ts.refresh",
-					"when": "view == yapi2ts.explorer",
-					"group": "navigation"
-				}
-			]
-		}
-	},
-  "scripts": {
-    "vscode:prepublish": "pnpm run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.104.0",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "22.x",
-    "@typescript-eslint/eslint-plugin": "^8.42.0",
-    "@typescript-eslint/parser": "^8.42.0",
-    "eslint": "^9.34.0",
-    "typescript": "^5.9.2",
-    "ts-loader": "^9.5.4",
-    "webpack": "^5.101.3",
-    "webpack-cli": "^6.0.1",
-    "@vscode/test-cli": "^0.0.11",
-    "@vscode/test-electron": "^2.5.2"
-  }
+    "name": "yapi2ts",
+    "displayName": "YAPI to TypeScript",
+    "description": "Generate TypeScript interfaces and API definitions from YAPI",
+    "version": "0.0.1",
+    "publisher": "yapi2ts",
+    "engines": {
+        "vscode": "^1.100.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "yapi2ts",
+                    "title": "YAPI to TypeScript",
+                    "icon": "$(symbol-interface)"
+                }
+            ]
+        },
+        "views": {
+            "yapi2ts": [
+                {
+                    "id": "yapi2ts.explorer",
+                    "name": "YAPI Interface Explorer",
+                    "type": "webview",
+                    "when": "true"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "yapi2ts.openPanel",
+                "title": "Open YAPI Panel",
+                "icon": "$(globe)"
+            },
+            {
+                "command": "yapi2ts.refresh",
+                "title": "Refresh",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "yapi2ts.generateTypes",
+                "title": "Generate Types",
+                "icon": "$(file-code)"
+            },
+            {
+                "command": "yapi2ts.generateApi",
+                "title": "Generate API",
+                "icon": "$(symbol-method)"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "yapi2ts.openPanel",
+                    "when": "view == yapi2ts.explorer",
+                    "group": "navigation"
+                },
+                {
+                    "command": "yapi2ts.refresh",
+                    "when": "view == yapi2ts.explorer",
+                    "group": "navigation"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "pnpm run package",
+        "compile": "webpack",
+        "watch": "webpack --watch",
+        "package": "webpack --mode production --devtool hidden-source-map",
+        "compile-tests": "tsc -p . --outDir out",
+        "watch-tests": "tsc -p . -w --outDir out",
+        "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+        "lint": "eslint src --fix",
+        "lint:check": "eslint src",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "test": "vscode-test",
+        "prepare": "husky"
+    },
+    "devDependencies": {
+        "@types/mocha": "^10.0.10",
+        "@types/node": "22.x",
+        "@types/vscode": "^1.104.0",
+        "@typescript-eslint/eslint-plugin": "^8.42.0",
+        "@typescript-eslint/parser": "^8.42.0",
+        "@vscode/test-cli": "^0.0.11",
+        "@vscode/test-electron": "^2.5.2",
+        "eslint": "^9.34.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-prettier": "^5.5.4",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.2.3",
+        "prettier": "^3.6.2",
+        "ts-loader": "^9.5.4",
+        "typescript": "^5.9.2",
+        "webpack": "^5.101.3",
+        "webpack-cli": "^6.0.1"
+    },
+    "lint-staged": {
+        "*.{ts,js}": [
+            "eslint --fix",
+            "prettier --write"
+        ],
+        "*.{json,md}": [
+            "prettier --write"
+        ]
+    }
 }
