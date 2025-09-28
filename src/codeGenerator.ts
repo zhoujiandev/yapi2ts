@@ -164,13 +164,15 @@ export class CodeGenerator {
   private getMethodName(iface: YapiInterfaceDetail): string {
     // 从路径生成方法名
     const pathParts = iface.path.split('/').filter(part => part && !part.startsWith('{'));
-    const method = iface.method.toLowerCase();
     
-    let methodName = method;
+    let methodName = "";
     if (pathParts.length > 0) {
-      methodName += pathParts.map(part => 
-        part.charAt(0).toUpperCase() + part.slice(1).replace(/[^a-zA-Z0-9]/g, '')
-      ).join('');
+      methodName += pathParts.map(part => {
+        // 处理蛇形命名转大驼峰：user_info -> UserInfo
+        return part.split('_').map(subPart => 
+          subPart.charAt(0).toUpperCase() + subPart.slice(1).replace(/[^a-zA-Z0-9]/g, '')
+        ).join('');
+      }).join('');
     }
 
     return methodName;
@@ -181,7 +183,7 @@ export class CodeGenerator {
    */
   private getRequestTypeName(iface: YapiInterfaceDetail): string {
     const methodName = this.getMethodName(iface);
-    return `${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Request`;
+    return `${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Query`;
   }
 
   /**
@@ -197,7 +199,7 @@ export class CodeGenerator {
    */
   private getQueryTypeName(iface: YapiInterfaceDetail): string {
     const methodName = this.getMethodName(iface);
-    return `${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Query`;
+    return `${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Params`;
   }
 
   /**
