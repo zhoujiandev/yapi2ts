@@ -7,43 +7,95 @@ export class CodeGenerator {
    * 生成TypeScript接口类型定义
    */
   generateTypeDefinitions(interfaces: YapiInterfaceDetail[]): string {
-    const types = new Set<string>();
+    const requestFields = new Map<string, Map<string, { type: string; optional: boolean; comment?: string }>>();
+    const responseFields = new Map<string, Map<string, { type: string; optional: boolean; comment?: string }>>();
     
     interfaces.forEach(iface => {
-      // 生成请求参数类型
+      // 合并请求参数字段（query + body）
+      const requestTypeName = this.getRequestTypeName(iface);
+      const mergedFields = new Map<string, { type: string; optional: boolean; comment?: string }>();
+
+      // 添加查询参数字段
       if (iface.req_query && iface.req_query.length > 0) {
-        const queryType = this.generateQueryType(iface);
-        types.add(queryType);
+        const queryFields = this.generateQueryTypeFields(iface);
+        queryFields.forEach((field, name) => {
+          mergedFields.set(name, field);
+        });
       }
 
-      // 生成请求体类型
-      if (iface.req_body_other && iface.req_body_is_json_schema) {
+      // 添加请求体字段
+      if (iface.req_body_type === 'json' && iface.req_body_other && iface.req_body_is_json_schema) {
         try {
-          const reqBodyType = this.generateTypeFromJsonSchema(
-            JSON.parse(iface.req_body_other),
-            this.getRequestTypeName(iface)
+          const bodyFields = this.generateTypeFieldsFromJsonSchema(
+            JSON.parse(iface.req_body_other)
           );
-          types.add(reqBodyType);
+          bodyFields.forEach((field, name) => {
+            mergedFields.set(name, field); // 后面的字段会覆盖前面的同名字段
+          });
         } catch (error) {
           console.warn(`Failed to parse request body schema for ${iface.title}:`, error);
         }
+      } else if (iface.req_body_type === 'form' && iface.req_body_form && iface.req_body_form.length > 0) {
+        const formFields = this.generateFormTypeFields(iface);
+        formFields.forEach((field, name) => {
+          mergedFields.set(name, field); // 后面的字段会覆盖前面的同名字段
+        });
       }
 
-      // 生成响应类型
+      // 如果有请求参数，保存合并后的字段
+      if (mergedFields.size > 0) {
+        requestFields.set(requestTypeName, mergedFields);
+      }
+
+      // 收集响应字段
       if (iface.res_body && iface.res_body_is_json_schema) {
         try {
-          const resBodyType = this.generateTypeFromJsonSchema(
-            JSON.parse(iface.res_body),
-            this.getResponseTypeName(iface)
+          const typeName = this.getResponseTypeName(iface);
+          const fields = this.generateTypeFieldsFromJsonSchema(
+            JSON.parse(iface.res_body)
           );
-          types.add(resBodyType);
+          if (fields.size > 0) {
+            responseFields.set(typeName, fields);
+          }
         } catch (error) {
           console.warn(`Failed to parse response body schema for ${iface.title}:`, error);
         }
       }
     });
 
-    return Array.from(types).join('\n\n');
+    let result = '';
+
+    // 生成请求参数类型定义
+    if (requestFields.size > 0) {
+      Array.from(requestFields.entries()).forEach(([typeName, fields]) => {
+        result += `// 请求参数类型\n export interface ${typeName} {\n`;
+        Array.from(fields.entries()).forEach(([fieldName, field]) => {
+          if (field.comment) {
+            result += `  /** ${field.comment} */\n`;
+          }
+          result += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
+        });
+        result += '}\n\n';
+      });
+    }
+
+    // 生成响应参数类型定义
+    if (responseFields.size > 0) {
+      if (result) result += '\n';
+      
+      Array.from(responseFields.entries()).forEach(([typeName, fields]) => {
+        result += `// 响应参数类型\n export interface ${typeName} {\n`;
+        Array.from(fields.entries()).forEach(([fieldName, field]) => {
+          if (field.comment) {
+            result += `  /** ${field.comment} */\n`;
+          }
+          result += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
+        });
+        result += '}\n\n';
+      });
+    }
+
+    return result.trim();
   }
 
   /**
@@ -79,46 +131,89 @@ export class CodeGenerator {
   }
 
   /**
-   * 从JSON Schema生成TypeScript类型
+   * 生成查询参数类型字段（返回字段对象而不是字符串）
    */
-  private generateTypeFromJsonSchema(schema: any, typeName: string): string {
-    if (!schema || typeof schema !== 'object') {
-      return `export type ${typeName} = any;`;
+  private generateQueryTypeFields(iface: YapiInterfaceDetail): Map<string, { type: string; optional: boolean; comment?: string }> {
+    const fields = new Map<string, { type: string; optional: boolean; comment?: string }>();
+    
+    if (!iface.req_query || iface.req_query.length === 0) {
+      return fields;
     }
 
-    if (schema.type === 'object' && schema.properties) {
-      const properties = Object.keys(schema.properties).map(key => {
-        const prop = schema.properties[key];
-        const isRequired = schema.required && schema.required.includes(key);
-        const optional = isRequired ? '' : '?';
-        const type = this.getTypeScriptType(prop);
-        const comment = prop.description ? `  /** ${prop.description} */\n` : '';
-        
-        return `${comment}  ${key}${optional}: ${type};`;
-      }).join('\n');
+    iface.req_query.forEach(param => {
+      fields.set(param.name, {
+        type: 'string',
+        optional: param.required !== '1',
+        comment: param.desc || undefined
+      });
+    });
 
-      return `export interface ${typeName} {\n${properties}\n}`;
-    }
-
-    return `export type ${typeName} = ${this.getTypeScriptType(schema)};`;
+    return fields;
   }
 
   /**
-   * 生成查询参数类型
+   * 从JSON Schema生成TypeScript类型字段（返回字段对象而不是字符串）
    */
-  private generateQueryType(iface: YapiInterfaceDetail): string {
-    if (!iface.req_query || iface.req_query.length === 0) {
-      return '';
+  private generateTypeFieldsFromJsonSchema(schema: any): Map<string, { type: string; optional: boolean; comment?: string }> {
+    const fields = new Map<string, { type: string; optional: boolean; comment?: string }>();
+    
+    if (!schema || typeof schema !== 'object') {
+      return fields;
     }
 
-    const typeName = this.getQueryTypeName(iface);
-    const properties = iface.req_query.map(param => {
-      const optional = param.required === '1' ? '' : '?';
-      const comment = param.desc ? `  /** ${param.desc} */\n` : '';
-      return `${comment}  ${param.name}${optional}: string;`;
-    }).join('\n');
+    if (schema.type === 'object' && schema.properties) {
+      Object.keys(schema.properties).forEach(key => {
+        const prop = schema.properties[key];
+        const isRequired = schema.required && schema.required.includes(key);
+        
+        fields.set(key, {
+          type: this.getTypeScriptType(prop),
+          optional: !isRequired,
+          comment: prop.description || undefined
+        });
+      });
+    }
 
-    return `export interface ${typeName} {\n${properties}\n}`;
+    return fields;
+  }
+
+  /**
+   * 生成表单类型字段（返回字段对象而不是字符串）
+   */
+  private generateFormTypeFields(iface: YapiInterfaceDetail): Map<string, { type: string; optional: boolean; comment?: string }> {
+    const fields = new Map<string, { type: string; optional: boolean; comment?: string }>();
+    
+    if (!iface.req_body_form || iface.req_body_form.length === 0) {
+      return fields;
+    }
+
+    iface.req_body_form.forEach(param => {
+      fields.set(param.name, {
+        type: this.getFormFieldType(param.type),
+        optional: param.required !== '1',
+        comment: param.desc || undefined
+      });
+    });
+
+    return fields;
+  }
+
+  /**
+   * 获取表单字段类型
+   */
+  private getFormFieldType(type: string): string {
+    switch (type) {
+      case 'text':
+      case 'textarea':
+      case 'select':
+        return 'string';
+      case 'number':
+        return 'number';
+      case 'file':
+        return 'File';
+      default:
+        return 'string';
+    }
   }
 
   /**
@@ -183,7 +278,7 @@ export class CodeGenerator {
    */
   private getRequestTypeName(iface: YapiInterfaceDetail): string {
     const methodName = this.getMethodName(iface);
-    return `${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Query`;
+    return `${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Request`;
   }
 
   /**
