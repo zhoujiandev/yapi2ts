@@ -17,7 +17,7 @@
                 {
                     "id": "yapi2ts",
                     "title": "YAPI to TypeScript",
-                    "icon": "$(symbol-interface)"
+                    "icon": "./media/icon.svg"
                 }
             ]
         },
