@@ -135,8 +135,8 @@
   function loadConfig() {
     // Load saved config from VSCode settings
     const config = vscode.getState() || {};
-    if (config.yapiUrl) yapiUrlInput.value = config.yapiUrl;
-    if (config.projectToken) projectTokenInput.value = config.projectToken;
+    if (config.yapiUrl) {yapiUrlInput.value = config.yapiUrl;}
+    if (config.projectToken) {projectTokenInput.value = config.projectToken;}
   }
 
   function saveConfig() {
@@ -256,8 +256,8 @@
         <div class="template-item-header">
           <span class="template-name">${template.name}</span>
           <div class="template-actions">
-            <button class="btn btn-secondary" onclick="editTemplate('${template.id}')">编辑</button>
-            <button class="btn btn-secondary" onclick="deleteTemplate('${template.id}')">删除</button>
+            <button class="btn btn-secondary edit-template-btn" data-template-id="${template.id}">编辑</button>
+            <button class="btn btn-secondary delete-template-btn" data-template-id="${template.id}">删除</button>
           </div>
         </div>
         ${template.description ? `<div class="template-description">${template.description}</div>` : ''}
@@ -266,6 +266,21 @@
     `).join('');
 
     templateList.innerHTML = html;
+
+    // 添加事件监听器
+    templateList.querySelectorAll('.edit-template-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const templateId = e.target.dataset.templateId;
+        editTemplate(templateId);
+      });
+    });
+
+    templateList.querySelectorAll('.delete-template-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const templateId = e.target.dataset.templateId;
+        deleteTemplate(templateId);
+      });
+    });
   }
 
   function showTemplateEditor(template = null) {
@@ -357,13 +372,79 @@
     });
   }
 
+  // 自定义确认对话框
+  function showConfirmDialog(message, onConfirm, onCancel) {
+    // 创建遮罩层
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+    
+    // 创建对话框
+    const dialog = document.createElement('div');
+    dialog.className = 'confirm-dialog';
+    
+    // 创建消息内容
+    const messageEl = document.createElement('div');
+    messageEl.className = 'confirm-message';
+    messageEl.textContent = message;
+    
+    // 创建按钮容器
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'confirm-buttons';
+    
+    // 创建确认按钮
+    const confirmBtn = document.createElement('button');
+    confirmBtn.className = 'confirm-btn confirm-btn-primary';
+    confirmBtn.textContent = '确定';
+    confirmBtn.onclick = () => {
+      document.body.removeChild(overlay);
+      if (onConfirm) {onConfirm();}
+    };
+    
+    // 创建取消按钮
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'confirm-btn confirm-btn-secondary';
+    cancelBtn.textContent = '取消';
+    cancelBtn.onclick = () => {
+      document.body.removeChild(overlay);
+      if (onCancel) {onCancel();}
+    };
+    
+    // 组装对话框
+    buttonContainer.appendChild(cancelBtn);
+    buttonContainer.appendChild(confirmBtn);
+    dialog.appendChild(messageEl);
+    dialog.appendChild(buttonContainer);
+    overlay.appendChild(dialog);
+    
+    // 添加到页面
+    document.body.appendChild(overlay);
+    
+    // 点击遮罩层关闭
+    overlay.onclick = (e) => {
+      if (e.target === overlay) {
+        document.body.removeChild(overlay);
+        if (onCancel) {onCancel();}
+      }
+    };
+    
+    // ESC键关闭
+    const handleKeydown = (e) => {
+      if (e.key === 'Escape') {
+        document.body.removeChild(overlay);
+        document.removeEventListener('keydown', handleKeydown);
+        if (onCancel) {onCancel();}
+      }
+    };
+    document.addEventListener('keydown', handleKeydown);
+  }
+
   function deleteTemplate(templateId) {
-    if (confirm('确定要删除这个模板吗？')) {
+    showConfirmDialog('确定要删除这个模板吗？', () => {
       vscode.postMessage({
         type: 'deleteTemplate',
         templateId
       });
-    }
+    });
   }
 
   function getDefaultTemplateContent() {
@@ -403,15 +484,12 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
     console.log(`[${type.toUpperCase()}] ${message}`);
   }
 
-  // Global functions for template actions
-  window.editTemplate = (templateId) => {
+  function editTemplate(templateId) {
     const template = currentTemplates.find(t => t.id === templateId);
     if (template) {
       showTemplateEditor(template);
     }
-  };
-
-  window.deleteTemplate = deleteTemplate;
+  }
 
   // Handle messages from extension
   window.addEventListener('message', event => {
