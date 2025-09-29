@@ -282,7 +282,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 <input type="text" id="project-token" placeholder="项目Token">
               </div>
               <button id="connect-btn" class="btn btn-primary">连接</button>
-              <button id="refresh-btn" class="btn btn-secondary">刷新</button>
             </div>
 
             <div class="interface-section">

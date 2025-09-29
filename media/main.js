@@ -14,7 +14,6 @@
   const yapiUrlInput = document.getElementById('yapi-url');
   const projectTokenInput = document.getElementById('project-token');
   const connectBtn = document.getElementById('connect-btn');
-  const refreshBtn = document.getElementById('refresh-btn');
   const interfaceTree = document.getElementById('interface-tree');
   const tableContent = document.getElementById('table-content');
   const generateTypesBtn = document.getElementById('generate-types-btn');
@@ -61,16 +60,6 @@
         type: 'setConfig',
         yapiUrl,
         projectToken
-      });
-    });
-
-    // Refresh button
-    refreshBtn.addEventListener('click', () => {
-      refreshBtn.disabled = true;
-      refreshBtn.textContent = '刷新中...';
-      
-      vscode.postMessage({
-        type: 'loadInterfaces'
       });
     });
 
@@ -509,9 +498,6 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
         break;
 
       case 'interfacesLoaded':
-        refreshBtn.disabled = false;
-        refreshBtn.textContent = '刷新';
-        
         currentCategories = message.categories;
         currentInterfaces = message.interfaces;
         renderInterfaceTree();
