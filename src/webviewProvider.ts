@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { CodeGenerator } from './codeGenerator';
-import { TemplateConfig } from './types';
+import { ProjectConfig, TemplateConfig } from './types';
 import { YapiService } from './yapiService';
 
 export class YapiWebviewProvider implements vscode.WebviewViewProvider {
@@ -10,6 +10,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     private yapiService: YapiService;
     private codeGenerator: CodeGenerator;
     private templates: TemplateConfig[] = [];
+    private projects: ProjectConfig[] = [];
 
     constructor(
         private readonly _extensionUri: vscode.Uri,
@@ -17,7 +18,8 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     ) {
         this.yapiService = new YapiService();
         this.codeGenerator = new CodeGenerator();
-        this.loadTemplates();
+        // this.loadTemplates();
+        // this.loadProjects();
     }
 
     public resolveWebviewView(
@@ -48,10 +50,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         );
 
         // 恢复状态并发送初始数据
-        setTimeout(() => {
+        setTimeout(async () => {
+            console.log('WebView ready, starting initialization...');
             this.restoreState();
-            this.sendInitialData();
-        }, 100);
+            await this.sendInitialData();
+        }, 500); // 增加延迟时间，确保webview完全加载
     }
 
     private restoreState() {
@@ -64,8 +67,19 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    private sendInitialData() {
+    private async sendInitialData() {
         if (this._view) {
+            // 确保模板和项目数据已加载
+            await this.loadTemplates();
+            await this.loadProjects();
+
+            console.log(
+                'Sending initial data, templates:',
+                this.templates.length,
+                'projects:',
+                this.projects.length
+            );
+
             // 发送模板数据和状态
             const yapiUrl = this.context.globalState.get<string>('yapi2ts.yapiUrl', '');
             const projectToken = this.context.globalState.get<string>('yapi2ts.projectToken', '');
@@ -73,6 +87,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             this._view.webview.postMessage({
                 type: 'templatesLoaded',
                 templates: this.templates
+            });
+
+            this._view.webview.postMessage({
+                type: 'projectsLoaded',
+                projects: this.projects
             });
 
             // 如果有保存的配置，发送给前端
@@ -108,6 +127,15 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 break;
             case 'loadTemplates':
                 await this.handleLoadTemplates();
+                break;
+            case 'saveProject':
+                await this.handleSaveProject(message.project);
+                break;
+            case 'deleteProject':
+                await this.handleDeleteProject(message.projectId);
+                break;
+            case 'loadProjects':
+                await this.handleLoadProjects();
                 break;
         }
     }
@@ -233,6 +261,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     }
 
     private async handleLoadTemplates() {
+        console.log('handleLoadTemplates', this.templates, this._view?.webview);
         this._view?.webview.postMessage({
             type: 'templatesLoaded',
             templates: this.templates
@@ -257,6 +286,62 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
 
     private async saveTemplates() {
         await this.context.globalState.update('yapi2ts.templates', this.templates);
+    }
+
+    private async handleSaveProject(project: ProjectConfig) {
+        try {
+            const existingIndex = this.projects.findIndex(p => p.id === project.id);
+            if (existingIndex >= 0) {
+                this.projects[existingIndex] = { ...project, updatedAt: Date.now() };
+            } else {
+                this.projects.push({ ...project, createdAt: Date.now(), updatedAt: Date.now() });
+            }
+            await this.saveProjects();
+            this._view?.webview.postMessage({
+                type: 'projectsLoaded',
+                projects: this.projects
+            });
+            vscode.window.showInformationMessage('项目保存成功');
+        } catch (error) {
+            vscode.window.showErrorMessage(`保存项目失败: ${error}`);
+        }
+    }
+
+    private async handleDeleteProject(projectId: string) {
+        try {
+            this.projects = this.projects.filter(p => p.id !== projectId);
+            await this.saveProjects();
+            this._view?.webview.postMessage({
+                type: 'projectsLoaded',
+                projects: this.projects
+            });
+            vscode.window.showInformationMessage('项目删除成功');
+        } catch (error) {
+            vscode.window.showErrorMessage(`删除项目失败: ${error}`);
+        }
+    }
+
+    private async handleLoadProjects() {
+        this._view?.webview.postMessage({
+            type: 'projectsLoaded',
+            projects: this.projects
+        });
+    }
+
+    private async loadProjects() {
+        try {
+            const stored = this.context.globalState.get<ProjectConfig[]>('yapi2ts.projects');
+            if (stored && stored.length > 0) {
+                this.projects = stored;
+            }
+        } catch (error) {
+            console.error('Failed to load projects:', error);
+            this.projects = [];
+        }
+    }
+
+    private async saveProjects() {
+        await this.context.globalState.update('yapi2ts.projects', this.projects);
     }
 
     private _getHtmlForWebview(webview: vscode.Webview) {
@@ -293,6 +378,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
           <div class="tabs">
             <button class="tab-button active" data-tab="interfaces">接口列表</button>
             <button class="tab-button" data-tab="templates">我的模板</button>
+            <button class="tab-button" data-tab="projects">我的项目</button>
           </div>
 
           <div id="interfaces-tab" class="tab-content active">
@@ -304,7 +390,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
               </div>
               <div class="form-group">
                 <label for="project-token">项目Token:</label>
-                <input type="text" id="project-token" placeholder="项目Token">
+                <select id="project-select">
+                  <option value="">选择项目</option>
+                </select>
               </div>
               <button id="connect-btn" class="btn btn-primary">连接</button>
             </div>
@@ -338,6 +426,18 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 <button id="add-template-btn" class="btn btn-primary">新增模板</button>
               </div>
               <div class="template-list" id="template-list">
+                <div class="loading">加载中...</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="projects-tab" class="tab-content">
+            <div class="project-section">
+              <div class="project-header">
+                <h3>项目管理</h3>
+                <button id="add-project-btn" class="btn btn-primary">新增项目</button>
+              </div>
+              <div class="project-list" id="project-list">
                 <div class="loading">加载中...</div>
               </div>
             </div>

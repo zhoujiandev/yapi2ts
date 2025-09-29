@@ -6,13 +6,14 @@
   let currentCategories = [];
   let currentInterfaces = {};
   let currentTemplates = [];
+  let currentProjects = [];
   let selectedInterfaces = new Set();
 
   // DOM Elements
   const tabButtons = document.querySelectorAll('.tab-button');
   const tabContents = document.querySelectorAll('.tab-content');
   const yapiUrlInput = document.getElementById('yapi-url');
-  const projectTokenInput = document.getElementById('project-token');
+  const projectSelect = document.getElementById('project-select');
   const connectBtn = document.getElementById('connect-btn');
   const interfaceTree = document.getElementById('interface-tree');
   const tableContent = document.getElementById('table-content');
@@ -21,17 +22,27 @@
   const templateSelect = document.getElementById('template-select');
   const addTemplateBtn = document.getElementById('add-template-btn');
   const templateList = document.getElementById('template-list');
+  const addProjectBtn = document.getElementById('add-project-btn');
+  const projectList = document.getElementById('project-list');
 
   // Initialize
   init();
 
   function init() {
+    console.log('前端初始化开始...');
     setupEventListeners();
     loadConfig();
     // 请求加载模板
+    console.log('请求加载模板...');
     vscode.postMessage({
       type: 'loadTemplates'
     });
+    // 请求加载项目
+    console.log('请求加载项目...');
+    vscode.postMessage({
+      type: 'loadProjects'
+    });
+    console.log('前端初始化完成');
   }
 
   function setupEventListeners() {
@@ -46,10 +57,17 @@
     // Connect button
     connectBtn.addEventListener('click', () => {
       const yapiUrl = yapiUrlInput.value.trim();
-      const projectToken = projectTokenInput.value.trim();
+      const selectedProject = projectSelect.value;
       
-      if (!yapiUrl || !projectToken) {
-        showMessage('请填写YAPI地址和项目Token', 'error');
+      if (!yapiUrl || !selectedProject) {
+        showMessage('请填写YAPI地址和选择项目', 'error');
+        return;
+      }
+
+      // 从项目列表中找到选中的项目
+      const project = currentProjects.find(p => p.id === selectedProject);
+      if (!project) {
+        showMessage('未找到选中的项目', 'error');
         return;
       }
 
@@ -58,8 +76,8 @@
 
       vscode.postMessage({
         type: 'setConfig',
-        yapiUrl,
-        projectToken
+        yapiUrl: project.yapiUrl,
+        projectToken: project.projectToken
       });
     });
 
@@ -99,6 +117,11 @@
     addTemplateBtn.addEventListener('click', () => {
       showTemplateEditor();
     });
+
+    // Add project button
+    addProjectBtn.addEventListener('click', () => {
+      showProjectEditor();
+    });
   }
 
   function switchTab(tabId) {
@@ -113,25 +136,33 @@
     });
 
     // Load data for specific tabs
-  if (tabId === 'templates') {
-    // 请求加载模板
-    vscode.postMessage({
-      type: 'loadTemplates'
-    });
-  }
+    if (tabId === 'templates') {
+      // 请求加载模板
+      vscode.postMessage({
+        type: 'loadTemplates'
+      });
+    } else if (tabId === 'projects') {
+      // 请求加载项目
+      vscode.postMessage({
+        type: 'loadProjects'
+      });
+    }
   }
 
   function loadConfig() {
     // Load saved config from VSCode settings
     const config = vscode.getState() || {};
     if (config.yapiUrl) {yapiUrlInput.value = config.yapiUrl;}
-    if (config.projectToken) {projectTokenInput.value = config.projectToken;}
+    if (config.projectToken) {
+      // 设置选中的项目
+      projectSelect.value = config.projectToken;
+    }
   }
 
   function saveConfig() {
     vscode.setState({
       yapiUrl: yapiUrlInput.value,
-      projectToken: projectTokenInput.value
+      projectToken: projectSelect.value
     });
   }
 
@@ -285,6 +316,7 @@
   }
 
   function renderTemplateList() {
+    console.log('renderTemplateList', currentTemplates);
     if (currentTemplates.length === 0) {
       templateList.innerHTML = '<div class="loading">暂无模板</div>';
       return;
@@ -530,8 +562,171 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
     }
   }
 
+  // Project management functions
+  function renderProjectSelect() {
+    const defaultOption = '<option value="">选择项目</option>';
+    const options = currentProjects.map(project => 
+      `<option value="${project.id}">${project.name}</option>`
+    ).join('');
+    
+    projectSelect.innerHTML = defaultOption + options;
+  }
+
+  function renderProjectList() {
+    if (currentProjects.length === 0) {
+      projectList.innerHTML = '<div class="loading">暂无项目</div>';
+      return;
+    }
+
+    const html = currentProjects.map(project => `
+      <div class="project-item">
+        <div class="project-item-header">
+          <span class="project-name">${project.name}</span>
+          <div class="project-actions">
+            <button class="btn btn-secondary edit-project-btn" data-project-id="${project.id}">编辑</button>
+            <button class="btn btn-secondary delete-project-btn" data-project-id="${project.id}">删除</button>
+          </div>
+        </div>
+        <div class="project-info">
+          <div class="project-url">YAPI地址: ${project.yapiUrl}</div>
+          <div class="project-token">项目Token: ${project.projectToken.substring(0, 10)}...</div>
+          <div class="project-time">创建时间: ${new Date(project.createdAt).toLocaleString()}</div>
+        </div>
+      </div>
+    `).join('');
+
+    projectList.innerHTML = html;
+
+    // 添加事件监听器
+    projectList.querySelectorAll('.edit-project-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const projectId = e.target.dataset.projectId;
+        editProject(projectId);
+      });
+    });
+
+    projectList.querySelectorAll('.delete-project-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const projectId = e.target.dataset.projectId;
+        deleteProject(projectId);
+      });
+    });
+  }
+
+  function showProjectEditor(project = null) {
+    const isEdit = !!project;
+    const title = isEdit ? '编辑项目' : '新增项目';
+    
+    // Create modal dialog
+    const modal = document.createElement('div');
+    modal.className = 'project-modal';
+    modal.innerHTML = `
+      <div class="project-modal-content">
+        <div class="project-modal-header">
+          <h3>${title}</h3>
+          <button class="project-modal-close">&times;</button>
+        </div>
+        <div class="project-modal-body">
+          <div class="form-group">
+            <label for="project-name-input">项目名称:</label>
+            <input type="text" id="project-name-input" class="form-control" value="${project ? project.name : ''}" placeholder="请输入项目名称">
+          </div>
+          <div class="form-group">
+            <label for="project-yapi-url-input">YAPI地址:</label>
+            <input type="text" id="project-yapi-url-input" class="form-control" value="${project ? project.yapiUrl : ''}" placeholder="请输入YAPI地址">
+          </div>
+          <div class="form-group">
+            <label for="project-token-input">项目Token:</label>
+            <input type="text" id="project-token-input" class="form-control" value="${project ? project.projectToken : ''}" placeholder="请输入项目Token">
+          </div>
+        </div>
+        <div class="project-modal-footer">
+          <button class="btn btn-secondary project-modal-cancel">取消</button>
+          <button class="btn btn-primary project-modal-save">保存</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Event listeners
+    const closeBtn = modal.querySelector('.project-modal-close');
+    const cancelBtn = modal.querySelector('.project-modal-cancel');
+    const saveBtn = modal.querySelector('.project-modal-save');
+    const nameInput = modal.querySelector('#project-name-input');
+    const yapiUrlInput = modal.querySelector('#project-yapi-url-input');
+    const tokenInput = modal.querySelector('#project-token-input');
+
+    const closeModal = () => {
+      document.body.removeChild(modal);
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    saveBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      const yapiUrl = yapiUrlInput.value.trim();
+      const projectToken = tokenInput.value.trim();
+
+      if (!name || !yapiUrl || !projectToken) {
+        showMessage('请填写完整的项目信息', 'error');
+        return;
+      }
+
+      const projectData = {
+        id: project ? project.id : generateId(),
+        name,
+        yapiUrl,
+        projectToken,
+        createdAt: project ? project.createdAt : new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      vscode.postMessage({
+        type: 'saveProject',
+        project: projectData
+      });
+
+      closeModal();
+    });
+
+    // Handle escape key
+    const handleKeydown = (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        document.removeEventListener('keydown', handleKeydown);
+      }
+    };
+    document.addEventListener('keydown', handleKeydown);
+  }
+
+  function editProject(projectId) {
+    const project = currentProjects.find(p => p.id === projectId);
+    if (project) {
+      showProjectEditor(project);
+    }
+  }
+
+  function deleteProject(projectId) {
+    showConfirmDialog('确定要删除这个项目吗？', () => {
+      vscode.postMessage({
+        type: 'deleteProject',
+        projectId
+      });
+    });
+  }
+
+  function loadProjects() {
+    vscode.postMessage({
+      type: 'loadProjects'
+    });
+  }
+
   // Handle messages from extension
   window.addEventListener('message', event => {
+    console.log('收到后端消息message--->', event.data);
+    console.log('消息类型:', event.data.type);
     const message = event.data;
 
     switch (message.type) {
@@ -554,9 +749,16 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
         break;
 
       case 'templatesLoaded':
+        console.log('处理templatesLoaded消息，模板数量:', message.templates.length);
         currentTemplates = message.templates;
         renderTemplateSelect();
         renderTemplateList();
+        break;
+
+      case 'projectsLoaded':
+        currentProjects = message.projects;
+        renderProjectSelect();
+        renderProjectList();
         break;
 
       case 'templateSaved':
@@ -567,6 +769,16 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
       case 'templateDeleted':
         loadTemplates();
         showMessage('模板删除成功', 'success');
+        break;
+
+      case 'projectSaved':
+        loadProjects();
+        showMessage('项目保存成功', 'success');
+        break;
+
+      case 'projectDeleted':
+        loadProjects();
+        showMessage('项目删除成功', 'success');
         break;
     }
   });

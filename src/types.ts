@@ -82,3 +82,12 @@ export interface TemplateConfig {
     createdAt: number;
     updatedAt: number;
 }
+
+export interface ProjectConfig {
+    id: string;
+    name: string;
+    yapiUrl: string;
+    projectToken: string;
+    createdAt: number;
+    updatedAt: number;
+}
