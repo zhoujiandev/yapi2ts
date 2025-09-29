@@ -1,9 +1,8 @@
-import * as vscode from 'vscode';
 import {
-    YapiProject,
     YapiCategory,
     YapiInterface,
     YapiInterfaceDetail,
+    YapiProject,
     YapiResponse
 } from './types';
 
@@ -11,14 +10,7 @@ export class YapiService {
     private baseUrl: string = '';
     private token: string = '';
 
-    constructor() {
-        this.loadConfig();
-    }
-
-    private loadConfig() {
-        // 不再从工作区配置加载，改为从 webview 状态获取
-        // 这些值将通过 setConfig 方法设置
-    }
+    constructor() {}
 
     public setConfig(yapiUrl: string, projectToken: string) {
         this.baseUrl = yapiUrl;
