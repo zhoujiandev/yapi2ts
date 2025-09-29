@@ -182,7 +182,22 @@
       return;
     }
 
-    const html = interfaces.map(iface => {
+    // 检查是否全选
+    const allSelected = interfaces.length > 0 && interfaces.every(iface => selectedInterfaces.has(iface._id));
+    const someSelected = interfaces.some(iface => selectedInterfaces.has(iface._id));
+
+    const tableHeader = `
+      <div class="interface-table-header">
+        <input type="checkbox" class="select-all-checkbox" 
+               ${allSelected ? 'checked' : ''} 
+               ${someSelected && !allSelected ? 'data-indeterminate="true"' : ''}>
+        <span class="header-method">方法</span>
+        <span class="header-title">接口名称</span>
+        <span class="header-path">路径</span>
+      </div>
+    `;
+
+    const interfaceRows = interfaces.map(iface => {
       const methodClass = `method-${iface.method.toLowerCase()}`;
       const isSelected = selectedInterfaces.has(iface._id);
       
@@ -198,7 +213,34 @@
       `;
     }).join('');
 
-    tableContent.innerHTML = html;
+    tableContent.innerHTML = tableHeader + interfaceRows;
+
+    // 设置半选状态
+    const selectAllCheckbox = tableContent.querySelector('.select-all-checkbox');
+    if (someSelected && !allSelected) {
+      selectAllCheckbox.indeterminate = true;
+    }
+
+    // 添加全选复选框事件监听
+    selectAllCheckbox.addEventListener('change', (e) => {
+      const isChecked = e.target.checked;
+      
+      interfaces.forEach(iface => {
+        if (isChecked) {
+          selectedInterfaces.add(iface._id);
+        } else {
+          selectedInterfaces.delete(iface._id);
+        }
+      });
+
+      // 更新所有接口复选框状态
+      tableContent.querySelectorAll('.interface-checkbox').forEach(checkbox => {
+        const interfaceId = parseInt(checkbox.dataset.interfaceId);
+        checkbox.checked = selectedInterfaces.has(interfaceId);
+      });
+
+      updateGenerateButtons();
+    });
 
     // Add checkbox listeners
     tableContent.querySelectorAll('.interface-checkbox').forEach(checkbox => {
@@ -210,6 +252,14 @@
         } else {
           selectedInterfaces.delete(interfaceId);
         }
+
+        // 更新全选复选框状态
+        const selectAllCheckbox = tableContent.querySelector('.select-all-checkbox');
+        const allSelected = interfaces.every(iface => selectedInterfaces.has(iface._id));
+        const someSelected = interfaces.some(iface => selectedInterfaces.has(iface._id));
+        
+        selectAllCheckbox.checked = allSelected;
+        selectAllCheckbox.indeterminate = someSelected && !allSelected;
 
         updateGenerateButtons();
       });

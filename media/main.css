@@ -205,6 +205,39 @@
 }
 
 /* Interface List */
+.interface-table-header {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  background: var(--vscode-list-headerBackground, var(--vscode-panel-background));
+  border-bottom: 2px solid var(--vscode-panel-border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vscode-list-headerForeground, var(--vscode-foreground));
+}
+
+.interface-table-header .select-all-checkbox {
+  margin-right: 8px;
+}
+
+.interface-table-header .header-method {
+  display: inline-block;
+  margin-right: 8px;
+  min-width: 48px;
+  text-align: center;
+}
+
+.interface-table-header .header-title {
+  flex: 1;
+  margin-right: 8px;
+}
+
+.interface-table-header .header-path {
+  color: var(--vscode-descriptionForeground);
+  font-family: monospace;
+  min-width: 200px;
+}
+
 .interface-item {
   display: flex;
   align-items: center;
@@ -215,6 +248,10 @@
 
 .interface-item:last-child {
   border-bottom: none;
+}
+
+.interface-item:hover {
+  background: var(--vscode-list-hoverBackground);
 }
 
 .interface-checkbox {
