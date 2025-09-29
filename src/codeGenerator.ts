@@ -1,5 +1,4 @@
-import * as vscode from 'vscode';
-import { YapiInterfaceDetail, TemplateConfig } from './types';
+import { TemplateConfig, YapiInterfaceDetail } from './types';
 
 export class CodeGenerator {
     /**
@@ -349,40 +348,6 @@ export class CodeGenerator {
  */
 export const {{methodName}} = (params: {{queryType}}): Promise<{{responseType}}> => {
   return {{lowerCaseMethod}}('{{path}}',params)
-};`,
-                createdAt: Date.now(),
-                updatedAt: Date.now()
-            },
-            {
-                id: 'fetch',
-                name: 'Fetch Template',
-                description: 'Generate API calls using Fetch API',
-                content: `/**
- * {{description}}
- */
-export const {{methodName}} = async ({{#if queryType}}params: {{queryType}}{{/if}}{{#if requestType}}{{#if queryType}}, {{/if}}data: {{requestType}}{{/if}}): Promise<{{responseType}}> => {
-  const url = new URL('{{path}}', baseURL);
-  {{#if queryType}}
-  Object.keys(params).forEach(key => {
-    if (params[key] !== undefined) {
-      url.searchParams.append(key, params[key]);
-    }
-  });
-  {{/if}}
-  
-  const response = await fetch(url.toString(), {
-    method: '{{method}}',{{#if requestType}}
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),{{/if}}
-  });
-  
-  if (!response.ok) {
-    throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
-  }
-  
-  return response.json();
 };`,
                 createdAt: Date.now(),
                 updatedAt: Date.now()
