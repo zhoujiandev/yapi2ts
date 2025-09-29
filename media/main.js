@@ -12,7 +12,6 @@
   // DOM Elements
   const tabButtons = document.querySelectorAll('.tab-button');
   const tabContents = document.querySelectorAll('.tab-content');
-  const yapiUrlInput = document.getElementById('yapi-url');
   const projectSelect = document.getElementById('project-select');
   const connectBtn = document.getElementById('connect-btn');
   const interfaceTree = document.getElementById('interface-tree');
@@ -56,11 +55,10 @@
 
     // Connect button
     connectBtn.addEventListener('click', () => {
-      const yapiUrl = yapiUrlInput.value.trim();
       const selectedProject = projectSelect.value;
       
-      if (!yapiUrl || !selectedProject) {
-        showMessage('请填写YAPI地址和选择项目', 'error');
+      if (!selectedProject) {
+        showMessage('请选择项目', 'error');
         return;
       }
 
@@ -152,17 +150,15 @@
   function loadConfig() {
     // Load saved config from VSCode settings
     const config = vscode.getState() || {};
-    if (config.yapiUrl) {yapiUrlInput.value = config.yapiUrl;}
-    if (config.projectToken) {
+    if (config.selectedProjectId) {
       // 设置选中的项目
-      projectSelect.value = config.projectToken;
+      projectSelect.value = config.selectedProjectId;
     }
   }
 
   function saveConfig() {
     vscode.setState({
-      yapiUrl: yapiUrlInput.value,
-      projectToken: projectSelect.value
+      selectedProjectId: projectSelect.value
     });
   }
 
@@ -779,6 +775,18 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
       case 'projectDeleted':
         loadProjects();
         showMessage('项目删除成功', 'success');
+        break;
+
+      case 'configRestored':
+        // 恢复配置时设置选中的项目
+        if (message.projectToken) {
+          // 根据projectToken找到对应的项目ID
+          const project = currentProjects.find(p => p.projectToken === message.projectToken);
+          if (project) {
+            projectSelect.value = project.id;
+            saveConfig();
+          }
+        }
         break;
     }
   });

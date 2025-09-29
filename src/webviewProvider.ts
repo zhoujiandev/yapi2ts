@@ -385,11 +385,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             <div class="config-section">
               <h3>配置</h3>
               <div class="form-group">
-                <label for="yapi-url">YAPI地址:</label>
-                <input type="text" id="yapi-url" placeholder="http://yapi.example.com">
-              </div>
-              <div class="form-group">
-                <label for="project-token">项目Token:</label>
+                <label for="project-select">选择项目:</label>
                 <select id="project-select">
                   <option value="">选择项目</option>
                 </select>
@@ -399,7 +395,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
 
             <div class="interface-section">
               <div class="interface-tree" id="interface-tree">
-                <div class="loading">请先配置YAPI地址和项目Token</div>
+                <div class="loading">请先选择项目</div>
               </div>
               <div class="interface-table">
                 <div class="table-header">
