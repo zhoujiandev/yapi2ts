@@ -4,6 +4,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
+  min-width: 530px; /* 设置最小宽度确保内容不会过于拥挤 */
 }
 
 /* Tabs */
@@ -11,6 +12,7 @@
   display: flex;
   border-bottom: 1px solid var(--vscode-panel-border);
   margin-bottom: 10px;
+  flex-shrink: 0; /* 防止标签栏被压缩 */
 }
 
 .tab-button {
@@ -126,11 +128,13 @@
 }
 
 .interface-tree {
+  min-width: 180px; /* 设置最小宽度 */
   width: 200px;
   background: var(--vscode-panel-background);
   border: 1px solid var(--vscode-panel-border);
   border-radius: 4px;
   overflow-y: auto;
+  flex-shrink: 0; /* 防止被压缩 */
 }
 
 .interface-table {
@@ -145,12 +149,14 @@
 .table-header {
   padding: 10px;
   border-bottom: 1px solid var(--vscode-panel-border);
+  flex-shrink: 0; /* 防止表格头部被压缩 */
 }
 
 .table-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap; /* 允许按钮换行 */
 }
 
 .table-actions select {
