@@ -154,15 +154,12 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
 
             const apiDefinitions = this.codeGenerator.generateApiDefinitions(interfaces, template);
 
-            // 创建新文档显示生成的API定义
-            const doc = await vscode.workspace.openTextDocument({
-                content: apiDefinitions,
-                language: 'typescript'
-            });
+            // 复制到剪贴板
+            await vscode.env.clipboard.writeText(apiDefinitions);
 
-            await vscode.window.showTextDocument(doc);
-
-            vscode.window.showInformationMessage(`成功生成 ${interfaceIds.length} 个接口的API定义`);
+            vscode.window.showInformationMessage(
+                `已复制 ${interfaceIds.length} 个接口的API定义到剪贴板`
+            );
         } catch (error) {
             vscode.window.showErrorMessage(`生成API定义失败: ${error}`);
         }
