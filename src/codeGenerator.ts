@@ -16,7 +16,7 @@ export class CodeGenerator {
 
         interfaces.forEach(iface => {
             // 合并请求参数字段（query + body）
-            const requestTypeName = this.getRequestTypeName(iface);
+            const requestTypeName = this.getQueryTypeName(iface);
             const mergedFields = new Map<
                 string,
                 { type: string; optional: boolean; comment?: string }
@@ -134,7 +134,6 @@ export class CodeGenerator {
         template: TemplateConfig
     ): string {
         const methodName = this.getMethodName(iface);
-        const requestTypeName = this.getRequestTypeName(iface);
         const responseTypeName = this.getResponseTypeName(iface);
         const queryTypeName = this.getQueryTypeName(iface);
         const lowerCaseMethod = iface.method.toLocaleLowerCase();
@@ -146,7 +145,6 @@ export class CodeGenerator {
             .replace(/\{\{path\}\}/g, iface.path)
             .replace(/\{\{method\}\}/g, iface.method.toUpperCase())
             .replace(/\{\{lowerCaseMethod\}\}/g, lowerCaseMethod)
-            .replace(/\{\{requestType\}\}/g, requestTypeName)
             .replace(/\{\{responseType\}\}/g, responseTypeName)
             .replace(/\{\{queryType\}\}/g, queryTypeName)
             .replace(/\{\{description\}\}/g, iface.title || '');
@@ -308,14 +306,6 @@ export class CodeGenerator {
         }
 
         return methodName;
-    }
-
-    /**
-     * 获取请求类型名
-     */
-    private getRequestTypeName(iface: YapiInterfaceDetail): string {
-        const methodName = this.getMethodName(iface);
-        return `${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Request`;
     }
 
     /**
