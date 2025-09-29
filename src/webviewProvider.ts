@@ -377,8 +377,8 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         <div class="container">
           <div class="tabs">
             <button class="tab-button active" data-tab="interfaces">接口列表</button>
-            <button class="tab-button" data-tab="templates">我的模板</button>
             <button class="tab-button" data-tab="projects">我的项目</button>
+            <button class="tab-button" data-tab="templates">我的模板</button>
           </div>
 
           <div id="interfaces-tab" class="tab-content active">
@@ -415,18 +415,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             </div>
           </div>
 
-          <div id="templates-tab" class="tab-content">
-            <div class="template-section">
-              <div class="template-header">
-                <h3>模板管理</h3>
-                <button id="add-template-btn" class="btn btn-primary">新增模板</button>
-              </div>
-              <div class="template-list" id="template-list">
-                <div class="loading">加载中...</div>
-              </div>
-            </div>
-          </div>
-
           <div id="projects-tab" class="tab-content">
             <div class="project-section">
               <div class="project-header">
@@ -434,6 +422,18 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 <button id="add-project-btn" class="btn btn-primary">新增项目</button>
               </div>
               <div class="project-list" id="project-list">
+                <div class="loading">加载中...</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="templates-tab" class="tab-content">
+            <div class="template-section">
+              <div class="template-header">
+                <h3>模板管理</h3>
+                <button id="add-template-btn" class="btn btn-primary">新增模板</button>
+              </div>
+              <div class="template-list" id="template-list">
                 <div class="loading">加载中...</div>
               </div>
             </div>
