@@ -5,17 +5,13 @@ export class CodeGenerator {
      * 生成TypeScript接口类型定义
      */
     generateTypeDefinitions(interfaces: YapiInterfaceDetail[]): string {
-        const requestFields = new Map<
-            string,
-            Map<string, { type: string; optional: boolean; comment?: string }>
-        >();
-        const responseFields = new Map<
-            string,
-            Map<string, { type: string; optional: boolean; comment?: string }>
-        >();
+        let result = '';
 
-        interfaces.forEach(iface => {
-            // 合并请求参数字段（query + body）
+        interfaces.forEach((iface, index) => {
+            // 为每个接口生成入参和出参类型定义
+            let interfaceResult = '';
+
+            // 生成请求参数类型定义
             const requestTypeName = this.getQueryTypeName(iface);
             const mergedFields = new Map<
                 string,
@@ -57,60 +53,49 @@ export class CodeGenerator {
                 });
             }
 
-            // 如果有请求参数，保存合并后的字段
+            // 生成请求参数类型定义
             if (mergedFields.size > 0) {
-                requestFields.set(requestTypeName, mergedFields);
+                interfaceResult += `// ${iface.title} - 请求参数类型\nexport interface ${requestTypeName} {\n`;
+                Array.from(mergedFields.entries()).forEach(([fieldName, field]) => {
+                    if (field.comment) {
+                        interfaceResult += `  /** ${field.comment} */\n`;
+                    }
+                    interfaceResult += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
+                });
+                interfaceResult += '}\n\n';
             }
 
-            // 收集响应字段
+            // 生成响应参数类型定义
             if (iface.res_body && iface.res_body_is_json_schema) {
                 try {
-                    const typeName = this.getResponseTypeName(iface);
-                    const fields = this.generateTypeFieldsFromJsonSchema(
+                    const responseTypeName = this.getResponseTypeName(iface);
+                    const responseFields = this.generateTypeFieldsFromJsonSchema(
                         JSON.parse(iface.res_body)
                     );
-                    if (fields.size > 0) {
-                        responseFields.set(typeName, fields);
+                    if (responseFields.size > 0) {
+                        interfaceResult += `// ${iface.title} - 响应参数类型\nexport interface ${responseTypeName} {\n`;
+                        Array.from(responseFields.entries()).forEach(([fieldName, field]) => {
+                            if (field.comment) {
+                                interfaceResult += `  /** ${field.comment} */\n`;
+                            }
+                            interfaceResult += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
+                        });
+                        interfaceResult += '}\n\n';
                     }
                 } catch (error) {
                     console.warn(`Failed to parse response body schema for ${iface.title}:`, error);
                 }
             }
-        });
 
-        let result = '';
-
-        // 生成请求参数类型定义
-        if (requestFields.size > 0) {
-            Array.from(requestFields.entries()).forEach(([typeName, fields]) => {
-                result += `// 请求参数类型\n export interface ${typeName} {\n`;
-                Array.from(fields.entries()).forEach(([fieldName, field]) => {
-                    if (field.comment) {
-                        result += `  /** ${field.comment} */\n`;
-                    }
-                    result += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
-                });
-                result += '}\n\n';
-            });
-        }
-
-        // 生成响应参数类型定义
-        if (responseFields.size > 0) {
-            if (result) {
-                result += '\n';
+            // 如果当前接口有生成的类型定义，添加到结果中
+            if (interfaceResult) {
+                // 如果不是第一个接口且前面有内容，添加分隔符
+                if (index > 0 && result) {
+                    result += '\n';
+                }
+                result += interfaceResult;
             }
-
-            Array.from(responseFields.entries()).forEach(([typeName, fields]) => {
-                result += `// 响应参数类型\n export interface ${typeName} {\n`;
-                Array.from(fields.entries()).forEach(([fieldName, field]) => {
-                    if (field.comment) {
-                        result += `  /** ${field.comment} */\n`;
-                    }
-                    result += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
-                });
-                result += '}\n\n';
-            });
-        }
+        });
 
         return result.trim();
     }
