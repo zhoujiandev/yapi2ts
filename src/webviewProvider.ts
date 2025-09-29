@@ -47,19 +47,42 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             this.context.subscriptions
         );
 
-        // 发送初始数据
+        // 恢复状态并发送初始数据
         setTimeout(() => {
+            this.restoreState();
             this.sendInitialData();
         }, 100);
     }
 
+    private restoreState() {
+        // 从扩展上下文恢复配置
+        const yapiUrl = this.context.globalState.get<string>('yapi2ts.yapiUrl', '');
+        const projectToken = this.context.globalState.get<string>('yapi2ts.projectToken', '');
+
+        if (yapiUrl && projectToken) {
+            this.yapiService.setConfig(yapiUrl, projectToken);
+        }
+    }
+
     private sendInitialData() {
         if (this._view) {
-            // 发送模板数据
+            // 发送模板数据和状态
+            const yapiUrl = this.context.globalState.get<string>('yapi2ts.yapiUrl', '');
+            const projectToken = this.context.globalState.get<string>('yapi2ts.projectToken', '');
+
             this._view.webview.postMessage({
                 type: 'templatesLoaded',
                 templates: this.templates
             });
+
+            // 如果有保存的配置，发送给前端
+            if (yapiUrl && projectToken) {
+                this._view.webview.postMessage({
+                    type: 'configRestored',
+                    yapiUrl: yapiUrl,
+                    projectToken: projectToken
+                });
+            }
         }
     }
 
@@ -92,6 +115,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     private async handleSetConfig(yapiUrl: string, projectToken: string) {
         try {
             this.yapiService.setConfig(yapiUrl, projectToken);
+
+            // 保存配置到扩展状态
+            await this.context.globalState.update('yapi2ts.yapiUrl', yapiUrl);
+            await this.context.globalState.update('yapi2ts.projectToken', projectToken);
+
             const isConnected = await this.yapiService.testConnection();
 
             this._view?.webview.postMessage({

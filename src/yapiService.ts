@@ -16,19 +16,14 @@ export class YapiService {
     }
 
     private loadConfig() {
-        const config = vscode.workspace.getConfiguration('yapi2ts');
-        this.baseUrl = config.get('yapiUrl', '');
-        this.token = config.get('projectToken', '');
+        // 不再从工作区配置加载，改为从 webview 状态获取
+        // 这些值将通过 setConfig 方法设置
     }
 
     public setConfig(yapiUrl: string, projectToken: string) {
         this.baseUrl = yapiUrl;
         this.token = projectToken;
-
-        // 保存配置到工作区
-        const config = vscode.workspace.getConfiguration('yapi2ts');
-        config.update('yapiUrl', yapiUrl, vscode.ConfigurationTarget.Workspace);
-        config.update('projectToken', projectToken, vscode.ConfigurationTarget.Workspace);
+        // 不再保存到工作区配置，状态管理交给 webview
     }
 
     private async request<T>(endpoint: string, params: Record<string, any> = {}): Promise<T> {
