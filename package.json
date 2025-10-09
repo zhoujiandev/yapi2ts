@@ -5,6 +5,7 @@
     "version": "0.0.2",
     "publisher": "zhoujian",
     "repository": "https://github.com/zhoujiandev/yapi2ts",
+    "icon": "media/icon.png",
     "engines": {
         "vscode": "^1.100.0"
     },
