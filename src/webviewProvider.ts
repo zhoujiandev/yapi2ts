@@ -137,6 +137,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             case 'loadProjects':
                 await this.handleLoadProjects();
                 break;
+            case 'copyPath':
+                await this.handleCopyPath(message.path);
+                break;
         }
     }
 
@@ -322,10 +325,24 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     }
 
     private async handleLoadProjects() {
-        this._view?.webview.postMessage({
-            type: 'projectsLoaded',
-            projects: this.projects
-        });
+        try {
+            this._view?.webview.postMessage({
+                type: 'projectsLoaded',
+                projects: this.projects
+            });
+        } catch (error) {
+            console.error('Failed to load projects:', error);
+        }
+    }
+
+    private async handleCopyPath(path: string) {
+        try {
+            await vscode.env.clipboard.writeText(path);
+            vscode.window.showInformationMessage(`路径已复制: ${path}`);
+        } catch (error) {
+            console.error('Failed to copy path:', error);
+            vscode.window.showErrorMessage('复制路径失败');
+        }
     }
 
     private async loadProjects() {

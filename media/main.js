@@ -235,7 +235,15 @@
                  ${isSelected ? 'checked' : ''}>
           <span class="interface-method ${methodClass}">${iface.method.toUpperCase()}</span>
           <span class="interface-title">${iface.title}</span>
-          <span class="interface-path">${iface.path}</span>
+          <div class="interface-path-container">
+            <button class="copy-path-btn" data-path="${iface.path}" title="复制路径">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+              </svg>
+            </button>
+            <span class="interface-path">${iface.path}</span>
+          </div>
         </div>
       `;
     }).join('');
@@ -289,6 +297,22 @@
         selectAllCheckbox.indeterminate = someSelected && !allSelected;
 
         updateGenerateButtons();
+      });
+    });
+
+    // Add copy path button listeners
+    tableContent.querySelectorAll('.copy-path-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const path = e.currentTarget.dataset.path;
+        
+        // 发送消息给VSCode扩展处理复制和显示提示
+        vscode.postMessage({
+          type: 'copyPath',
+          path: path
+        });
       });
     });
 
