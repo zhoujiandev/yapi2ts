@@ -57,24 +57,7 @@
                 "title": "Generate API",
                 "icon": "$(symbol-method)"
             }
-        ],
-        "configuration": {
-            "title": "YAPI to TypeScript",
-            "properties": {
-                "yapi2ts.yapiUrl": {
-                    "type": "string",
-                    "default": "",
-                    "description": "YAPI 服务器地址",
-                    "scope": "resource"
-                },
-                "yapi2ts.projectToken": {
-                    "type": "string",
-                    "default": "",
-                    "description": "项目 Token",
-                    "scope": "resource"
-                }
-            }
-        }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "pnpm run package",
