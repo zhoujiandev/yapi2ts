@@ -206,26 +206,6 @@ vsce publish
 
 本项目采用 [MIT License](LICENSE) 许可证。
 
-## 🔄 更新日志
-
-### v0.0.1 (2024-01-01)
-
-**🎉 初始版本**
-
-- ✅ 基础的YAPI接口获取功能
-- ✅ TypeScript类型定义生成
-- ✅ 模板化API代码生成
-- ✅ 可视化接口管理界面
-- ✅ 自定义模板管理
-- ✅ 多项目配置支持
-
-## 📞 支持与反馈
-
-- 🐛 [报告Bug](https://github.com/zhoujiandev/yapi2ts/issues)
-- 💡 [功能建议](https://github.com/zhoujiandev/yapi2ts/issues)
-- 📧 邮箱：support@yapi2ts.com
-- 💬 QQ群：123456789
-
 ---
 
 **如果这个插件对你有帮助，请给我们一个⭐️！**
