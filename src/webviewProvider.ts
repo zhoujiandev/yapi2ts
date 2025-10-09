@@ -173,6 +173,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
 
     private async handleLoadInterfaces() {
         try {
+            // 通知 Webview：开始加载接口，展示 loading
+            this._view?.webview.postMessage({
+                type: 'interfacesLoading'
+            });
+
             const { categories, interfaces } = await this.yapiService.getAllInterfaces();
 
             this._view?.webview.postMessage({
@@ -181,6 +186,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 interfaces
             });
         } catch (error) {
+            // 通知 Webview：加载失败，隐藏 loading 并显示错误
+            this._view?.webview.postMessage({
+                type: 'interfacesLoadFailed',
+                error: String(error)
+            });
             vscode.window.showErrorMessage(`加载接口失败: ${error}`);
         }
     }
@@ -410,8 +420,17 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
               <button id="connect-btn" class="btn btn-primary">连接</button>
             </div>
 
-            <div class="interface-section">
-              <div class="interface-tree" id="interface-tree">
+            <div class="interface-search">
+                <input type="text" id="interface-search-input" placeholder="输入接口路径，支持模糊匹配项目中所有接口">
+                <button id="interface-clear-btn" class="btn-icon" title="清空">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                </button>
+                <button id="interface-search-btn" class="btn-icon" title="搜索">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+                </button>
+            </div>
+              <div class="interface-section">
+                <div class="interface-tree" id="interface-tree">
                 <div class="loading">请先选择项目</div>
               </div>
               <div class="interface-table">

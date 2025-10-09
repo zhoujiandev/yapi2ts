@@ -8,6 +8,9 @@
   let currentTemplates = [];
   let currentProjects = [];
   let selectedInterfaces = new Set();
+  // 选中的分类与搜索关键字
+  let selectedCategoryId = null;
+  let interfaceSearchTerm = '';
 
   // DOM Elements
   const tabButtons = document.querySelectorAll('.tab-button');
@@ -23,6 +26,9 @@
   const templateList = document.getElementById('template-list');
   const addProjectBtn = document.getElementById('add-project-btn');
   const projectList = document.getElementById('project-list');
+  const interfaceSearchInput = document.getElementById('interface-search-input');
+  const interfaceSearchBtn = document.getElementById('interface-search-btn');
+  const interfaceClearBtn = document.getElementById('interface-clear-btn');
 
   // Initialize
   init();
@@ -120,6 +126,56 @@
     addProjectBtn.addEventListener('click', () => {
       showProjectEditor();
     });
+
+    // 搜索功能
+    const performSearch = () => {
+      interfaceSearchTerm = interfaceSearchInput.value.trim();
+
+      // 清除当前分类的选中状态，因为是全局搜索
+      if (selectedCategoryId) {
+        const previousSelected = document.querySelector(`.tree-item[data-category-id='${selectedCategoryId}']`);
+        if (previousSelected) {
+          previousSelected.classList.remove('selected');
+        }
+        selectedCategoryId = null;
+      }
+
+      renderInterfaceTree(); // 根据新的搜索词重绘左侧树
+
+      const allInterfaces = Object.values(currentInterfaces).flat();
+      if (interfaceSearchTerm) {
+        const filteredInterfaces = filterInterfacesByPath(allInterfaces, interfaceSearchTerm);
+        renderInterfaceTable(filteredInterfaces); // 在右侧表格显示全局搜索结果
+      } else {
+        renderInterfaceTable(allInterfaces); // 搜索词为空，展示全部接口
+      }
+    };
+
+    interfaceSearchBtn.addEventListener('click', performSearch);
+
+    interfaceSearchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        performSearch();
+      }
+    });
+
+    // 清空搜索
+    if (interfaceClearBtn) {
+      interfaceClearBtn.addEventListener('click', () => {
+        interfaceSearchInput.value = '';
+        interfaceSearchTerm = '';
+        // 清除选中分类，展示全部接口
+        if (selectedCategoryId) {
+          const previousSelected = document.querySelector(`.tree-item[data-category-id='${selectedCategoryId}']`);
+          if (previousSelected) {
+            previousSelected.classList.remove('selected');
+          }
+          selectedCategoryId = null;
+        }
+        renderInterfaceTree();
+        tableContent.innerHTML = '<div class="loading">暂无数据</div>';
+      });
+    }
   }
 
   function switchTab(tabId) {
@@ -176,9 +232,13 @@
 
     const html = currentCategories.map(category => {
       const interfaces = currentInterfaces[category._id] || [];
+      const filtered = filterInterfacesByPath(interfaces, interfaceSearchTerm);
+      const count = interfaceSearchTerm ? filtered.length : interfaces.length;
+      if (interfaceSearchTerm && count === 0) {return ''};
+      const isSelected = Number(selectedCategoryId) === Number(category._id);
       return `
-        <div class="tree-item category" data-category-id="${category._id}">
-          📁 ${category.name} (${interfaces.length})
+        <div class="tree-item category ${isSelected ? 'selected' : ''}" data-category-id="${category._id}">
+          📁 ${category.name} (${count})
         </div>
       `;
     }).join('');
@@ -190,15 +250,30 @@
       item.addEventListener('click', () => {
         const categoryId = parseInt(item.dataset.categoryId);
         selectCategory(categoryId);
-        
-        // Update selected state
-        interfaceTree.querySelectorAll('.tree-item').forEach(i => i.classList.remove('selected'));
-        item.classList.add('selected');
       });
     });
   }
 
   function selectCategory(categoryId) {
+    // 如果当前正在进行全局搜索，则选择分类时应清除搜索词
+    if (interfaceSearchTerm) {
+      interfaceSearchInput.value = '';
+      interfaceSearchTerm = '';
+      renderInterfaceTree(); // 清除搜索后，重绘完整的树
+    }
+
+    if (selectedCategoryId) {
+      const previousSelected = document.querySelector(`.tree-item[data-category-id='${selectedCategoryId}']`);
+      if (previousSelected) {
+        previousSelected.classList.remove('selected');
+      }
+    }
+    selectedCategoryId = categoryId;
+    const selectedElement = document.querySelector(`.tree-item[data-category-id='${categoryId}']`);
+    if (selectedElement) {
+      selectedElement.classList.add('selected');
+    }
+
     const interfaces = currentInterfaces[categoryId] || [];
     renderInterfaceTable(interfaces);
   }
@@ -317,6 +392,16 @@
     });
 
     updateGenerateButtons();
+  }
+
+  // 根据搜索关键字对接口路径进行模糊匹配过滤
+  function filterInterfacesByPath(interfaces, term) {
+    if (!term) {return interfaces;}
+    const tokens = term.toLowerCase().split(/\s+/).filter(Boolean);
+    return interfaces.filter(iface => {
+      const path = String(iface.path || '').toLowerCase();
+      return tokens.every(t => path.includes(t));
+    });
   }
 
   function updateGenerateButtons() {
@@ -746,10 +831,18 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
   // Handle messages from extension
   window.addEventListener('message', event => {
     console.log('收到后端消息message--->', event.data);
-    console.log('消息类型:', event.data.type);
     const message = event.data;
 
     switch (message.type) {
+      case 'interfacesLoading':
+        // 展示加载中状态
+        tableContent.innerHTML = '<div class="loading">暂无数据</div>';
+        selectedCategoryId=null;
+        if (interfaceTree) {
+          interfaceTree.innerHTML = '<div class="loading">正在加载接口...</div>';
+        }
+        break;
+
       case 'configResult':
         connectBtn.disabled = false;
         connectBtn.textContent = '连接';
@@ -766,6 +859,19 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
         currentCategories = message.categories;
         currentInterfaces = message.interfaces;
         renderInterfaceTree();
+        break;
+
+      case 'interfacesLoadFailed':
+        // 加载失败，显示错误并清理加载状态
+        if (interfaceTree) {
+          interfaceTree.innerHTML = '<div class="loading">加载接口失败</div>';
+        }
+        if (tableContent) {
+          tableContent.innerHTML = '';
+        }
+        if (message.error) {
+          showMessage(`加载接口失败: ${message.error}`, 'error');
+        }
         break;
 
       case 'templatesLoaded':

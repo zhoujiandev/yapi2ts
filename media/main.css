@@ -158,6 +158,44 @@
   border-radius: 4px;
 }
 
+.interface-search {
+  display: flex;
+  align-items: center;
+  padding: 0 0 8px;
+}
+
+.interface-search input {
+  flex-grow: 1;
+  padding: 4px;
+  background-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 2px;
+}
+
+.interface-search input::placeholder {
+  color: var(--vscode-input-placeholderForeground);
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--vscode-icon-foreground);
+}
+
+.btn-icon:hover {
+  background-color: var(--vscode-toolbar-hoverBackground);
+}
+
+/* 搜索框内按钮间距 */
+.interface-search .btn-icon {
+  margin-left: 6px;
+}
+
 .table-header {
   padding: 10px;
   border-bottom: 1px solid var(--vscode-panel-border);
