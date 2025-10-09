@@ -15,7 +15,6 @@ export class YapiService {
     public setConfig(yapiUrl: string, projectToken: string) {
         this.baseUrl = yapiUrl;
         this.token = projectToken;
-        // 不再保存到工作区配置，状态管理交给 webview
     }
 
     private async request<T>(endpoint: string, params: Record<string, any> = {}): Promise<T> {
