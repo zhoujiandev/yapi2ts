@@ -106,8 +106,8 @@
   border-radius: 2px;
   cursor: pointer;
   font-size: 12px;
-  margin-right: 6px;
-  margin-bottom: 6px;
+  /* margin-right: 6px;
+  margin-bottom: 6px; */
 }
 
 .btn-primary {
@@ -166,7 +166,7 @@
 .table-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
   flex-wrap: wrap; /* 允许按钮换行 */
   margin-top: 6px;
 }
@@ -178,7 +178,30 @@
   border-radius: 2px;
   padding: 4px 8px;
   font-size: 12px;
-  margin:0 6px 6px 0;
+}
+
+.action-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding:6px;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 4px;
+  background: var(--vscode-panel-background);
+  min-width: 120px;
+}
+
+.action-label {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.api-generation-group {
+  min-width: 200px;
 }
 
 .table-content {

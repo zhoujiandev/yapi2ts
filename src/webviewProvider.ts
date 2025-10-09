@@ -418,11 +418,13 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 <div class="table-header">
                   <h3>接口列表</h3>
                   <div class="table-actions">
-                    <select id="template-select">
-                      <option value="">选择模板</option>
-                    </select>
-                    <button id="generate-types-btn" class="btn btn-primary">生成类型</button>
-                    <button id="generate-api-btn" class="btn btn-primary">生成API</button>
+                    <button id="generate-types-btn" class="btn btn-secondary">生成参数</button>
+                    <div class="action-group api-generation-group">
+                        <select id="template-select">
+                          <option value="">选择模板</option>
+                        </select>
+                        <button id="generate-api-btn" class="btn btn-primary">生成API</button>
+                    </div>
                   </div>
                 </div>
                 <div class="table-content" id="table-content">
