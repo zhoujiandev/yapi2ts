@@ -1,9 +1,9 @@
 {
-    "name": "yapi2ts",
+    "name": "yapi-ts",
     "displayName": "YAPI to TypeScript",
     "description": "Generate TypeScript interfaces and API definitions from YAPI",
     "version": "0.0.1",
-    "publisher": "yapi2ts",
+    "publisher": "zhoujian",
     "repository": "https://github.com/zhoujiandev/yapi2ts",
     "engines": {
         "vscode": "^1.100.0"
