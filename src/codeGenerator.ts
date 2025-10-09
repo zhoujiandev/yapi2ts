@@ -273,21 +273,55 @@ export class CodeGenerator {
         // 从路径生成方法名
         const pathParts = iface.path.split('/').filter(part => part && !part.startsWith('{'));
 
-        let methodName = '';
-        if (pathParts.length > 0) {
-            methodName += pathParts
-                .map(part => {
-                    // 处理蛇形命名转大驼峰：user_info -> UserInfo
-                    return part
-                        .split('_')
-                        .map(
-                            subPart =>
-                                subPart.charAt(0).toUpperCase() +
-                                subPart.slice(1).replace(/[^a-zA-Z0-9]/g, '')
-                        )
-                        .join('');
-                })
-                .join('');
+        if (pathParts.length === 0) {
+            return iface.method.toLowerCase();
+        }
+
+        // 查找版本号（如 v1, v2, v3 等）
+        const versionRegex = /^v\d+$/i;
+        let version = '';
+        let lastSegment = '';
+
+        // 找到最后一个非版本号的路由段作为主要方法名
+        for (let i = pathParts.length - 1; i >= 0; i--) {
+            const part = pathParts[i];
+            if (versionRegex.test(part)) {
+                version = part;
+            } else if (!lastSegment) {
+                lastSegment = part;
+            }
+            if (version && lastSegment) {
+                break;
+            }
+        }
+
+        if (!lastSegment) {
+            return iface.method.toLowerCase();
+        }
+
+        // 处理蛇形命名转驼峰：get_slicing_status -> getSlicingStatus
+        const camelCaseSegment = lastSegment
+            .split('_')
+            .map((subPart, index) => {
+                const cleanPart = subPart.replace(/[^a-zA-Z0-9]/g, '');
+                return index === 0
+                    ? cleanPart.toLowerCase()
+                    : cleanPart.charAt(0).toUpperCase() + cleanPart.slice(1).toLowerCase();
+            })
+            .join('');
+
+        const method = iface.method.toLowerCase();
+
+        // 检查是否已经包含方法前缀，避免重复
+        let methodName = camelCaseSegment;
+        if (!camelCaseSegment.toLowerCase().startsWith(method)) {
+            methodName =
+                method + camelCaseSegment.charAt(0).toUpperCase() + camelCaseSegment.slice(1);
+        }
+
+        // 如果有版本号，添加到方法名后面
+        if (version) {
+            methodName += version.toUpperCase();
         }
 
         return methodName;
