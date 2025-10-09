@@ -302,14 +302,14 @@
   flex-direction: column;
 }
 
-.template-header {
+.template-header,.project-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
 
-.template-header h3 {
+.template-header h3,.project-header h3 {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
