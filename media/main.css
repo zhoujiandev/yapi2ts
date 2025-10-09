@@ -1,5 +1,6 @@
 /* Main Styles */
 .container {
+  box-sizing: border-box;
   padding: 10px;
   height: 100vh;
   display: flex;
