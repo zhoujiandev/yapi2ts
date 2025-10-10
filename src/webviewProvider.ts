@@ -140,6 +140,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             case 'copyPath':
                 await this.handleCopyPath(message.path);
                 break;
+            case 'copyYapiUrl':
+                await this.handleCopyYapiUrl(message.interfaceId);
+                break;
         }
     }
 
@@ -151,15 +154,20 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             await this.context.globalState.update('yapi2ts.yapiUrl', yapiUrl);
             await this.context.globalState.update('yapi2ts.projectToken', projectToken);
 
-            const isConnected = await this.yapiService.testConnection();
+            const connectionResult = await this.yapiService.testConnection();
 
             this._view?.webview.postMessage({
                 type: 'configResult',
-                success: isConnected,
-                message: isConnected ? '连接成功' : '连接失败，请检查配置'
+                success: connectionResult.success,
+                message: connectionResult.success ? '连接成功' : '连接失败，请检查配置'
             });
 
-            if (isConnected) {
+            if (connectionResult.success && connectionResult.project) {
+                // 保存项目信息到 globalState
+                await this.context.globalState.update(
+                    'yapi2ts.projectInfo',
+                    connectionResult.project
+                );
                 await this.handleLoadInterfaces();
             }
         } catch (error) {
@@ -352,6 +360,28 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         } catch (error) {
             console.error('Failed to copy path:', error);
             vscode.window.showErrorMessage('复制路径失败');
+        }
+    }
+
+    private async handleCopyYapiUrl(interfaceId: string) {
+        try {
+            // 获取当前配置的YAPI URL和项目信息
+            const yapiUrl = this.context.globalState.get<string>('yapi2ts.yapiUrl', '');
+            const projectInfo = this.context.globalState.get<any>('yapi2ts.projectInfo');
+
+            if (!yapiUrl || !projectInfo) {
+                vscode.window.showErrorMessage('请先配置YAPI地址和项目Token');
+                return;
+            }
+
+            // 构建YAPI接口地址
+            const yapiInterfaceUrl = `${yapiUrl}/project/${projectInfo._id}/interface/api/${interfaceId}`;
+
+            await vscode.env.clipboard.writeText(yapiInterfaceUrl);
+            vscode.window.showInformationMessage(`YAPI接口地址已复制: ${yapiInterfaceUrl}`);
+        } catch (error) {
+            console.error('Failed to copy YAPI URL:', error);
+            vscode.window.showErrorMessage('复制YAPI接口地址失败');
         }
     }
 

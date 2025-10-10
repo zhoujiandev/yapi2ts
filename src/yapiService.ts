@@ -101,14 +101,14 @@ export class YapiService {
     }
 
     /**
-     * 测试连接
+     * 测试连接并获取项目信息
      */
-    async testConnection(): Promise<boolean> {
+    async testConnection(): Promise<{ success: boolean; project?: YapiProject }> {
         try {
-            await this.getProject();
-            return true;
+            const project = await this.getProject();
+            return { success: true, project };
         } catch (error) {
-            return false;
+            return { success: false };
         }
     }
 
