@@ -156,6 +156,7 @@
   background: var(--vscode-panel-background);
   border: 1px solid var(--vscode-panel-border);
   border-radius: 4px;
+  overflow: hidden;
 }
 
 .interface-search {
@@ -308,6 +309,10 @@
   margin-right: 8px;
 }
 
+.header-title{
+  min-width: 60px;
+}
+
 .interface-table-header .header-path {
   color: var(--vscode-descriptionForeground);
   font-family: monospace;
@@ -378,6 +383,7 @@
   margin-right: 8px;
   min-width: 40px;
   text-align: center;
+  flex-shrink: 0; /* 不允许收缩 */
 }
 
 .method-get { background: #28a745; color: white; }
@@ -388,6 +394,10 @@
 .interface-title {
   flex: 1;
   margin-right: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 60px; /* 允许缩小到内容宽度以下 */
 }
 
 .interface-path {
