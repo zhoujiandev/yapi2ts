@@ -59,7 +59,7 @@ export class CodeGenerator {
                 if (field.comment) {
                     interfaceResult += `  /** ${field.comment} */\n`;
                 }
-                interfaceResult += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
+                interfaceResult += `  "${fieldName}"${field.optional ? '?' : ''}: ${field.type};\n`;
             });
             interfaceResult += '}\n\n';
 
@@ -75,7 +75,7 @@ export class CodeGenerator {
                         if (field.comment) {
                             interfaceResult += `  /** ${field.comment} */\n`;
                         }
-                        interfaceResult += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
+                        interfaceResult += `  "${fieldName}"${field.optional ? '?' : ''}: ${field.type};\n`;
                     });
                     interfaceResult += '}\n\n';
                 } catch (error) {
@@ -251,7 +251,7 @@ export class CodeGenerator {
                             const isRequired = schema.required && schema.required.includes(key);
                             const optional = isRequired ? '' : '?';
                             const type = this.getTypeScriptType(prop);
-                            return `${key}${optional}: ${type}`;
+                            return `"${key}"${optional}: ${type}`;
                         })
                         .join('; ');
                     return `{ ${properties} }`;
