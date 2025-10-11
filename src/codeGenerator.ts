@@ -54,16 +54,14 @@ export class CodeGenerator {
             }
 
             // 生成请求参数类型定义
-            if (mergedFields.size > 0) {
-                interfaceResult += `// ${iface.title} - 请求参数类型\nexport interface ${requestTypeName} {\n`;
-                Array.from(mergedFields.entries()).forEach(([fieldName, field]) => {
-                    if (field.comment) {
-                        interfaceResult += `  /** ${field.comment} */\n`;
-                    }
-                    interfaceResult += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
-                });
-                interfaceResult += '}\n\n';
-            }
+            interfaceResult += `// ${iface.title} - 请求参数类型\nexport interface ${requestTypeName} {\n`;
+            Array.from(mergedFields.entries()).forEach(([fieldName, field]) => {
+                if (field.comment) {
+                    interfaceResult += `  /** ${field.comment} */\n`;
+                }
+                interfaceResult += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
+            });
+            interfaceResult += '}\n\n';
 
             // 生成响应参数类型定义
             if (iface.res_body && iface.res_body_is_json_schema) {
@@ -72,16 +70,14 @@ export class CodeGenerator {
                     const responseFields = this.generateTypeFieldsFromJsonSchema(
                         JSON.parse(iface.res_body)
                     );
-                    if (responseFields.size > 0) {
-                        interfaceResult += `// ${iface.title} - 响应参数类型\nexport interface ${responseTypeName} {\n`;
-                        Array.from(responseFields.entries()).forEach(([fieldName, field]) => {
-                            if (field.comment) {
-                                interfaceResult += `  /** ${field.comment} */\n`;
-                            }
-                            interfaceResult += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
-                        });
-                        interfaceResult += '}\n\n';
-                    }
+                    interfaceResult += `// ${iface.title} - 响应参数类型\nexport interface ${responseTypeName} {\n`;
+                    Array.from(responseFields.entries()).forEach(([fieldName, field]) => {
+                        if (field.comment) {
+                            interfaceResult += `  /** ${field.comment} */\n`;
+                        }
+                        interfaceResult += `  ${fieldName}${field.optional ? '?' : ''}: ${field.type};\n`;
+                    });
+                    interfaceResult += '}\n\n';
                 } catch (error) {
                     console.warn(`Failed to parse response body schema for ${iface.title}:`, error);
                 }
