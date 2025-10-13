@@ -21,6 +21,27 @@ jobs:
         with:
           version: latest
 
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Validate version format
+        run: |
+          VERSION=${{ steps.get_version.outputs.version }}
+          if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Invalid version format '$VERSION'. Expected format: x.y.z"
+            exit 1
+          fi
+          echo "Version format is valid: $VERSION"
+
+      - name: Update package.json version
+        run: |
+          npm version ${{ steps.get_version.outputs.version }} --no-git-tag-version
+          echo "Updated package.json version to ${{ steps.get_version.outputs.version }}"
+
       - name: Install dependencies
         run: pnpm install
 
