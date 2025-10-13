@@ -188,7 +188,7 @@ packages:
   '@types/node@22.18.6':
     resolution: {integrity: sha512-r8uszLPpeIWbNKtvWRt/DbVi5zbqZyj1PTmhRMqBMvDnaz1QpmSKujUtJLrqGZeoM8v72MfYggDceY4K1itzWQ==}
 
-  '@types/vscode@1.104.0':
+  '@types/vscode@1.100.0':
     resolution: {integrity: sha512-0KwoU2rZ2ecsTGFxo4K1+f+AErRsYW0fsp6A0zufzGuhyczc2IoKqYqcwXidKXmy2u8YB2GsYsOtiI9Izx3Tig==}
 
   '@typescript-eslint/eslint-plugin@8.44.1':
@@ -1612,7 +1612,7 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/vscode@1.104.0': {}
+  '@types/vscode@1.100.0': {}
 
   '@typescript-eslint/eslint-plugin@8.44.1(@typescript-eslint/parser@8.44.1(eslint@9.36.0)(typescript@5.9.2))(eslint@9.36.0)(typescript@5.9.2)':
     dependencies:
