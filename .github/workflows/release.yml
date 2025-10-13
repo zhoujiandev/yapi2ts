@@ -8,6 +8,9 @@ on:
 jobs:
     publish:
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            id-token: write
         steps:
             - uses: actions/checkout@v4
               with:
@@ -49,10 +52,13 @@ jobs:
               run: |
                   git config --local user.email "action@github.com"
                   git config --local user.name "GitHub Action"
-                  git checkout master
                   git add package.json
-                  git commit -m "chore: update version to ${{ steps.get_version.outputs.version }}" || echo "No changes to commit"
-                  git push origin master || echo "Failed to push changes"
+                  if git diff --staged --quiet; then
+                    echo "No changes to commit"
+                  else
+                    git commit -m "chore: update version to ${{ steps.get_version.outputs.version }}"
+                    git push origin HEAD:master
+                  fi
 
             - name: Install dependencies
               run: pnpm install
