@@ -30,5 +30,9 @@ jobs:
       - name: Publish to VSCode Marketplace
         run: npx @vscode/vsce publish -p ${{ secrets.VSCE_TOKEN }}
 
+      - name: Create Open VSX namespace (if needed)
+        run: npx ovsx create-namespace zhoujian -p ${{ secrets.OVSX_TOKEN }}
+        continue-on-error: true
+
       - name: Publish to Open VSX
         run: npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
