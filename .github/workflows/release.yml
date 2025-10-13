@@ -9,15 +9,26 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
+
+      - name: Run tests
+        run: pnpm run test
+
+      - name: Build and package extension
+        run: pnpm run package
 
       - name: Package extension
         run: npx vsce package
