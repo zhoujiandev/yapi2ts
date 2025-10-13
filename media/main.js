@@ -270,6 +270,9 @@
       renderInterfaceTree(); // 清除搜索后，重绘完整的树
     }
 
+    // 切换目录时清空所有选中的接口
+    selectedInterfaces.clear();
+
     if (selectedCategoryId) {
       const previousSelected = document.querySelector(`.tree-item[data-category-id='${selectedCategoryId}']`);
       if (previousSelected) {
@@ -437,6 +440,12 @@
     const hasSelection = selectedInterfaces.size > 0;
     generateTypesBtn.disabled = !hasSelection;
     generateApiBtn.disabled = !hasSelection || !templateSelect.value;
+    
+    // 更新选中数量显示
+    const selectedCountElement = document.getElementById('selected-count');
+    if (selectedCountElement) {
+      selectedCountElement.textContent = `(已选中 ${selectedInterfaces.size} 个)`;
+    }
   }
 
   function renderTemplateSelect() {

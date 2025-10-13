@@ -492,7 +492,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
               </div>
               <div class="interface-table">
                 <div class="table-header">
-                  <h3>接口列表</h3>
+                  <h3>接口列表 <span id="selected-count" class="selected-count">(已选中 0 个)</span></h3>
                   <div class="table-actions">
                     <button id="generate-types-btn" class="btn btn-secondary">复制参数</button>
                     <div class="action-group api-generation-group">
