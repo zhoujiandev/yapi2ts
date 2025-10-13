@@ -27,9 +27,6 @@ jobs:
       - name: Build and package extension
         run: pnpm run package
 
-      - name: Package extension
-        run: npx vsce package
-
       - name: Publish to VSCode Marketplace
         run: npx vsce publish -p ${{ secrets.VSCE_TOKEN }}
 
