@@ -49,9 +49,10 @@ jobs:
               run: |
                   git config --local user.email "action@github.com"
                   git config --local user.name "GitHub Action"
+                  git checkout master
                   git add package.json
                   git commit -m "chore: update version to ${{ steps.get_version.outputs.version }}" || echo "No changes to commit"
-                  git push || echo "Failed to push changes"
+                  git push origin master || echo "Failed to push changes"
 
             - name: Install dependencies
               run: pnpm install
