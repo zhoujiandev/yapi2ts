@@ -14,7 +14,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -28,7 +28,7 @@ jobs:
         run: pnpm run package
 
       - name: Publish to VSCode Marketplace
-        run: npx vsce publish -p ${{ secrets.VSCE_TOKEN }}
+        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_TOKEN }}
 
       - name: Publish to Open VSX
         run: npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
