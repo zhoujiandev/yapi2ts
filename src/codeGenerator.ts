@@ -251,10 +251,14 @@ export class CodeGenerator {
                             const isRequired = schema.required && schema.required.includes(key);
                             const optional = isRequired ? '' : '?';
                             const type = this.getTypeScriptType(prop);
+                            // 如果有描述信息，添加注释（换行格式）
+                            if (prop.description) {
+                                return `\n  /** ${prop.description} */\n  "${key}"${optional}: ${type}`;
+                            }
                             return `"${key}"${optional}: ${type}`;
                         })
                         .join('; ');
-                    return `{ ${properties} }`;
+                    return `{${properties}\n}`;
                 }
                 return 'Record<string, any>';
             default:
