@@ -1,67 +1,70 @@
 name: Publish Extension
 
 on:
-  push:
-    tags:
-      - 'v*'
+    push:
+        tags:
+            - 'v*'
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
+            - name: Install pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                  version: latest
 
-      - name: Extract version from tag
-        id: get_version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
+            - name: Extract version from tag
+              id: get_version
+              run: |
+                  VERSION=${GITHUB_REF#refs/tags/v}
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "Extracted version: $VERSION"
 
-      - name: Validate version format
-        run: |
-          VERSION=${{ steps.get_version.outputs.version }}
-          if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Error: Invalid version format '$VERSION'. Expected format: x.y.z"
-            exit 1
-          fi
-          echo "Version format is valid: $VERSION"
+            - name: Validate version format
+              run: |
+                  VERSION=${{ steps.get_version.outputs.version }}
+                  if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                    echo "Error: Invalid version format '$VERSION'. Expected format: x.y.z"
+                    exit 1
+                  fi
+                  echo "Version format is valid: $VERSION"
 
-      - name: Update package.json version
-        run: |
-          npm version ${{ steps.get_version.outputs.version }} --no-git-tag-version
-          echo "Updated package.json version to ${{ steps.get_version.outputs.version }}"
+            - name: Update package.json version
+              run: |
+                  npm version ${{ steps.get_version.outputs.version }} --no-git-tag-version
+                  echo "Updated package.json version to ${{ steps.get_version.outputs.version }}"
 
-      - name: Commit version update
-        run: |
-          git config --local user.email "zhoujian.dev@gmail.com"
-          git config --local user.name "zhoujiandev"
-          git add package.json
-          git commit -m "chore: update version to ${{ steps.get_version.outputs.version }}" || echo "No changes to commit"
-          git push origin HEAD:master || echo "Failed to push changes"
+            - name: Commit version update
+              run: |
+                  git config --local user.email "action@github.com"
+                  git config --local user.name "GitHub Action"
+                  git add package.json
+                  git commit -m "chore: update version to ${{ steps.get_version.outputs.version }}" || echo "No changes to commit"
+                  git push || echo "Failed to push changes"
 
-      - name: Install dependencies
-        run: pnpm install
+            - name: Install dependencies
+              run: pnpm install
 
-      - name: Build and package extension
-        run: pnpm run package
+            - name: Build and package extension
+              run: pnpm run package
 
-      - name: Publish to VSCode Marketplace
-        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_TOKEN }}
+            - name: Publish to VSCode Marketplace
+              run: npx @vscode/vsce publish -p ${{ secrets.VSCE_TOKEN }}
 
-      - name: Create Open VSX namespace (if needed)
-        run: npx ovsx create-namespace zhoujian -p ${{ secrets.OVSX_TOKEN }}
-        continue-on-error: true
+            - name: Create Open VSX namespace (if needed)
+              run: npx ovsx create-namespace zhoujian -p ${{ secrets.OVSX_TOKEN }}
+              continue-on-error: true
 
-      - name: Publish to Open VSX
-        run: npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
+            - name: Publish to Open VSX
+              run: npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
