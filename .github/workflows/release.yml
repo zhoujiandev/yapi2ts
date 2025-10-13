@@ -42,6 +42,14 @@ jobs:
           npm version ${{ steps.get_version.outputs.version }} --no-git-tag-version
           echo "Updated package.json version to ${{ steps.get_version.outputs.version }}"
 
+      - name: Commit version update
+        run: |
+          git config --local user.email "zhoujian.dev@gmail.com"
+          git config --local user.name "zhoujiandev"
+          git add package.json
+          git commit -m "chore: update version to ${{ steps.get_version.outputs.version }}" || echo "No changes to commit"
+          git push origin HEAD:master || echo "Failed to push changes"
+
       - name: Install dependencies
         run: pnpm install
 
