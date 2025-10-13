@@ -211,10 +211,20 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             // 复制到剪贴板
             await vscode.env.clipboard.writeText(typeDefinitions);
 
-            vscode.window.showInformationMessage(
-                `已复制 ${interfaceIds.length} 个接口的类型定义到剪贴板`
-            );
+            // 发送成功消息给前端
+            this._view?.webview.postMessage({
+                type: 'generateTypesResult',
+                success: true,
+                message: `已复制 ${interfaceIds.length} 个接口的类型定义到剪贴板`
+            });
         } catch (error) {
+            // 发送失败消息给前端
+            this._view?.webview.postMessage({
+                type: 'generateTypesResult',
+                success: false,
+                message: `生成类型定义失败: ${error}`
+            });
+
             vscode.window.showErrorMessage(`生成类型定义失败: ${error}`);
         }
     }
@@ -225,6 +235,13 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             const template = this.templates.find(t => t.id === templateId);
 
             if (!template) {
+                // 发送失败消息给前端
+                this._view?.webview.postMessage({
+                    type: 'generateApiResult',
+                    success: false,
+                    message: '未找到指定的模板'
+                });
+
                 vscode.window.showErrorMessage('未找到指定的模板');
                 return;
             }
@@ -234,10 +251,20 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             // 复制到剪贴板
             await vscode.env.clipboard.writeText(apiDefinitions);
 
-            vscode.window.showInformationMessage(
-                `已复制 ${interfaceIds.length} 个接口的API定义到剪贴板`
-            );
+            // 发送成功消息给前端
+            this._view?.webview.postMessage({
+                type: 'generateApiResult',
+                success: true,
+                message: `已复制 ${interfaceIds.length} 个接口的API定义到剪贴板`
+            });
         } catch (error) {
+            // 发送失败消息给前端
+            this._view?.webview.postMessage({
+                type: 'generateApiResult',
+                success: false,
+                message: `生成API定义失败: ${error}`
+            });
+
             vscode.window.showErrorMessage(`生成API定义失败: ${error}`);
         }
     }
@@ -467,12 +494,12 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 <div class="table-header">
                   <h3>接口列表</h3>
                   <div class="table-actions">
-                    <button id="generate-types-btn" class="btn btn-secondary">生成参数</button>
+                    <button id="generate-types-btn" class="btn btn-secondary">复制参数</button>
                     <div class="action-group api-generation-group">
                         <select id="template-select">
                           <option value="">选择模板</option>
                         </select>
-                        <button id="generate-api-btn" class="btn btn-primary">生成API</button>
+                        <button id="generate-api-btn" class="btn btn-primary">复制API</button>
                     </div>
                   </div>
                 </div>

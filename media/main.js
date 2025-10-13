@@ -92,6 +92,10 @@
         return;
       }
 
+      // 设置loading状态
+      generateTypesBtn.disabled = true;
+      generateTypesBtn.textContent = '生成中...';
+
       vscode.postMessage({
         type: 'generateTypes',
         interfaceIds: Array.from(selectedInterfaces)
@@ -109,6 +113,10 @@
         showMessage('请选择模板', 'error');
         return;
       }
+
+      // 设置loading状态
+      generateApiBtn.disabled = true;
+      generateApiBtn.textContent = '生成中...';
 
       vscode.postMessage({
         type: 'generateApi',
@@ -937,6 +945,30 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
             projectSelect.value = project.id;
             saveConfig();
           }
+        }
+        break;
+
+      case 'generateTypesResult':
+        // 恢复按钮状态
+        generateTypesBtn.disabled = false;
+        generateTypesBtn.textContent = '复制参数';
+        
+        if (message.success) {
+          showMessage(message.message, 'success');
+        } else {
+          showMessage(message.message, 'error');
+        }
+        break;
+
+      case 'generateApiResult':
+        // 恢复按钮状态
+        generateApiBtn.disabled = false;
+        generateApiBtn.textContent = '复制API';
+        
+        if (message.success) {
+          showMessage(message.message, 'success');
+        } else {
+          showMessage(message.message, 'error');
         }
         break;
     }
