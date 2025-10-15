@@ -141,6 +141,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             case 'copyYapiUrl':
                 await this.handleCopyYapiUrl(message.interfaceId);
                 break;
+            case 'copyTemplate':
+                await this.handleCopyTemplate(message.content);
+                break;
         }
     }
 
@@ -411,6 +414,16 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         } catch (error) {
             console.error('Failed to copy YAPI URL:', error);
             vscode.window.showErrorMessage('复制YAPI接口地址失败');
+        }
+    }
+
+    private async handleCopyTemplate(content: string) {
+        try {
+            await vscode.env.clipboard.writeText(content);
+            vscode.window.showInformationMessage('模板内容已复制到剪贴板');
+        } catch (error) {
+            console.error('Failed to copy template:', error);
+            vscode.window.showErrorMessage('复制模板内容失败');
         }
     }
 

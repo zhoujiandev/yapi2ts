@@ -712,6 +712,34 @@
   gap: 4px;
 }
 
+.copy-template-btn {
+  background: transparent;
+  border: 1px solid var(--vscode-button-border);
+  color: var(--vscode-button-foreground);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.copy-template-btn:hover {
+  background-color: var(--vscode-button-hoverBackground);
+  border-color: var(--vscode-button-hoverBackground);
+}
+
+.copy-template-btn:active {
+  background-color: var(--vscode-button-secondaryBackground);
+}
+
+.copy-template-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
 .template-description {
   color: var(--vscode-descriptionForeground);
   font-size: 12px;

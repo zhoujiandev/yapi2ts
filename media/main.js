@@ -489,6 +489,13 @@
         <div class="template-item-header">
           <span class="template-name">${template.name}</span>
           <div class="template-actions">
+            <button class="btn btn-secondary copy-template-btn" data-template-id="${template.id}" title="复制模板内容">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+              </svg>
+              复制
+            </button>
             <button class="btn btn-secondary edit-template-btn" data-template-id="${template.id}">编辑</button>
             <button class="btn btn-secondary delete-template-btn" data-template-id="${template.id}">删除</button>
           </div>
@@ -501,6 +508,24 @@
     templateList.innerHTML = html;
 
     // 添加事件监听器
+    templateList.querySelectorAll('.copy-template-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const templateId = e.target.closest('.copy-template-btn').dataset.templateId;
+        const template = currentTemplates.find(t => t.id === templateId);
+        
+        if (template) {
+          // 发送消息给VSCode扩展处理复制模板内容
+          vscode.postMessage({
+            type: 'copyTemplate',
+            content: template.content
+          });
+        }
+      });
+    });
+
     templateList.querySelectorAll('.edit-template-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const templateId = e.target.dataset.templateId;

@@ -361,8 +361,8 @@ export class CodeGenerator {
                 name: 'Axios Template',
                 description: '这是一个axios请求模版',
                 content: `/**
- * @description：{{description}}
- * @url：{{interfaceUrl}}
+ * @description {{title}}
+ * @url {{interfaceUrl}}
  */
 export const {{methodName}} = (params: {{paramsTypeName}}): Promise<{{responseTypeName}}> => {
   return axios.{{lowerCaseMethod}}('{{path}}',params)
