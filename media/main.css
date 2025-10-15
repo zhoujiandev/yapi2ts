@@ -585,6 +585,21 @@
 .method-put { background: #ffc107; color: black; }
 .method-delete { background: #dc3545; color: white; }
 
+.interface-status {
+  font-size: 14px;
+  margin-right: 6px;
+  flex-shrink: 0;
+  cursor: help;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+
+.interface-status:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
 .interface-title {
   flex: 1;
   margin-right: 8px;

@@ -31,6 +31,17 @@
   const interfaceSearchBtn = document.getElementById('interface-search-btn');
   const interfaceClearBtn = document.getElementById('interface-clear-btn');
 
+  // 状态标识映射函数
+  function getStatusIndicator(status) {
+    const statusMap = {
+      'done': { emoji: '🟢', text: '已发布' },
+      'undone': { emoji: '🟡', text: '开发中' },
+      'deprecated': { emoji: '🔴', text: '已废弃' }
+    };
+    
+    return statusMap[status] || { emoji: '🟡', text: '开发中' };
+  }
+
   // Initialize
   init();
 
@@ -332,6 +343,7 @@
     const interfaceRows = interfaces.map(iface => {
       const methodClass = `method-${iface.method.toLowerCase()}`;
       const isSelected = selectedInterfaces.has(iface._id);
+      const statusIndicator = getStatusIndicator(iface.status);
       
       return `
         <div class="interface-item">
@@ -339,6 +351,7 @@
                  data-interface-id="${iface._id}" 
                  ${isSelected ? 'checked' : ''}>
           <span class="interface-method ${methodClass}">${iface.method.toUpperCase()}</span>
+          <span class="interface-status" title="${statusIndicator.text}">${statusIndicator.emoji}</span>
           <span class="interface-title">${iface.title}</span>
           <div class="interface-path-container">
             <button class="copy-path-btn" data-path="${iface.path}" title="复制路径">
