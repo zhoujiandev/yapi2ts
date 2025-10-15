@@ -1005,6 +1005,76 @@
 }
 
 
+/* Template Variables Styles */
+.template-variables {
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.variable-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  background: var(--vscode-list-inactiveSelectionBackground);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.variable-item:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.variable-item:last-child {
+  margin-bottom: 0;
+}
+
+.variable-name {
+  font-family: var(--vscode-editor-font-family);
+  font-size: 12px;
+  color: var(--vscode-textPreformat-foreground);
+  background: var(--vscode-textCodeBlock-background);
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-right: 8px;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.variable-desc {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+  flex: 1;
+  margin-right: 8px;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 2px;
+  font-size: 12px;
+  color: var(--vscode-button-secondaryForeground);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+  transform: scale(1.1);
+}
+
+.copy-btn:active {
+  transform: scale(0.95);
+}
+
+
 /* Toast Notifications */
 .toast {
   position: fixed;

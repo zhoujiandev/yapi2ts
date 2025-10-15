@@ -564,6 +564,51 @@
             <input type="text" id="template-description" value="${template?.description || ''}" placeholder="请输入模板描述（可选）">
           </div>
           <div class="form-group">
+            <label>支持的变量:</label>
+            <div class="template-variables">
+              <div class="variable-item" data-variable="{{methodName}}">
+                <span class="variable-name">{{methodName}}</span>
+                <span class="variable-desc">方法名称 (如: getUserInfo)</span>
+                <button class="copy-btn" title="点击复制">📋</button>
+              </div>
+              <div class="variable-item" data-variable="{{title}}">
+                <span class="variable-name">{{title}}</span>
+                <span class="variable-desc">接口标题 (如: 获取用户信息)</span>
+                <button class="copy-btn" title="点击复制">📋</button>
+              </div>
+              <div class="variable-item" data-variable="{{path}}">
+                <span class="variable-name">{{path}}</span>
+                <span class="variable-desc">接口路径 (如: /api/user/info)</span>
+                <button class="copy-btn" title="点击复制">📋</button>
+              </div>
+              <div class="variable-item" data-variable="{{method}}">
+                <span class="variable-name">{{method}}</span>
+                <span class="variable-desc">HTTP方法大写 (如: GET, POST)</span>
+                <button class="copy-btn" title="点击复制">📋</button>
+              </div>
+              <div class="variable-item" data-variable="{{lowerCaseMethod}}">
+                <span class="variable-name">{{lowerCaseMethod}}</span>
+                <span class="variable-desc">HTTP方法小写 (如: get, post)</span>
+                <button class="copy-btn" title="点击复制">📋</button>
+              </div>
+              <div class="variable-item" data-variable="{{responseTypeName}}">
+                <span class="variable-name">{{responseTypeName}}</span>
+                <span class="variable-desc">响应类型名 (如: GetUserInfoResponse)</span>
+                <button class="copy-btn" title="点击复制">📋</button>
+              </div>
+              <div class="variable-item" data-variable="{{paramsTypeName}}">
+                <span class="variable-name">{{paramsTypeName}}</span>
+                <span class="variable-desc">参数类型名 (如: GetUserInfoParams)</span>
+                <button class="copy-btn" title="点击复制">📋</button>
+              </div>
+              <div class="variable-item" data-variable="{{interfaceUrl}}">
+                <span class="variable-name">{{interfaceUrl}}</span>
+                <span class="variable-desc">YAPI接口详情页URL</span>
+                <button class="copy-btn" title="点击复制">📋</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
             <label for="template-content">模板内容:</label>
             <textarea id="template-content" rows="15" placeholder="请输入模板内容">${template?.content || (currentTemplates.length > 0 ? currentTemplates[0].content : '')}</textarea>
           </div>
@@ -591,6 +636,43 @@
 
     closeBtn.addEventListener('click', closeModal);
     cancelBtn.addEventListener('click', closeModal);
+
+    // 添加变量复制功能
+    const copyButtons = modal.querySelectorAll('.copy-btn');
+    copyButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const variableItem = btn.closest('.variable-item');
+        const variable = variableItem.dataset.variable;
+        
+        // 复制到剪贴板
+        navigator.clipboard.writeText(variable).then(() => {
+          // 显示复制成功提示
+          btn.textContent = '✅';
+          btn.style.color = '#28a745';
+          setTimeout(() => {
+            btn.textContent = '📋';
+            btn.style.color = '';
+          }, 1000);
+        }).catch(() => {
+          // 降级方案：使用传统方法复制
+          const textArea = document.createElement('textarea');
+          textArea.value = variable;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          
+          // 显示复制成功提示
+          btn.textContent = '✅';
+          btn.style.color = '#28a745';
+          setTimeout(() => {
+            btn.textContent = '📋';
+            btn.style.color = '';
+          }, 1000);
+        });
+      });
+    });
 
     saveBtn.addEventListener('click', () => {
       const name = nameInput.value.trim();
