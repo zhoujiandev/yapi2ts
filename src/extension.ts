@@ -27,33 +27,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     // 强制显示视图容器
     vscode.commands.executeCommand('workbench.view.extension.yapi2ts');
-
-    // 注册命令
-    const openPanelCommand = vscode.commands.registerCommand('yapi2ts.openPanel', () => {
-        // 显示YAPI侧边栏视图
-        vscode.commands.executeCommand('workbench.view.extension.yapi2ts');
-    });
-
-    const refreshCommand = vscode.commands.registerCommand('yapi2ts.refresh', () => {
-        // 刷新WebView
-        vscode.window.showInformationMessage('Refreshing YAPI interfaces...');
-    });
-
-    const generateTypesCommand = vscode.commands.registerCommand('yapi2ts.generateTypes', () => {
-        vscode.window.showInformationMessage('Generate Types command executed!');
-    });
-
-    const generateApiCommand = vscode.commands.registerCommand('yapi2ts.generateApi', () => {
-        vscode.window.showInformationMessage('Generate API command executed!');
-    });
-
-    // 添加命令到订阅列表
-    context.subscriptions.push(
-        openPanelCommand,
-        refreshCommand,
-        generateTypesCommand,
-        generateApiCommand
-    );
 }
 
 // This method is called when your extension is deactivated
