@@ -35,7 +35,14 @@
                     "when": "true"
                 }
             ]
-        }
+        },
+        "commands": [
+            {
+                "command": "yapi2ts.resetTemplates",
+                "title": "YAPI to TypeScript: Reset Templates",
+                "category": "YAPI to TypeScript"
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "pnpm run package",

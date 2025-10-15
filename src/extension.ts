@@ -25,6 +25,24 @@ export function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(disposable);
 
+    // 注册重置模板的命令
+    const resetTemplatesCommand = vscode.commands.registerCommand(
+        'yapi2ts.resetTemplates',
+        async () => {
+            try {
+                // 重置模板到默认状态
+                await context.globalState.update('yapi2ts.templates', undefined);
+
+                vscode.window.showInformationMessage(
+                    'YAPI to TypeScript: 模板已重置，重新加载插件后生效'
+                );
+            } catch (error) {
+                vscode.window.showErrorMessage(`重置模板失败: ${error}`);
+            }
+        }
+    );
+    context.subscriptions.push(resetTemplatesCommand);
+
     // 强制显示视图容器
     vscode.commands.executeCommand('workbench.view.extension.yapi2ts');
 }
