@@ -306,6 +306,7 @@
   overflow-y: auto;
   opacity: 1;
   transition: opacity 0.3s ease;
+  padding:8px 0;
 }
 
 .interface-tree.collapsed .tree-content {
