@@ -540,7 +540,7 @@
           </div>
           <div class="form-group">
             <label for="template-content">模板内容:</label>
-            <textarea id="template-content" rows="15" placeholder="请输入模板内容">${template?.content || getDefaultTemplateContent()}</textarea>
+            <textarea id="template-content" rows="15" placeholder="请输入模板内容">${template?.content || (currentTemplates.length > 0 ? currentTemplates[0].content : '')}</textarea>
           </div>
         </div>
         <div class="template-modal-footer">
@@ -678,20 +678,6 @@
         templateId
       });
     });
-  }
-
-  function getDefaultTemplateContent() {
-    return `/**
- * {{description}}
- */
-export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#if requestType}}{{#if queryType}}, {{/if}}data: {{requestType}}{{/if}}): Promise<{{responseType}}> => {
-  return request({
-    url: '{{path}}',
-    method: '{{method}}',{{#if queryType}}
-    params,{{/if}}{{#if requestType}}
-    data,{{/if}}
-  });
-};`;
   }
 
   function generateId() {
