@@ -18,6 +18,7 @@
   const projectSelect = document.getElementById('project-select');
   const connectBtn = document.getElementById('connect-btn');
   const interfaceTree = document.getElementById('interface-tree');
+  const treeToggleBtn = document.getElementById('tree-toggle-btn');
   const tableContent = document.getElementById('table-content');
   const generateTypesBtn = document.getElementById('generate-types-btn');
   const generateApiBtn = document.getElementById('generate-api-btn');
@@ -58,6 +59,21 @@
         switchTab(tabId);
       });
     });
+
+    // Tree toggle button
+    if (treeToggleBtn) {
+      treeToggleBtn.addEventListener('click', () => {
+        toggleTree();
+      });
+    }
+
+    // Window resize listener for responsive behavior
+    window.addEventListener('resize', () => {
+      handleWindowResize();
+    });
+
+    // Initial resize check
+    handleWindowResize();
 
     // Connect button
     connectBtn.addEventListener('click', () => {
@@ -233,8 +249,11 @@
   }
 
   function renderInterfaceTree() {
+    const treeContent = interfaceTree.querySelector('.tree-content');
+    if (!treeContent) {return;}
+    
     if (currentCategories.length === 0) {
-      interfaceTree.innerHTML = '<div class="loading">暂无数据</div>';
+      treeContent.innerHTML = '<div class="loading">暂无数据</div>';
       return;
     }
 
@@ -251,10 +270,10 @@
       `;
     }).join('');
 
-    interfaceTree.innerHTML = html;
+    treeContent.innerHTML = html;
 
     // Add click listeners
-    interfaceTree.querySelectorAll('.tree-item.category').forEach(item => {
+    treeContent.querySelectorAll('.tree-item.category').forEach(item => {
       item.addEventListener('click', () => {
         const categoryId = parseInt(item.dataset.categoryId);
         selectCategory(categoryId);
@@ -887,7 +906,10 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
         tableContent.innerHTML = '<div class="loading">暂无数据</div>';
         selectedCategoryId=null;
         if (interfaceTree) {
-          interfaceTree.innerHTML = '<div class="loading">正在加载接口...</div>';
+          const treeContent = interfaceTree.querySelector('.tree-content');
+          if (treeContent) {
+            treeContent.innerHTML = '<div class="loading">正在加载接口...</div>';
+          }
         }
         break;
 
@@ -912,7 +934,10 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
       case 'interfacesLoadFailed':
         // 加载失败，显示错误并清理加载状态
         if (interfaceTree) {
-          interfaceTree.innerHTML = '<div class="loading">加载接口失败</div>';
+          const treeContent = interfaceTree.querySelector('.tree-content');
+          if (treeContent) {
+            treeContent.innerHTML = '<div class="loading">加载接口失败</div>';
+          }
         }
         if (tableContent) {
           tableContent.innerHTML = '';
@@ -992,4 +1017,42 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
         break;
     }
   });
+
+  // Tree toggle functionality
+  function toggleTree() {
+    if (interfaceTree) {
+      const isCollapsed = interfaceTree.classList.contains('collapsed');
+      
+      if (isCollapsed) {
+        interfaceTree.classList.remove('collapsed');
+        interfaceTree.classList.add('user-expanded');
+      } else {
+        interfaceTree.classList.add('collapsed');
+        interfaceTree.classList.remove('user-expanded');
+      }
+    }
+  }
+
+  // Handle window resize for responsive behavior
+  function handleWindowResize() {
+    if (!interfaceTree) {return;}
+    
+    const container = document.querySelector('.container');
+    if (!container) {return;}
+    
+    const containerWidth = container.offsetWidth;
+    const isUserExpanded = interfaceTree.classList.contains('user-expanded');
+    
+    // 如果用户手动展开了，则不自动收缩
+    if (isUserExpanded) {return;}
+    
+    if (containerWidth < 630) {
+      // 小屏幕时自动收缩
+      interfaceTree.classList.add('collapsed');
+    } else {
+      // 大屏幕时自动展开
+      interfaceTree.classList.remove('collapsed');
+    }
+  }
+
 })();

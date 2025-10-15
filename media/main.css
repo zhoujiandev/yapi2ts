@@ -5,7 +5,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  min-width: 530px; /* 设置最小宽度确保内容不会过于拥挤 */
+  min-width: 360px; /* 设置最小宽度确保内容不会过于拥挤 */
 }
 
 /* Tabs */
@@ -145,6 +145,23 @@
   margin-bottom: 8px;
 }
 
+.form-group.inline-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.form-group.inline-form select {
+  width: auto;
+  min-width: 150px;
+  flex: 1;
+}
+
+.form-group.inline-form button {
+  flex-shrink: 0;
+}
+
 .form-group label {
   display: block;
   margin-bottom: 4px;
@@ -223,8 +240,94 @@
   background: var(--vscode-panel-background);
   border: 1px solid var(--vscode-panel-border);
   border-radius: 4px;
-  overflow-y: auto;
+  overflow: hidden;
   flex-shrink: 0; /* 防止被压缩 */
+  transition: width 0.3s ease, min-width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.interface-tree.collapsed {
+  width: 40px;
+  min-width: 40px;
+}
+
+.tree-header {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  background: var(--vscode-list-headerBackground, var(--vscode-panel-background));
+  border-bottom: 1px solid var(--vscode-panel-border);
+  flex-shrink: 0;
+}
+
+.tree-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vscode-icon-foreground);
+  padding: 2px;
+  border-radius: 2px;
+  transition: transform 0.3s ease;
+}
+
+.tree-toggle-btn:hover {
+  background: var(--vscode-toolbar-hoverBackground);
+}
+
+.interface-tree.collapsed .tree-toggle-btn {
+  transform: rotate(-90deg);
+}
+
+.tree-title {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vscode-list-headerForeground, var(--vscode-foreground));
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.interface-tree.collapsed .tree-title {
+  opacity: 0;
+}
+
+.tree-content {
+  flex: 1;
+  overflow-y: auto;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.interface-tree.collapsed .tree-content {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 响应式布局 - 当容器宽度小于630px时自动收缩 */
+@media (max-width: 630px) {
+  .interface-tree:not(.user-expanded) {
+    width: 40px;
+    min-width: 40px;
+  }
+  
+  .interface-tree:not(.user-expanded) .tree-toggle-btn {
+    transform: rotate(-90deg);
+  }
+  
+  .interface-tree:not(.user-expanded) .tree-title {
+    opacity: 0;
+  }
+  
+  .interface-tree:not(.user-expanded) .tree-content {
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
 .interface-table {

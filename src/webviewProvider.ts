@@ -467,14 +467,12 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
 
           <div id="interfaces-tab" class="tab-content active">
             <div class="config-section">
-              <h3>配置</h3>
-              <div class="form-group">
-                <label for="project-select">选择项目:</label>
+              <div class="form-group inline-form">
                 <select id="project-select">
                   <option value="">选择项目</option>
                 </select>
+                <button id="connect-btn" class="btn btn-primary">连接</button>
               </div>
-              <button id="connect-btn" class="btn btn-primary">连接</button>
             </div>
 
             <div class="interface-search">
@@ -487,9 +485,19 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 </button>
             </div>
               <div class="interface-section">
-                <div class="interface-tree" id="interface-tree">
-                <div class="loading">请先选择项目</div>
-              </div>
+                <div class="interface-tree collapsible" id="interface-tree">
+                  <div class="tree-header">
+                    <button id="tree-toggle-btn" class="tree-toggle-btn" title="展开/收缩菜单">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z"/>
+                      </svg>
+                    </button>
+                    <span class="tree-title">接口菜单</span>
+                  </div>
+                  <div class="tree-content">
+                    <div class="loading">请先选择项目</div>
+                  </div>
+                </div>
               <div class="interface-table">
                 <div class="table-header">
                   <h3>接口列表 <span id="selected-count" class="selected-count">(已选中 0 个)</span></h3>
