@@ -504,7 +504,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                   <div class="tree-header">
                     <button id="tree-toggle-btn" class="tree-toggle-btn" title="展开/收缩菜单">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z"/>
+                        <path d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
                       </svg>
                     </button>
                     <span class="tree-title">接口菜单</span>
