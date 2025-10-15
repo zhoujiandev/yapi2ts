@@ -17,6 +17,10 @@ export class YapiService {
         this.token = projectToken;
     }
 
+    public getBaseUrl(): string {
+        return this.baseUrl;
+    }
+
     private async request<T>(endpoint: string, params: Record<string, any> = {}): Promise<T> {
         const url = new URL(endpoint, this.baseUrl);
 

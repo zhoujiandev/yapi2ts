@@ -18,8 +18,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     ) {
         this.yapiService = new YapiService();
         this.codeGenerator = new CodeGenerator();
-        // this.loadTemplates();
-        // this.loadProjects();
     }
 
     public resolveWebviewView(
@@ -246,7 +244,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 return;
             }
 
-            const apiDefinitions = this.codeGenerator.generateApiDefinitions(interfaces, template);
+            const apiDefinitions = this.codeGenerator.generateApiDefinitions(
+                interfaces,
+                template,
+                this.yapiService.getBaseUrl()
+            );
 
             // 复制到剪贴板
             await vscode.env.clipboard.writeText(apiDefinitions);

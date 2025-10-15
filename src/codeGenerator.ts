@@ -99,9 +99,13 @@ export class CodeGenerator {
     /**
      * 生成API接口定义代码
      */
-    generateApiDefinitions(interfaces: YapiInterfaceDetail[], template: TemplateConfig): string {
+    generateApiDefinitions(
+        interfaces: YapiInterfaceDetail[],
+        template: TemplateConfig,
+        yapiBaseUrl: string
+    ): string {
         const apiDefinitions = interfaces.map(iface => {
-            return this.generateSingleApiDefinition(iface, template);
+            return this.generateSingleApiDefinition(iface, template, yapiBaseUrl);
         });
 
         return apiDefinitions.join('\n\n');
@@ -112,12 +116,16 @@ export class CodeGenerator {
      */
     private generateSingleApiDefinition(
         iface: YapiInterfaceDetail,
-        template: TemplateConfig
+        template: TemplateConfig,
+        yapiBaseUrl: string
     ): string {
         const methodName = this.getMethodName(iface);
         const responseTypeName = this.getResponseTypeName(iface);
-        const queryTypeName = this.getQueryTypeName(iface);
+        const paramsTypeName = this.getQueryTypeName(iface);
         const lowerCaseMethod = iface.method.toLocaleLowerCase();
+
+        // 构建接口在YAPI中的完整URL
+        const interfaceUrl = `${yapiBaseUrl.replace(/\/$/, '')}/project/${iface.project_id}/interface/api/${iface._id}`;
 
         // 替换模板变量
         return template.content
@@ -126,9 +134,9 @@ export class CodeGenerator {
             .replace(/\{\{path\}\}/g, iface.path)
             .replace(/\{\{method\}\}/g, iface.method.toUpperCase())
             .replace(/\{\{lowerCaseMethod\}\}/g, lowerCaseMethod)
-            .replace(/\{\{responseType\}\}/g, responseTypeName)
-            .replace(/\{\{queryType\}\}/g, queryTypeName)
-            .replace(/\{\{description\}\}/g, iface.title || '');
+            .replace(/\{\{responseTypeName\}\}/g, responseTypeName)
+            .replace(/\{\{paramsTypeName\}\}/g, paramsTypeName)
+            .replace(/\{\{interfaceUrl\}\}/g, interfaceUrl);
     }
 
     /**
@@ -349,14 +357,15 @@ export class CodeGenerator {
     static getDefaultTemplates(): TemplateConfig[] {
         return [
             {
-                id: 'axios1',
+                id: 'axios',
                 name: 'Axios Template',
-                description: 'Generate API calls using Axios',
+                description: '这是一个axios请求模版',
                 content: `/**
- * {{description}}
+ * @description：{{description}}
+ * @url：{{interfaceUrl}}
  */
-export const {{methodName}} = (params: {{queryType}}): Promise<{{responseType}}> => {
-  return {{lowerCaseMethod}}('{{path}}',params)
+export const {{methodName}} = (params: {{paramsTypeName}}): Promise<{{responseTypeName}}> => {
+  return axios.{{lowerCaseMethod}}('{{path}}',params)
 };`,
                 createdAt: Date.now(),
                 updatedAt: Date.now()
