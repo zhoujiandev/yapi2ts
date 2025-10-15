@@ -775,11 +775,21 @@ export const {{methodName}} = ({{#if queryType}}params: {{queryType}}{{/if}}{{#i
             <input type="text" id="project-name-input" class="form-control" value="${project ? project.name : ''}" placeholder="请输入项目名称">
           </div>
           <div class="form-group">
-            <label for="project-yapi-url-input">YAPI地址:</label>
+            <div class="label-with-help">
+              <label for="project-yapi-url-input">YAPI地址:</label>
+              <span class="help-icon">
+                <div class="tooltip">请输入您部署的YAPI平台的完整地址，例如：http://yapi.example.com或\nhttps://yapi.example.com</div>
+              </span>
+            </div>
             <input type="text" id="project-yapi-url-input" class="form-control" value="${project ? project.yapiUrl : ''}" placeholder="请输入YAPI地址">
           </div>
           <div class="form-group">
-            <label for="project-token-input">项目Token:</label>
+            <div class="label-with-help">
+              <label for="project-token-input">项目Token:</label>
+              <span class="help-icon">
+                <div class="tooltip">在YAPI项目设置页面可以找到项目Token，用于API接口的身份验证</div>
+              </span>
+            </div>
             <input type="text" id="project-token-input" class="form-control" value="${project ? project.projectToken : ''}" placeholder="请输入项目Token">
           </div>
         </div>
