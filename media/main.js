@@ -78,14 +78,6 @@
       });
     }
 
-    // Window resize listener for responsive behavior
-    window.addEventListener('resize', () => {
-      handleWindowResize();
-    });
-
-    // Initial resize check
-    handleWindowResize();
-
     // Connect button
     connectBtn.addEventListener('click', () => {
       const selectedProject = projectSelect.value;
@@ -1138,27 +1130,4 @@
       }
     }
   }
-
-  // Handle window resize for responsive behavior
-  function handleWindowResize() {
-    if (!interfaceTree) {return;}
-    
-    const container = document.querySelector('.container');
-    if (!container) {return;}
-    
-    const containerWidth = container.offsetWidth;
-    const isUserExpanded = interfaceTree.classList.contains('user-expanded');
-    
-    // 如果用户手动展开了，则不自动收缩
-    if (isUserExpanded) {return;}
-    
-    if (containerWidth < 630) {
-      // 小屏幕时自动收缩
-      interfaceTree.classList.add('collapsed');
-    } else {
-      // 大屏幕时自动展开
-      interfaceTree.classList.remove('collapsed');
-    }
-  }
-
 })();
