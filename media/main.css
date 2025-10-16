@@ -247,11 +247,6 @@
   flex-direction: column;
 }
 
-.interface-tree.collapsed {
-  width: 40px;
-  min-width: 40px;
-}
-
 .tree-header {
   display: flex;
   align-items: center;
@@ -282,10 +277,6 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-.interface-tree.collapsed .tree-toggle-btn {
-  transform: rotate(-90deg);
-}
-
 .tree-title {
   margin-left: 8px;
   font-size: 12px;
@@ -297,10 +288,6 @@
   transition: opacity 0.3s ease;
 }
 
-.interface-tree.collapsed .tree-title {
-  opacity: 0;
-}
-
 .tree-content {
   flex: 1;
   overflow-y: auto;
@@ -309,27 +296,60 @@
   padding:8px 0;
 }
 
-.interface-tree.collapsed .tree-content {
-  opacity: 0;
-  pointer-events: none;
+/* 用户手动展开状态 - 覆盖媒体查询 */
+.interface-tree.user-expanded {
+  width: 250px !important;
+  min-width: 250px !important;
 }
 
-/* 响应式布局 - 当容器宽度小于630px时自动收缩 */
+.interface-tree.user-expanded .tree-toggle-btn {
+  transform: rotate(0deg) !important;
+}
+
+.interface-tree.user-expanded .tree-title {
+  opacity: 1 !important;
+}
+
+.interface-tree.user-expanded .tree-content {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* 用户手动收缩状态 - 覆盖媒体查询 */
+.interface-tree.user-collapsed {
+  width: 40px !important;
+  min-width: 40px !important;
+}
+
+.interface-tree.user-collapsed .tree-toggle-btn {
+  transform: rotate(-90deg) !important;
+}
+
+.interface-tree.user-collapsed .tree-title {
+  opacity: 0 !important;
+}
+
+.interface-tree.user-collapsed .tree-content {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 响应式布局 - 当容器宽度小于630px时自动收缩，但不影响用户手动操作 */
 @media (max-width: 630px) {
-  .interface-tree:not(.user-expanded) {
+  .interface-tree:not(.user-expanded):not(.user-collapsed) {
     width: 40px;
     min-width: 40px;
   }
   
-  .interface-tree:not(.user-expanded) .tree-toggle-btn {
+  .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-toggle-btn {
     transform: rotate(-90deg);
   }
   
-  .interface-tree:not(.user-expanded) .tree-title {
+  .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-title {
     opacity: 0;
   }
   
-  .interface-tree:not(.user-expanded) .tree-content {
+  .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-content {
     opacity: 0;
     pointer-events: none;
   }

@@ -169,7 +169,16 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                     'yapi2ts.projectInfo',
                     connectionResult.project
                 );
-                await this.handleLoadInterfaces();
+
+                // 先通知前端展开树目录
+                this._view?.webview.postMessage({
+                    type: 'expandTree'
+                });
+
+                // 稍微延迟后再加载接口，确保树展开动画完成
+                setTimeout(() => {
+                    this.handleLoadInterfaces();
+                }, 300);
             }
         } catch (error) {
             this._view?.webview.postMessage({

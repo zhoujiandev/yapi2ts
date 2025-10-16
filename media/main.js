@@ -1059,12 +1059,29 @@
     });
   }
 
+  // 监听窗口大小变化事件
+  window.addEventListener('resize', function() {
+    const interfaceTree = document.querySelector('.interface-tree');
+    if (interfaceTree) {
+      // 当窗口大小变化时，清除所有手动操作状态，让媒体查询接管
+      interfaceTree.classList.remove('user-expanded', 'user-collapsed');
+    }
+  });
+
   // Handle messages from extension
   window.addEventListener('message', event => {
     console.log('收到后端消息message--->', event.data);
     const message = event.data;
 
     switch (message.type) {
+      case 'expandTree':
+        // 连接成功后展开树目录
+        if (interfaceTree) {
+          interfaceTree.classList.remove('user-collapsed');
+          interfaceTree.classList.add('user-expanded');
+        }
+        break;
+
       case 'interfacesLoading':
         // 展示加载中状态
         tableContent.innerHTML = '<div class="loading">暂无数据</div>';
@@ -1186,14 +1203,30 @@
   // Tree toggle functionality
   function toggleTree() {
     if (interfaceTree) {
-      const isCollapsed = interfaceTree.classList.contains('collapsed');
+      const hasUserExpanded = interfaceTree.classList.contains('user-expanded');
+      const hasUserCollapsed = interfaceTree.classList.contains('user-collapsed');
       
-      if (isCollapsed) {
-        interfaceTree.classList.remove('collapsed');
+      // 清除所有状态类
+      interfaceTree.classList.remove('user-expanded', 'user-collapsed');
+      
+      if (hasUserCollapsed) {
+        // 当前是用户手动收缩状态，切换到展开
         interfaceTree.classList.add('user-expanded');
+      } else if (hasUserExpanded) {
+        // 当前是用户手动展开状态，切换到收缩
+        interfaceTree.classList.add('user-collapsed');
       } else {
-        interfaceTree.classList.add('collapsed');
-        interfaceTree.classList.remove('user-expanded');
+        // 当前处于媒体查询控制状态，需要根据实际显示状态判断
+        const computedStyle = window.getComputedStyle(interfaceTree);
+        const currentWidth = parseInt(computedStyle.width);
+        
+        if (currentWidth <= 40) {
+          // 当前是收缩状态（媒体查询控制），切换到展开
+          interfaceTree.classList.add('user-expanded');
+        } else {
+          // 当前是展开状态，切换到收缩
+          interfaceTree.classList.add('user-collapsed');
+        }
       }
     }
   }
