@@ -160,16 +160,25 @@
 
 在自定义模板中，可以使用以下变量来动态生成代码：
 
-| 变量名                 | 描述                           | 示例                                                    |
-| ---------------------- | ------------------------------ | ------------------------------------------------------- |
-| `{{methodName}}`       | 方法名（根据接口路径自动生成） | `getUserInfo`                                           |
-| `{{title}}`            | 接口标题                       | `获取用户信息`                                          |
-| `{{path}}`             | 接口路径                       | `/api/user/info`                                        |
-| `{{method}}`           | HTTP方法（大写）               | `GET`, `POST`, `PUT`, `DELETE`                          |
-| `{{lowerCaseMethod}}`  | HTTP方法（小写）               | `get`, `post`, `put`, `delete`                          |
-| `{{responseTypeName}}` | 响应数据类型名                 | `GetUserInfoResponse`                                   |
-| `{{paramsTypeName}}`   | 参数类型名                     | `GetUserInfoParams`                                     |
-| `{{interfaceUrl}}`     | YAPI接口详情页URL              | `http://yapi.example.com/project/123/interface/api/456` |
+| 变量名                | 描述                           | 示例                                                    |
+| --------------------- | ------------------------------ | ------------------------------------------------------- |
+| `${methodName}`       | 方法名（根据接口路径自动生成） | `getUserInfo`                                           |
+| `${title}`            | 接口标题                       | `获取用户信息`                                          |
+| `${path}`             | 接口路径                       | `/api/user/info`                                        |
+| `${method}`           | HTTP方法（大写）               | `GET`, `POST`, `PUT`, `DELETE`                          |
+| `${lowerCaseMethod}`  | HTTP方法（小写）               | `get`, `post`, `put`, `delete`                          |
+| `${responseTypeName}` | 响应数据类型名                 | `GetUserInfoResponse`                                   |
+| `${paramsTypeName}`   | 参数类型名                     | `GetUserInfoParams`                                     |
+| `${interfaceUrl}`     | YAPI接口详情页URL              | `http://yapi.example.com/project/123/interface/api/456` |
+| `${isGet}`            | 是否为GET请求                  | `true` 或 `false`                                       |
+| `${isPost}`           | 是否为POST请求                 | `true` 或 `false`                                       |
+| `${isPut}`            | 是否为PUT请求                  | `true` 或 `false`                                       |
+| `${isDelete}`         | 是否为DELETE请求               | `true` 或 `false`                                       |
+| `${isPatch}`          | 是否为PATCH请求                | `true` 或 `false`                                       |
+| `${isHead}`           | 是否为HEAD请求                 | `true` 或 `false`                                       |
+| `${isOptions}`        | 是否为OPTIONS请求              | `true` 或 `false`                                       |
+| `${isNotGet}`         | 是否为非GET请求                | `true` 或 `false`                                       |
+| `${interface}`        | 完整的接口对象                 | 包含所有YAPI接口属性的对象                              |
 
 ## 📋 内置模板
 
