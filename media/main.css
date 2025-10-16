@@ -393,13 +393,19 @@
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .selected-count {
   font-size: 12px;
   font-weight: normal;
   color: var(--vscode-descriptionForeground);
+}
+
+.selected-category {
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--vscode-textLink-foreground);
 }
 
 .table-actions {

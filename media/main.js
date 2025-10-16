@@ -165,6 +165,7 @@
           previousSelected.classList.remove('selected');
         }
         selectedCategoryId = null;
+        updateSelectedCategoryDisplay();
       }
 
       renderInterfaceTree(); // 根据新的搜索词重绘左侧树
@@ -198,6 +199,7 @@
             previousSelected.classList.remove('selected');
           }
           selectedCategoryId = null;
+          updateSelectedCategoryDisplay();
         }
         renderInterfaceTree();
         tableContent.innerHTML = '<div class="loading">暂无数据</div>';
@@ -306,6 +308,9 @@
     if (selectedElement) {
       selectedElement.classList.add('selected');
     }
+
+    // 更新选中目录的显示
+    updateSelectedCategoryDisplay();
 
     const interfaces = currentInterfaces[categoryId] || [];
     renderInterfaceTable(interfaces);
@@ -469,6 +474,22 @@
     const selectedCountElement = document.getElementById('selected-count');
     if (selectedCountElement) {
       selectedCountElement.textContent = `(已选中 ${selectedInterfaces.size} 个)`;
+    }
+  }
+
+  function updateSelectedCategoryDisplay() {
+    const selectedCategoryElement = document.getElementById('selected-category');
+    if (selectedCategoryElement) {
+      if (selectedCategoryId) {
+        const selectedCategory = currentCategories.find(cat => cat._id === selectedCategoryId);
+        if (selectedCategory) {
+          selectedCategoryElement.textContent = `[${selectedCategory.name}]`;
+        } else {
+          selectedCategoryElement.textContent = '';
+        }
+      } else {
+        selectedCategoryElement.textContent = '';
+      }
     }
   }
 
@@ -1002,7 +1023,8 @@
       case 'interfacesLoading':
         // 展示加载中状态
         tableContent.innerHTML = '<div class="loading">暂无数据</div>';
-        selectedCategoryId=null;
+        selectedCategoryId = null;
+        updateSelectedCategoryDisplay();
         if (interfaceTree) {
           const treeContent = interfaceTree.querySelector('.tree-content');
           if (treeContent) {
