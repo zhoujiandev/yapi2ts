@@ -127,16 +127,52 @@ export class CodeGenerator {
         // 构建接口在YAPI中的完整URL
         const interfaceUrl = `${yapiBaseUrl.replace(/\/$/, '')}/project/${iface.project_id}/interface/api/${iface._id}`;
 
-        // 替换模板变量
-        return template.content
-            .replace(/\{\{methodName\}\}/g, methodName)
-            .replace(/\{\{title\}\}/g, iface.title)
-            .replace(/\{\{path\}\}/g, iface.path)
-            .replace(/\{\{method\}\}/g, iface.method.toUpperCase())
-            .replace(/\{\{lowerCaseMethod\}\}/g, lowerCaseMethod)
-            .replace(/\{\{responseTypeName\}\}/g, responseTypeName)
-            .replace(/\{\{paramsTypeName\}\}/g, paramsTypeName)
-            .replace(/\{\{interfaceUrl\}\}/g, interfaceUrl);
+        // 创建模板变量对象
+        const templateVars = {
+            methodName,
+            title: iface.title,
+            path: iface.path,
+            method: iface.method.toUpperCase(),
+            lowerCaseMethod,
+            responseTypeName,
+            paramsTypeName,
+            interfaceUrl,
+            // 添加HTTP方法判断变量
+            isGet: iface.method.toUpperCase() === 'GET',
+            isPost: iface.method.toUpperCase() === 'POST',
+            isPut: iface.method.toUpperCase() === 'PUT',
+            isDelete: iface.method.toUpperCase() === 'DELETE',
+            isPatch: iface.method.toUpperCase() === 'PATCH',
+            isHead: iface.method.toUpperCase() === 'HEAD',
+            isOptions: iface.method.toUpperCase() === 'OPTIONS',
+            // 添加非GET请求的判断变量
+            isNotGet: iface.method.toUpperCase() !== 'GET',
+            // 添加接口的其他属性，方便在模板中使用
+            interface: iface
+        };
+
+        try {
+            // 使用Function构造函数来支持ES6模板字符串
+            // 将模板内容包装在反引号中，使其成为模板字符串
+            const templateFunction = new Function(
+                ...Object.keys(templateVars),
+                `return \`${template.content}\`;`
+            );
+
+            return templateFunction(...Object.values(templateVars));
+        } catch (error) {
+            console.error('模板执行错误:', error);
+            // 如果模板执行失败，回退到原来的字符串替换方式
+            return template.content
+                .replace(/\$\{methodName\}/g, methodName)
+                .replace(/\$\{title\}/g, iface.title)
+                .replace(/\$\{path\}/g, iface.path)
+                .replace(/\$\{method\}/g, iface.method.toUpperCase())
+                .replace(/\$\{lowerCaseMethod\}/g, lowerCaseMethod)
+                .replace(/\$\{responseTypeName\}/g, responseTypeName)
+                .replace(/\$\{paramsTypeName\}/g, paramsTypeName)
+                .replace(/\$\{interfaceUrl\}/g, interfaceUrl);
+        }
     }
 
     /**
@@ -359,13 +395,13 @@ export class CodeGenerator {
             {
                 id: 'axios',
                 name: 'Axios Template',
-                description: '这是一个axios请求模版',
+                description: '这是一个axios请求模版，支持ES6模板字符串语法',
                 content: `/**
- * @description {{title}}
- * @url {{interfaceUrl}}
+ * @description \${title}
+ * @url \${interfaceUrl}
  */
-export const {{methodName}} = (params: {{paramsTypeName}}): Promise<{{responseTypeName}}> => {
-  return axios.{{lowerCaseMethod}}('{{path}}',params)
+export const \${methodName} = (params: \${paramsTypeName},config:Omit<AxiosRequestConfig,\${isNotGet?'"data"':'"params"'}>): Promise<\${responseTypeName}> => {
+  return axios.\${lowerCaseMethod}('\${path}', \${isNotGet ? 'params,config' : '{params,...config}'})    
 };`,
                 createdAt: Date.now(),
                 updatedAt: Date.now()
