@@ -551,6 +551,21 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 <h3>模板管理</h3>
                 <button id="add-template-btn" class="btn btn-primary">新增模板</button>
               </div>
+              <div class="template-description">
+                <p class="description-text">
+                  您可以创建自定义模板来生成符合项目规范的TypeScript接口定义代码。
+                  模板使用ES6模板字符串语法，支持变量替换，示例 <code>/**
+ * @description \${title}
+ * @url \${interfaceUrl}
+ */
+export const \${methodName} = (params: \${paramsTypeName},config:Omit<AxiosRequestConfig,\${isNotGet?'"data"':'"params"'}>): Promise<\${responseTypeName}> => {
+  return axios.\${lowerCaseMethod}('\${path}', \${isNotGet ? 'params,config' : '{params,...config}'})    
+};</code> 
+                </p>
+                <p class="tip-text">
+                  💡 建议：在编辑器中编写模板代码，这样可以获得语法高亮和代码提示，复制粘贴到模板编辑器中。
+                </p>
+              </div>
               <div class="template-list" id="template-list">
                 <div class="loading">加载中...</div>
               </div>

@@ -526,7 +526,7 @@
             <button class="btn btn-secondary delete-template-btn" data-template-id="${template.id}">删除</button>
           </div>
         </div>
-        ${template.description ? `<div class="template-description">${template.description}</div>` : ''}
+        ${template.description ? `<div class="template-item-description">${template.description}</div>` : ''}
         <div class="template-content">${template.content}</div>
       </div>
     `).join('');

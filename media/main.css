@@ -772,6 +772,72 @@
   margin-bottom: 8px;
 }
 
+/* Template item description styles (for individual templates) */
+.template-item-description {
+  color: var(--vscode-descriptionForeground);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+/* Template header description styles */
+.template-section .template-description {
+  margin: 12px 0 16px 0;
+  padding: 16px;
+  background: var(--vscode-textBlockQuote-background);
+  border-left: 4px solid var(--vscode-textLink-foreground);
+  border-radius: 0 6px 6px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.template-section .template-description .description-text {
+  margin: 0 0 12px 0;
+  color: var(--vscode-foreground);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.template-section .template-description .tip-text {
+  margin: 12px 0 0 0;
+  color: var(--vscode-textPreformat-foreground);
+  font-size: 12px;
+  font-style: italic;
+  padding: 8px 12px;
+  background: rgba(var(--vscode-textLink-foreground), 0.1);
+  border-radius: 4px;
+  border-left: 3px solid var(--vscode-textLink-foreground);
+}
+
+.template-section .template-description code {
+  display: block;
+  background: var(--vscode-textCodeBlock-background);
+  color: var(--vscode-textPreformat-foreground);
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-family: var(--vscode-editor-font-family);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  border: 1px solid var(--vscode-input-border);
+  margin: 8px 0;
+  position: relative;
+}
+
+.template-section .template-description code::before {
+  content: "TypeScript";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background: var(--vscode-textLink-foreground);
+  color: var(--vscode-button-foreground);
+  padding: 2px 8px;
+  font-size: 10px;
+  border-radius: 0 4px 0 4px;
+  font-weight: 500;
+}
+
+/* Template item description styles (for individual templates) */
+
 .template-content {
   background: var(--vscode-input-background);
   border: 1px solid var(--vscode-input-border);
