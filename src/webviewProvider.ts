@@ -258,12 +258,22 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             // 复制到剪贴板
             await vscode.env.clipboard.writeText(typeDefinitions);
 
-            // 显示成功消息
-            vscode.window.showInformationMessage(
-                `已生成 ${interfaces.length} 个接口的类型定义并复制到剪贴板`
-            );
+            // 发送成功消息给前端
+            this._view?.webview.postMessage({
+                type: 'generateTypesResult',
+                success: true,
+                message: `已生成 ${interfaces.length} 个接口的类型定义并复制到剪贴板`
+            });
         } catch (error) {
             console.error('Generate types error:', error);
+
+            // 发送失败消息给前端
+            this._view?.webview.postMessage({
+                type: 'generateTypesResult',
+                success: false,
+                message: `生成类型定义失败: ${error}`
+            });
+
             vscode.window.showErrorMessage(`生成类型定义失败: ${error}`);
         }
     }

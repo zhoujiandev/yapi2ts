@@ -173,6 +173,11 @@
         updateSelectedCategoryDisplay();
       }
 
+      // 清空所有已选中的接口
+      selectedInterfaces.clear();
+      // 更新生成按钮状态和选中数量显示
+      updateGenerateButtons();
+
       renderInterfaceTree(); // 根据新的搜索词重绘左侧树
 
       const allInterfaces = Object.values(currentInterfaces).flat();
