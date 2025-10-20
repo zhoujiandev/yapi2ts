@@ -582,6 +582,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
               <div class="interface-table">
                 <div class="table-header">
                   <h3>接口列表 <span id="selected-category" class="selected-category"></span> <span id="selected-count" class="selected-count">(已选中 0 个)</span></h3>
+                  <div class="smart-tip">
+                    <div class="smart-tip-content">
+                      💡 命名防冲突以菜单目录为范围，跨目录接口合并到同一文件时可能存在命名冲突风险
+                    </div>
+                  </div>
                   <div class="table-actions">
                     <button id="generate-types-btn" class="btn btn-secondary">复制参数</button>
                     <div class="action-group api-generation-group">

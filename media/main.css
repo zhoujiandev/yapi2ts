@@ -80,6 +80,22 @@
   content: "?";
 }
 
+/* Smart Tip Box Styles */
+.smart-tip {
+  padding: 12px;
+  margin: 16px 0;
+  background: var(--vscode-editorWidget-background);
+  border: 1px solid var(--vscode-focusBorder);
+  border-radius: 4px;
+  border-left: 4px solid var(--vscode-focusBorder);
+}
+
+.smart-tip-content {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+  line-height: 1.4;
+}
+
 .tooltip {
   position: absolute;
   left: 100%;
