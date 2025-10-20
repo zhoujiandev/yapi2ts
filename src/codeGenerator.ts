@@ -311,8 +311,43 @@ export class CodeGenerator {
     }
 
     /**
+     * 将各种命名格式转换为小驼峰命名
+     * 支持：蛇形命名(snake_case)、小驼峰(camelCase)、大驼峰(PascalCase)
+     */
+    private convertToCamelCase(str: string): string {
+        // 清理非字母数字字符，但保留下划线用于分割
+        const cleanStr = str.replace(/[^a-zA-Z0-9_]/g, '');
+
+        // 如果包含下划线，按蛇形命名处理
+        if (cleanStr.includes('_')) {
+            return cleanStr
+                .split('_')
+                .map((part, index) => {
+                    const cleanPart = part.replace(/[^a-zA-Z0-9]/g, '');
+                    if (!cleanPart) {
+                        return '';
+                    }
+                    return index === 0
+                        ? cleanPart.toLowerCase()
+                        : cleanPart.charAt(0).toUpperCase() + cleanPart.slice(1).toLowerCase();
+                })
+                .join('');
+        }
+
+        // 处理驼峰命名（包括大驼峰和小驼峰）
+        // 如果是大驼峰，转为小驼峰
+        if (cleanStr && cleanStr[0] === cleanStr[0].toUpperCase()) {
+            return cleanStr.charAt(0).toLowerCase() + cleanStr.slice(1);
+        }
+
+        // 如果已经是小驼峰或全小写，直接返回原字符串
+        return cleanStr;
+    }
+
+    /**
      * 获取方法名
      */
+
     private getMethodName(iface: YapiInterfaceDetail): string {
         // 从路径生成方法名
         const pathParts = iface.path.split('/').filter(part => part && !part.startsWith('{'));
@@ -343,16 +378,8 @@ export class CodeGenerator {
             return iface.method.toLowerCase();
         }
 
-        // 处理蛇形命名转驼峰：get_slicing_status -> getSlicingStatus
-        const camelCaseSegment = lastSegment
-            .split('_')
-            .map((subPart, index) => {
-                const cleanPart = subPart.replace(/[^a-zA-Z0-9]/g, '');
-                return index === 0
-                    ? cleanPart.toLowerCase()
-                    : cleanPart.charAt(0).toUpperCase() + cleanPart.slice(1).toLowerCase();
-            })
-            .join('');
+        // 处理多种命名格式转小驼峰
+        const camelCaseSegment = this.convertToCamelCase(lastSegment);
 
         const method = iface.method.toLowerCase();
 
