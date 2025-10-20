@@ -240,6 +240,19 @@
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background-color: var(--vscode-button-secondaryBackground) !important;
+  color: var(--vscode-disabledForeground) !important;
+}
+
+.btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background-color: transparent !important;
+  color: var(--vscode-disabledForeground) !important;
+}
+
+.btn-icon:disabled:hover {
+  background-color: transparent !important;
 }
 
 /* Interface Section */

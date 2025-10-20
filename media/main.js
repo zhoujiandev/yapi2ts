@@ -160,6 +160,11 @@
     const performSearch = () => {
       interfaceSearchTerm = interfaceSearchInput.value.trim();
 
+      // 如果搜索关键词为空，不执行搜索
+      if (!interfaceSearchTerm) {
+        return;
+      }
+
       // 清除当前分类的选中状态，因为是全局搜索
       if (selectedCategoryId) {
         const previousSelected = document.querySelector(`.tree-item[data-category-id='${selectedCategoryId}']`);
@@ -173,18 +178,25 @@
       renderInterfaceTree(); // 根据新的搜索词重绘左侧树
 
       const allInterfaces = Object.values(currentInterfaces).flat();
-      if (interfaceSearchTerm) {
-        const filteredInterfaces = filterInterfacesByPath(allInterfaces, interfaceSearchTerm);
-        renderInterfaceTable(filteredInterfaces); // 在右侧表格显示全局搜索结果
-      } else {
-        renderInterfaceTable(allInterfaces); // 搜索词为空，展示全部接口
-      }
+      const filteredInterfaces = filterInterfacesByPath(allInterfaces, interfaceSearchTerm);
+      renderInterfaceTable(filteredInterfaces); // 在右侧表格显示全局搜索结果
     };
+
+    // 更新搜索按钮状态
+    const updateSearchButtonState = () => {
+      const searchTerm = interfaceSearchInput.value.trim();
+      interfaceSearchBtn.disabled = !searchTerm;
+    };
+
+    // 初始化搜索按钮状态
+    updateSearchButtonState();
 
     interfaceSearchBtn.addEventListener('click', performSearch);
 
+    interfaceSearchInput.addEventListener('input', updateSearchButtonState);
+
     interfaceSearchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' && !interfaceSearchBtn.disabled) {
         performSearch();
       }
     });
@@ -203,6 +215,10 @@
           selectedCategoryId = null;
           updateSelectedCategoryDisplay();
         }
+        // 清除选中的接口
+        selectedInterfaces.clear();
+        // 更新选中数量显示
+        updateGenerateButtons();
         renderInterfaceTree();
         tableContent.innerHTML = '<div class="loading">暂无数据</div>';
       });
