@@ -4,11 +4,16 @@ export class CodeGenerator {
     /**
      * 生成TypeScript接口类型定义
      */
-    generateTypeDefinitions(interfaces: YapiInterfaceDetail[]): string {
+    generateTypeDefinitions(
+        interfaces: YapiInterfaceDetail[],
+        allCategoryInterfaces?: YapiInterfaceDetail[]
+    ): string {
         let result = '';
 
         // 计算每个接口需要的路径节数以避免冲突
-        const pathSegmentCounts = this.calculatePathSegmentCounts(interfaces);
+        const pathSegmentCounts = this.calculatePathSegmentCounts(
+            allCategoryInterfaces || interfaces
+        );
 
         interfaces.forEach((iface, index) => {
             // 为每个接口生成入参和出参类型定义
@@ -220,10 +225,13 @@ export class CodeGenerator {
     generateApiDefinitions(
         interfaces: YapiInterfaceDetail[],
         template: TemplateConfig,
-        yapiBaseUrl: string
+        yapiBaseUrl: string,
+        allCategoryInterfaces?: YapiInterfaceDetail[]
     ): string {
         // 计算每个接口需要的路径节数以避免冲突
-        const pathSegmentCounts = this.calculatePathSegmentCounts(interfaces);
+        const pathSegmentCounts = this.calculatePathSegmentCounts(
+            allCategoryInterfaces || interfaces
+        );
 
         const apiDefinitions = interfaces.map(iface => {
             return this.generateSingleApiDefinition(

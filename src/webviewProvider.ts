@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { CodeGenerator } from './codeGenerator';
-import { ProjectConfig, TemplateConfig } from './types';
+import { ProjectConfig, TemplateConfig, YapiInterfaceDetail } from './types';
 import { YapiService } from './yapiService';
 
 export class YapiWebviewProvider implements vscode.WebviewViewProvider {
@@ -112,10 +112,14 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 await this.handleLoadInterfaces();
                 break;
             case 'generateTypes':
-                await this.handleGenerateTypes(message.interfaceIds);
+                await this.handleGenerateTypes(message.interfaceIds, message.categoryId);
                 break;
             case 'generateApi':
-                await this.handleGenerateApi(message.interfaceIds, message.templateId);
+                await this.handleGenerateApi(
+                    message.interfaceIds,
+                    message.templateId,
+                    message.categoryId
+                );
                 break;
             case 'saveTemplate':
                 await this.handleSaveTemplate(message.template);
@@ -213,10 +217,36 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    private async handleGenerateTypes(interfaceIds: number[]) {
+    private async handleGenerateTypes(interfaceIds: number[], categoryId?: number) {
         try {
             const interfaces = await this.yapiService.getInterfaceDetails(interfaceIds);
-            const typeDefinitions = this.codeGenerator.generateTypeDefinitions(interfaces);
+
+            // 如果提供了categoryId，获取该分类下的所有接口用于命名冲突计算
+            let allCategoryInterfaces: YapiInterfaceDetail[] | undefined;
+            if (categoryId) {
+                try {
+                    const categoryInterfaceList = await this.yapiService.getInterfaceList(
+                        categoryId,
+                        1,
+                        1000
+                    );
+                    const allCategoryInterfaceIds = categoryInterfaceList.list.map(
+                        iface => iface._id
+                    );
+                    allCategoryInterfaces =
+                        await this.yapiService.getInterfaceDetails(allCategoryInterfaceIds);
+                } catch (error) {
+                    console.warn(
+                        'Failed to get all category interfaces for naming consistency:',
+                        error
+                    );
+                }
+            }
+
+            const typeDefinitions = this.codeGenerator.generateTypeDefinitions(
+                interfaces,
+                allCategoryInterfaces
+            );
 
             // 复制到剪贴板
             await vscode.env.clipboard.writeText(typeDefinitions);
@@ -239,7 +269,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    private async handleGenerateApi(interfaceIds: number[], templateId: string) {
+    private async handleGenerateApi(
+        interfaceIds: number[],
+        templateId: string,
+        categoryId?: number
+    ) {
         try {
             const interfaces = await this.yapiService.getInterfaceDetails(interfaceIds);
             const template = this.templates.find(t => t.id === templateId);
@@ -256,10 +290,33 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 return;
             }
 
+            // 如果提供了categoryId，获取该分类下的所有接口用于命名冲突计算
+            let allCategoryInterfaces: YapiInterfaceDetail[] | undefined;
+            if (categoryId) {
+                try {
+                    const categoryInterfaceList = await this.yapiService.getInterfaceList(
+                        categoryId,
+                        1,
+                        1000
+                    );
+                    const allCategoryInterfaceIds = categoryInterfaceList.list.map(
+                        iface => iface._id
+                    );
+                    allCategoryInterfaces =
+                        await this.yapiService.getInterfaceDetails(allCategoryInterfaceIds);
+                } catch (error) {
+                    console.warn(
+                        'Failed to get all category interfaces for naming consistency:',
+                        error
+                    );
+                }
+            }
+
             const apiDefinitions = this.codeGenerator.generateApiDefinitions(
                 interfaces,
                 template,
-                this.yapiService.getBaseUrl()
+                this.yapiService.getBaseUrl(),
+                allCategoryInterfaces
             );
 
             // 复制到剪贴板

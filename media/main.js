@@ -117,7 +117,8 @@
 
       vscode.postMessage({
         type: 'generateTypes',
-        interfaceIds: Array.from(selectedInterfaces)
+        interfaceIds: Array.from(selectedInterfaces),
+        categoryId: selectedCategoryId
       });
     });
 
@@ -140,7 +141,8 @@
       vscode.postMessage({
         type: 'generateApi',
         interfaceIds: Array.from(selectedInterfaces),
-        templateId
+        templateId,
+        categoryId: selectedCategoryId
       });
     });
 
