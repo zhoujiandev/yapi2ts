@@ -7,12 +7,18 @@ export class CodeGenerator {
     generateTypeDefinitions(interfaces: YapiInterfaceDetail[]): string {
         let result = '';
 
+        // 计算每个接口需要的路径节数以避免冲突
+        const pathSegmentCounts = this.calculatePathSegmentCounts(interfaces);
+
         interfaces.forEach((iface, index) => {
             // 为每个接口生成入参和出参类型定义
             let interfaceResult = '';
 
             // 生成请求参数类型定义
-            const requestTypeName = this.getQueryTypeName(iface);
+            const requestTypeName = this.getQueryTypeName(
+                iface,
+                pathSegmentCounts.get(iface._id) || 1
+            );
             const mergedFields = new Map<
                 string,
                 { type: string; optional: boolean; comment?: string }
@@ -66,7 +72,10 @@ export class CodeGenerator {
             // 生成响应参数类型定义
             if (iface.res_body && iface.res_body_is_json_schema) {
                 try {
-                    const responseTypeName = this.getResponseTypeName(iface);
+                    const responseTypeName = this.getResponseTypeName(
+                        iface,
+                        pathSegmentCounts.get(iface._id) || 1
+                    );
                     const responseFields = this.generateTypeFieldsFromJsonSchema(
                         JSON.parse(iface.res_body)
                     );
@@ -97,6 +106,115 @@ export class CodeGenerator {
     }
 
     /**
+     * 计算每个接口需要的路径节数以避免冲突
+     */
+    private calculatePathSegmentCounts(interfaces: YapiInterfaceDetail[]): Map<number, number> {
+        const pathSegmentCounts = new Map<number, number>();
+
+        // 为每个接口初始化为1个路径节
+        interfaces.forEach(iface => {
+            pathSegmentCounts.set(iface._id, 1);
+        });
+
+        let hasConflicts = true;
+        let maxSegments = 1;
+
+        // 循环检测冲突，直到没有冲突为止
+        while (hasConflicts && maxSegments <= 5) {
+            // 最多检测5层路径
+            hasConflicts = false;
+            const nameToInterfaces = new Map<string, YapiInterfaceDetail[]>();
+
+            // 根据当前路径节数生成方法名，并分组
+            interfaces.forEach(iface => {
+                const segmentCount = pathSegmentCounts.get(iface._id) || 1;
+                const methodName = this.getMethodNameWithSegments(iface, segmentCount);
+
+                if (!nameToInterfaces.has(methodName)) {
+                    nameToInterfaces.set(methodName, []);
+                }
+                nameToInterfaces.get(methodName)!.push(iface);
+            });
+
+            // 检查是否有冲突，如果有，增加冲突接口的路径节数
+            nameToInterfaces.forEach((conflictInterfaces, methodName) => {
+                if (conflictInterfaces.length > 1) {
+                    hasConflicts = true;
+                    // 为冲突的接口增加路径节数
+                    conflictInterfaces.forEach(iface => {
+                        const currentCount = pathSegmentCounts.get(iface._id) || 1;
+                        pathSegmentCounts.set(
+                            iface._id,
+                            Math.min(currentCount + 1, maxSegments + 1)
+                        );
+                    });
+                }
+            });
+
+            maxSegments++;
+        }
+
+        return pathSegmentCounts;
+    }
+
+    /**
+     * 根据指定的路径节数生成方法名
+     */
+    private getMethodNameWithSegments(iface: YapiInterfaceDetail, segmentCount: number): string {
+        // 从路径生成方法名
+        const pathParts = iface.path.split('/').filter(part => part && !part.startsWith('{'));
+
+        if (pathParts.length === 0) {
+            return iface.method.toLowerCase();
+        }
+
+        // 查找版本号（如 v1, v2, v3 等）
+        const versionRegex = /^v\d+$/i;
+        let version = '';
+        const segments: string[] = [];
+
+        // 从后往前取指定数量的非版本号路径段
+        for (let i = pathParts.length - 1; i >= 0 && segments.length < segmentCount; i--) {
+            const part = pathParts[i];
+            if (versionRegex.test(part)) {
+                if (!version) {
+                    version = part;
+                }
+            } else {
+                segments.unshift(part); // 添加到开头，保持顺序
+            }
+        }
+
+        if (segments.length === 0) {
+            return iface.method.toLowerCase();
+        }
+
+        // 将多个路径段连接成方法名
+        const combinedSegment = segments
+            .map(segment => this.convertToCamelCase(segment))
+            .map((segment, index) =>
+                index === 0 ? segment : segment.charAt(0).toUpperCase() + segment.slice(1)
+            )
+            .join('');
+
+        const method = iface.method.toLowerCase();
+
+        // 检查是否已经包含方法前缀，避免重复
+        let methodName = combinedSegment;
+        if (!combinedSegment.toLowerCase().startsWith(method)) {
+            methodName =
+                method + combinedSegment.charAt(0).toUpperCase() + combinedSegment.slice(1);
+        }
+
+        // 如果有版本号，添加到方法名后面
+        if (version) {
+            methodName += version.toUpperCase();
+        }
+
+        return methodName;
+    }
+
+    /**
      * 生成API接口定义代码
      */
     generateApiDefinitions(
@@ -104,8 +222,16 @@ export class CodeGenerator {
         template: TemplateConfig,
         yapiBaseUrl: string
     ): string {
+        // 计算每个接口需要的路径节数以避免冲突
+        const pathSegmentCounts = this.calculatePathSegmentCounts(interfaces);
+
         const apiDefinitions = interfaces.map(iface => {
-            return this.generateSingleApiDefinition(iface, template, yapiBaseUrl);
+            return this.generateSingleApiDefinition(
+                iface,
+                template,
+                yapiBaseUrl,
+                pathSegmentCounts.get(iface._id) || 1
+            );
         });
 
         return apiDefinitions.join('\n\n');
@@ -117,11 +243,14 @@ export class CodeGenerator {
     private generateSingleApiDefinition(
         iface: YapiInterfaceDetail,
         template: TemplateConfig,
-        yapiBaseUrl: string
+        yapiBaseUrl: string,
+        segmentCount?: number
     ): string {
-        const methodName = this.getMethodName(iface);
-        const responseTypeName = this.getResponseTypeName(iface);
-        const paramsTypeName = this.getQueryTypeName(iface);
+        const methodName = segmentCount
+            ? this.getMethodNameWithSegments(iface, segmentCount)
+            : this.getMethodName(iface);
+        const responseTypeName = this.getResponseTypeName(iface, segmentCount);
+        const paramsTypeName = this.getQueryTypeName(iface, segmentCount);
         const lowerCaseMethod = iface.method.toLocaleLowerCase();
 
         // 构建接口在YAPI中的完整URL
@@ -401,16 +530,20 @@ export class CodeGenerator {
     /**
      * 获取响应类型名
      */
-    private getResponseTypeName(iface: YapiInterfaceDetail): string {
-        const methodName = this.getMethodName(iface);
+    private getResponseTypeName(iface: YapiInterfaceDetail, segmentCount?: number): string {
+        const methodName = segmentCount
+            ? this.getMethodNameWithSegments(iface, segmentCount)
+            : this.getMethodName(iface);
         return `${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Response`;
     }
 
     /**
      * 获取查询参数类型名
      */
-    private getQueryTypeName(iface: YapiInterfaceDetail): string {
-        const methodName = this.getMethodName(iface);
+    private getQueryTypeName(iface: YapiInterfaceDetail, segmentCount?: number): string {
+        const methodName = segmentCount
+            ? this.getMethodNameWithSegments(iface, segmentCount)
+            : this.getMethodName(iface);
         return `${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Params`;
     }
 
