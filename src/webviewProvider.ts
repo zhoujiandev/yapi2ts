@@ -112,14 +112,10 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 await this.handleLoadInterfaces();
                 break;
             case 'generateTypes':
-                await this.handleGenerateTypes(message.interfaceIds, message.categoryId);
+                await this.handleGenerateTypes(message.interfaceIds);
                 break;
             case 'generateApi':
-                await this.handleGenerateApi(
-                    message.interfaceIds,
-                    message.templateId,
-                    message.categoryId
-                );
+                await this.handleGenerateApi(message.interfaceIds, message.templateId);
                 break;
             case 'saveTemplate':
                 await this.handleSaveTemplate(message.template);
@@ -217,63 +213,62 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    private async handleGenerateTypes(interfaceIds: number[], categoryId?: number) {
+    private async handleGenerateTypes(interfaceIds: number[]) {
         try {
+            // 获取接口详情
             const interfaces = await this.yapiService.getInterfaceDetails(interfaceIds);
 
-            // 如果提供了categoryId，获取该分类下的所有接口用于命名冲突计算
-            let allCategoryInterfaces: YapiInterfaceDetail[] | undefined;
-            if (categoryId) {
+            // 按分类分组接口
+            const interfacesByCategory = new Map<number, YapiInterfaceDetail[]>();
+            interfaces.forEach(iface => {
+                if (!interfacesByCategory.has(iface.catid)) {
+                    interfacesByCategory.set(iface.catid, []);
+                }
+                interfacesByCategory.get(iface.catid)!.push(iface);
+            });
+
+            // 为每个分类获取完整的接口列表用于命名冲突计算
+            const categoryInterfacesMap = new Map<number, YapiInterfaceDetail[]>();
+            for (const catId of interfacesByCategory.keys()) {
                 try {
                     const categoryInterfaceList = await this.yapiService.getInterfaceList(
-                        categoryId,
+                        catId,
                         1,
                         1000
                     );
                     const allCategoryInterfaceIds = categoryInterfaceList.list.map(
                         iface => iface._id
                     );
-                    allCategoryInterfaces =
+                    const categoryInterfaces =
                         await this.yapiService.getInterfaceDetails(allCategoryInterfaceIds);
+                    categoryInterfacesMap.set(catId, categoryInterfaces);
                 } catch (error) {
-                    console.warn(
-                        'Failed to get all category interfaces for naming consistency:',
-                        error
-                    );
+                    console.warn(`Failed to get interfaces for category ${catId}:`, error);
+                    // 如果获取失败，至少使用当前选中的接口
+                    categoryInterfacesMap.set(catId, interfacesByCategory.get(catId) || []);
                 }
             }
 
+            // 生成类型定义，传入分类接口映射
             const typeDefinitions = this.codeGenerator.generateTypeDefinitions(
                 interfaces,
-                allCategoryInterfaces
+                categoryInterfacesMap
             );
 
             // 复制到剪贴板
             await vscode.env.clipboard.writeText(typeDefinitions);
 
-            // 发送成功消息给前端
-            this._view?.webview.postMessage({
-                type: 'generateTypesResult',
-                success: true,
-                message: `已复制 ${interfaceIds.length} 个接口的类型定义到剪贴板`
-            });
+            // 显示成功消息
+            vscode.window.showInformationMessage(
+                `已生成 ${interfaces.length} 个接口的类型定义并复制到剪贴板`
+            );
         } catch (error) {
-            // 发送失败消息给前端
-            this._view?.webview.postMessage({
-                type: 'generateTypesResult',
-                success: false,
-                message: `生成类型定义失败: ${error}`
-            });
-
+            console.error('Generate types error:', error);
             vscode.window.showErrorMessage(`生成类型定义失败: ${error}`);
         }
     }
 
-    private async handleGenerateApi(
-        interfaceIds: number[],
-        templateId: string,
-        categoryId?: number
-    ) {
+    private async handleGenerateApi(interfaceIds: number[], templateId: string) {
         try {
             const interfaces = await this.yapiService.getInterfaceDetails(interfaceIds);
             const template = this.templates.find(t => t.id === templateId);
@@ -290,25 +285,32 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 return;
             }
 
-            // 如果提供了categoryId，获取该分类下的所有接口用于命名冲突计算
-            let allCategoryInterfaces: YapiInterfaceDetail[] | undefined;
-            if (categoryId) {
-                try {
-                    const categoryInterfaceList = await this.yapiService.getInterfaceList(
-                        categoryId,
-                        1,
-                        1000
-                    );
-                    const allCategoryInterfaceIds = categoryInterfaceList.list.map(
-                        iface => iface._id
-                    );
-                    allCategoryInterfaces =
-                        await this.yapiService.getInterfaceDetails(allCategoryInterfaceIds);
-                } catch (error) {
-                    console.warn(
-                        'Failed to get all category interfaces for naming consistency:',
-                        error
-                    );
+            // 从接口信息中提取分类信息，构建分类接口映射
+            let categoryInterfacesMap: Map<number, YapiInterfaceDetail[]> | undefined;
+
+            // 获取所有涉及的分类ID
+            const categoryIds = [...new Set(interfaces.map(iface => iface.catid))];
+
+            if (categoryIds.length > 0) {
+                categoryInterfacesMap = new Map();
+
+                // 为每个分类获取其所有接口
+                for (const catId of categoryIds) {
+                    try {
+                        const categoryInterfaceList = await this.yapiService.getInterfaceList(
+                            catId,
+                            1,
+                            1000
+                        );
+                        const allCategoryInterfaceIds = categoryInterfaceList.list.map(
+                            iface => iface._id
+                        );
+                        const allCategoryInterfaces =
+                            await this.yapiService.getInterfaceDetails(allCategoryInterfaceIds);
+                        categoryInterfacesMap.set(catId, allCategoryInterfaces);
+                    } catch (error) {
+                        console.warn(`Failed to get interfaces for category ${catId}:`, error);
+                    }
                 }
             }
 
@@ -316,7 +318,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 interfaces,
                 template,
                 this.yapiService.getBaseUrl(),
-                allCategoryInterfaces
+                categoryInterfacesMap
             );
 
             // 复制到剪贴板

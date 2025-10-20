@@ -1,113 +1,145 @@
 import { TemplateConfig, YapiInterfaceDetail } from './types';
 
 export class CodeGenerator {
+    constructor() {}
+
     /**
      * 生成TypeScript接口类型定义
      */
     generateTypeDefinitions(
         interfaces: YapiInterfaceDetail[],
-        allCategoryInterfaces?: YapiInterfaceDetail[]
+        categoryInterfacesMap?: Map<number, YapiInterfaceDetail[]>
     ): string {
         let result = '';
 
-        // 计算每个接口需要的路径节数以避免冲突
-        const pathSegmentCounts = this.calculatePathSegmentCounts(
-            allCategoryInterfaces || interfaces
-        );
+        // 如果提供了分类接口映射，按分类处理命名冲突
+        if (categoryInterfacesMap) {
+            // 为每个分类单独计算命名冲突
+            categoryInterfacesMap.forEach((allInterfacesInCategory, catId) => {
+                // 过滤出当前需要生成的接口（属于该分类的）
+                const categoryInterfaces = interfaces.filter(iface => iface.catid === catId);
 
-        interfaces.forEach((iface, index) => {
-            // 为每个接口生成入参和出参类型定义
-            let interfaceResult = '';
+                if (categoryInterfaces.length > 0) {
+                    const pathSegmentCounts =
+                        this.calculatePathSegmentCounts(allInterfacesInCategory);
 
-            // 生成请求参数类型定义
-            const requestTypeName = this.getQueryTypeName(
-                iface,
-                pathSegmentCounts.get(iface._id) || 1
-            );
-            const mergedFields = new Map<
-                string,
-                { type: string; optional: boolean; comment?: string }
-            >();
+                    categoryInterfaces.forEach(iface => {
+                        const interfaceResult = this.generateSingleTypeDefinition(
+                            iface,
+                            pathSegmentCounts.get(iface._id) || 1
+                        );
 
-            // 添加查询参数字段
-            if (iface.req_query && iface.req_query.length > 0) {
-                const queryFields = this.generateQueryTypeFields(iface);
-                queryFields.forEach((field, name) => {
-                    mergedFields.set(name, field);
-                });
-            }
-
-            // 添加请求体字段
-            if (
-                iface.req_body_type === 'json' &&
-                iface.req_body_other &&
-                iface.req_body_is_json_schema
-            ) {
-                try {
-                    const bodyFields = this.generateTypeFieldsFromJsonSchema(
-                        JSON.parse(iface.req_body_other)
-                    );
-                    bodyFields.forEach((field, name) => {
-                        mergedFields.set(name, field); // 后面的字段会覆盖前面的同名字段
-                    });
-                } catch (error) {
-                    console.warn(`Failed to parse request body schema for ${iface.title}:`, error);
-                }
-            } else if (
-                iface.req_body_type === 'form' &&
-                iface.req_body_form &&
-                iface.req_body_form.length > 0
-            ) {
-                const formFields = this.generateFormTypeFields(iface);
-                formFields.forEach((field, name) => {
-                    mergedFields.set(name, field); // 后面的字段会覆盖前面的同名字段
-                });
-            }
-
-            // 生成请求参数类型定义
-            interfaceResult += `// ${iface.title} - 请求参数类型\nexport interface ${requestTypeName} {\n`;
-            Array.from(mergedFields.entries()).forEach(([fieldName, field]) => {
-                if (field.comment) {
-                    interfaceResult += `  /** ${field.comment} */\n`;
-                }
-                interfaceResult += `  "${fieldName}"${field.optional ? '?' : ''}: ${field.type};\n`;
-            });
-            interfaceResult += '}\n\n';
-
-            // 生成响应参数类型定义
-            if (iface.res_body && iface.res_body_is_json_schema) {
-                try {
-                    const responseTypeName = this.getResponseTypeName(
-                        iface,
-                        pathSegmentCounts.get(iface._id) || 1
-                    );
-                    const responseFields = this.generateTypeFieldsFromJsonSchema(
-                        JSON.parse(iface.res_body)
-                    );
-                    interfaceResult += `// ${iface.title} - 响应参数类型\nexport interface ${responseTypeName} {\n`;
-                    Array.from(responseFields.entries()).forEach(([fieldName, field]) => {
-                        if (field.comment) {
-                            interfaceResult += `  /** ${field.comment} */\n`;
+                        if (interfaceResult) {
+                            if (result) {
+                                result += '\n';
+                            }
+                            result += interfaceResult;
                         }
-                        interfaceResult += `  "${fieldName}"${field.optional ? '?' : ''}: ${field.type};\n`;
                     });
-                    interfaceResult += '}\n\n';
-                } catch (error) {
-                    console.warn(`Failed to parse response body schema for ${iface.title}:`, error);
                 }
-            }
+            });
+        } else {
+            // 原有逻辑：统一处理所有接口的命名冲突
+            const pathSegmentCounts = this.calculatePathSegmentCounts(interfaces);
 
-            // 如果当前接口有生成的类型定义，添加到结果中
-            if (interfaceResult) {
-                // 如果不是第一个接口且前面有内容，添加分隔符
-                if (index > 0 && result) {
-                    result += '\n';
+            interfaces.forEach(iface => {
+                const interfaceResult = this.generateSingleTypeDefinition(
+                    iface,
+                    pathSegmentCounts.get(iface._id) || 1
+                );
+
+                if (interfaceResult) {
+                    if (result) {
+                        result += '\n';
+                    }
+                    result += interfaceResult;
                 }
-                result += interfaceResult;
-            }
-        });
+            });
+        }
 
         return result.trim();
+    }
+
+    /**
+     * 生成单个接口的类型定义
+     */
+    private generateSingleTypeDefinition(iface: YapiInterfaceDetail, segmentCount: number): string {
+        // 为每个接口生成入参和出参类型定义
+        let interfaceResult = '';
+
+        // 生成请求参数类型定义
+        const requestTypeName = this.getQueryTypeName(iface, segmentCount);
+        const mergedFields = new Map<
+            string,
+            { type: string; optional: boolean; comment?: string }
+        >();
+
+        // 添加查询参数字段
+        if (iface.req_query && iface.req_query.length > 0) {
+            const queryFields = this.generateQueryTypeFields(iface);
+            queryFields.forEach((field, name) => {
+                mergedFields.set(name, field);
+            });
+        }
+
+        // 添加请求体字段
+        if (
+            iface.req_body_type === 'json' &&
+            iface.req_body_other &&
+            iface.req_body_is_json_schema
+        ) {
+            try {
+                const bodyFields = this.generateTypeFieldsFromJsonSchema(
+                    JSON.parse(iface.req_body_other)
+                );
+                bodyFields.forEach((field, name) => {
+                    mergedFields.set(name, field); // 后面的字段会覆盖前面的同名字段
+                });
+            } catch (error) {
+                console.warn(`Failed to parse request body schema for ${iface.title}:`, error);
+            }
+        } else if (
+            iface.req_body_type === 'form' &&
+            iface.req_body_form &&
+            iface.req_body_form.length > 0
+        ) {
+            const formFields = this.generateFormTypeFields(iface);
+            formFields.forEach((field, name) => {
+                mergedFields.set(name, field); // 后面的字段会覆盖前面的同名字段
+            });
+        }
+
+        // 生成请求参数类型定义
+        interfaceResult += `// ${iface.title} - 请求参数类型\nexport interface ${requestTypeName} {\n`;
+        Array.from(mergedFields.entries()).forEach(([fieldName, field]) => {
+            if (field.comment) {
+                interfaceResult += `  /** ${field.comment} */\n`;
+            }
+            interfaceResult += `  "${fieldName}"${field.optional ? '?' : ''}: ${field.type};\n`;
+        });
+        interfaceResult += '}\n\n';
+
+        // 生成响应参数类型定义
+        if (iface.res_body && iface.res_body_is_json_schema) {
+            try {
+                const responseTypeName = this.getResponseTypeName(iface, segmentCount);
+                const responseFields = this.generateTypeFieldsFromJsonSchema(
+                    JSON.parse(iface.res_body)
+                );
+                interfaceResult += `// ${iface.title} - 响应参数类型\nexport interface ${responseTypeName} {\n`;
+                Array.from(responseFields.entries()).forEach(([fieldName, field]) => {
+                    if (field.comment) {
+                        interfaceResult += `  /** ${field.comment} */\n`;
+                    }
+                    interfaceResult += `  "${fieldName}"${field.optional ? '?' : ''}: ${field.type};\n`;
+                });
+                interfaceResult += '}\n\n';
+            } catch (error) {
+                console.warn(`Failed to parse response body schema for ${iface.title}:`, error);
+            }
+        }
+
+        return interfaceResult;
     }
 
     /**
@@ -226,14 +258,21 @@ export class CodeGenerator {
         interfaces: YapiInterfaceDetail[],
         template: TemplateConfig,
         yapiBaseUrl: string,
-        allCategoryInterfaces?: YapiInterfaceDetail[]
+        categoryInterfacesMap?: Map<number, YapiInterfaceDetail[]>
     ): string {
-        // 计算每个接口需要的路径节数以避免冲突
-        const pathSegmentCounts = this.calculatePathSegmentCounts(
-            allCategoryInterfaces || interfaces
-        );
-
         const apiDefinitions = interfaces.map(iface => {
+            // 如果是全局搜索，为每个接口找到其所属分类的所有接口用于命名冲突计算
+            let allCategoryInterfaces: YapiInterfaceDetail[] | undefined;
+            if (categoryInterfacesMap) {
+                // 直接使用接口的catid获取分类接口
+                allCategoryInterfaces = categoryInterfacesMap.get(iface.catid);
+            }
+
+            // 计算该接口在其所属分类中的路径节数以避免冲突
+            const pathSegmentCounts = this.calculatePathSegmentCounts(
+                allCategoryInterfaces || [iface]
+            );
+
             return this.generateSingleApiDefinition(
                 iface,
                 template,
