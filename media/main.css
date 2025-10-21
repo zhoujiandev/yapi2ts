@@ -885,6 +885,19 @@
   font-weight: 500;
 }
 
+.template-section .template-description code.has-example-tag::after {
+  content: "示例模版";
+  position: absolute;
+  top: -1px;
+  right: 128px;
+  background: var(--vscode-textLink-foreground);
+  color: var(--vscode-button-foreground);
+  padding: 2px 8px;
+  font-size: 10px;
+  border-radius: 4px 0 4px 0;
+  font-weight: 500;
+}
+
 /* Template item description styles (for individual templates) */
 
 .template-content {

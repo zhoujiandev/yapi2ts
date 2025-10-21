@@ -659,11 +659,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
               </div>
               <div class="template-description">
                 <p class="description-text">
-                  您可以创建自定义模板来生成符合项目规范的TypeScript接口定义代码。
-                  模板使用ES6模板字符串语法，支持变量替换，示例模版：
+                  您可以创建自定义模板来生成符合项目规范的TypeScript接口定义代码，
+                  模板使用ES6模板字符串语法，支持变量替换
                 </p>
                 <div class="code-example-container">
-                  <code id="template-example">/**
+                  <code id="template-example" class="has-example-tag">/**
  * @description \${title}
  * @url \${interfaceUrl}
  */
