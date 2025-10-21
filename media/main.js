@@ -226,6 +226,24 @@
         tableContent.innerHTML = '<div class="loading">暂无数据</div>';
       });
     }
+
+    // 复制模板示例按钮事件监听器
+    const copyTemplateExampleBtn = document.querySelector('.copy-btn[title="复制示例代码"]');
+    if (copyTemplateExampleBtn) {
+      copyTemplateExampleBtn.addEventListener('click', copyTemplateExample);
+    }
+  }
+
+  // 复制模板示例函数
+  function copyTemplateExample() {
+    const templateExample = document.getElementById('template-example');
+    if (templateExample) {
+      const content = templateExample.textContent;
+      vscode.postMessage({
+        type: 'copyTemplateExample',
+        content: content
+      });
+    }
   }
 
   function switchTab(tabId) {
@@ -1217,6 +1235,11 @@
         } else {
           showMessage(message.message, 'error');
         }
+        break;
+
+      case 'notification':
+        // 处理来自后端的通知消息
+        showMessage(message.message, message.notificationType);
         break;
     }
   });

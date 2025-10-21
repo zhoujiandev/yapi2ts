@@ -144,6 +144,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             case 'copyTemplate':
                 await this.handleCopyTemplate(message.content);
                 break;
+            case 'copyTemplateExample':
+                await this.handleCopyTemplateExample(message.content);
+                break;
         }
     }
 
@@ -498,10 +501,30 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     private async handleCopyTemplate(content: string) {
         try {
             await vscode.env.clipboard.writeText(content);
-            vscode.window.showInformationMessage('模板内容已复制到剪贴板');
+            this.sendNotification('模板内容已复制到剪贴板', 'success');
         } catch (error) {
             console.error('Failed to copy template:', error);
-            vscode.window.showErrorMessage('复制模板内容失败');
+            this.sendNotification('复制模板内容失败', 'error');
+        }
+    }
+
+    private async handleCopyTemplateExample(content: string) {
+        try {
+            await vscode.env.clipboard.writeText(content);
+            this.sendNotification('示例模板已复制到剪贴板', 'success');
+        } catch (error) {
+            console.error('Failed to copy template example:', error);
+            this.sendNotification('复制示例模板失败', 'error');
+        }
+    }
+
+    private sendNotification(message: string, type: 'success' | 'error' | 'info' = 'info') {
+        if (this._view) {
+            this._view.webview.postMessage({
+                type: 'notification',
+                message,
+                notificationType: type
+            });
         }
     }
 
@@ -637,14 +660,24 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
               <div class="template-description">
                 <p class="description-text">
                   您可以创建自定义模板来生成符合项目规范的TypeScript接口定义代码。
-                  模板使用ES6模板字符串语法，支持变量替换，示例 <code>/**
+                  模板使用ES6模板字符串语法，支持变量替换，示例模版：
+                </p>
+                <div class="code-example-container">
+                  <code id="template-example">/**
  * @description \${title}
  * @url \${interfaceUrl}
  */
 export const \${methodName} = (params: \${paramsTypeName},config?:Omit&lt;AxiosRequestConfig,\${isNotGet?'"data"':'"params"'}&gt;): Promise&lt;\${responseTypeName}&gt; => {
   return axios.\${lowerCaseMethod}('\${path}', \${isNotGet ? 'params,config' : '{params,...config}'})    
-};</code> 
-                </p>
+};</code>
+                  <button class="copy-btn" title="复制示例代码">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                </div>
+                <p class="description-text">
                 <p class="tip-text">
                   💡 建议：在编辑器中编写模板代码，这样可以获得语法高亮和代码提示，复制粘贴到模板编辑器中。
                 </p>
