@@ -212,7 +212,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 type: 'interfacesLoadFailed',
                 error: String(error)
             });
-            vscode.window.showErrorMessage(`加载接口失败: ${error}`);
+            this.sendNotification(`加载接口失败: ${error}`, 'error');
         }
     }
 
@@ -277,7 +277,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 message: `生成类型定义失败: ${error}`
             });
 
-            vscode.window.showErrorMessage(`生成类型定义失败: ${error}`);
+            this.sendNotification(`生成类型定义失败: ${error}`, 'error');
         }
     }
 
@@ -294,7 +294,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                     message: '未找到指定的模板'
                 });
 
-                vscode.window.showErrorMessage('未找到指定的模板');
+                this.sendNotification('未找到指定的模板', 'error');
                 return;
             }
 
@@ -351,7 +351,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 message: `生成API定义失败: ${error}`
             });
 
-            vscode.window.showErrorMessage(`生成API定义失败: ${error}`);
+            this.sendNotification(`生成API定义失败: ${error}`, 'error');
         }
     }
 
@@ -372,9 +372,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 template
             });
 
-            vscode.window.showInformationMessage('模板保存成功');
+            this.sendNotification('模板保存成功', 'success');
         } catch (error) {
-            vscode.window.showErrorMessage(`保存模板失败: ${error}`);
+            this.sendNotification(`保存模板失败: ${error}`, 'error');
         }
     }
 
@@ -388,9 +388,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 templateId
             });
 
-            vscode.window.showInformationMessage('模板删除成功');
+            this.sendNotification('模板删除成功', 'success');
         } catch (error) {
-            vscode.window.showErrorMessage(`删除模板失败: ${error}`);
+            this.sendNotification(`删除模板失败: ${error}`, 'error');
         }
     }
 
@@ -435,9 +435,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 type: 'projectsLoaded',
                 projects: this.projects
             });
-            vscode.window.showInformationMessage('项目保存成功');
+            this.sendNotification('项目保存成功', 'success');
         } catch (error) {
-            vscode.window.showErrorMessage(`保存项目失败: ${error}`);
+            this.sendNotification(`保存项目失败: ${error}`, 'error');
         }
     }
 
@@ -449,9 +449,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 type: 'projectsLoaded',
                 projects: this.projects
             });
-            vscode.window.showInformationMessage('项目删除成功');
+            this.sendNotification('项目删除成功', 'success');
         } catch (error) {
-            vscode.window.showErrorMessage(`删除项目失败: ${error}`);
+            this.sendNotification(`删除项目失败: ${error}`, 'error');
         }
     }
 
@@ -469,10 +469,10 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     private async handleCopyPath(path: string) {
         try {
             await vscode.env.clipboard.writeText(path);
-            vscode.window.showInformationMessage(`路径已复制: ${path}`);
+            this.sendNotification(`路径已复制: ${path}`, 'success');
         } catch (error) {
             console.error('Failed to copy path:', error);
-            vscode.window.showErrorMessage('复制路径失败');
+            this.sendNotification('复制路径失败', 'error');
         }
     }
 
@@ -483,7 +483,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             const projectInfo = this.context.globalState.get<any>('yapi2ts.projectInfo');
 
             if (!yapiUrl || !projectInfo) {
-                vscode.window.showErrorMessage('请先配置YAPI地址和项目Token');
+                this.sendNotification('请先配置YAPI地址和项目Token', 'error');
                 return;
             }
 
@@ -491,10 +491,10 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             const yapiInterfaceUrl = `${yapiUrl}/project/${projectInfo._id}/interface/api/${interfaceId}`;
 
             await vscode.env.clipboard.writeText(yapiInterfaceUrl);
-            vscode.window.showInformationMessage(`YAPI接口地址已复制: ${yapiInterfaceUrl}`);
+            this.sendNotification(`YAPI接口地址已复制: ${yapiInterfaceUrl}`, 'success');
         } catch (error) {
             console.error('Failed to copy YAPI URL:', error);
-            vscode.window.showErrorMessage('复制YAPI接口地址失败');
+            this.sendNotification('复制YAPI接口地址失败', 'error');
         }
     }
 
