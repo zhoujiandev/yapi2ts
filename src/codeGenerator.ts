@@ -607,7 +607,7 @@ export class CodeGenerator {
  * @description \${title}
  * @url \${interfaceUrl}
  */
-export const \${methodName} = (params: \${paramsTypeName},config:Omit&lt;AxiosRequestConfig,\${isNotGet?'"data"':'"params"'}&gt;): Promise&lt;\${responseTypeName}&gt; => {
+export const \${methodName} = (params: \${paramsTypeName},config?:Omit<AxiosRequestConfig,\${isNotGet?'"data"':'"params"'}>): Promise<\${responseTypeName}> => {
   return axios.\${lowerCaseMethod}('\${path}', \${isNotGet ? 'params,config' : '{params,...config}'})    
 };`,
                 createdAt: Date.now(),

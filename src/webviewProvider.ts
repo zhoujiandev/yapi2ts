@@ -641,7 +641,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
  * @description \${title}
  * @url \${interfaceUrl}
  */
-export const \${methodName} = (params: \${paramsTypeName},config:Omit&lt;AxiosRequestConfig,\${isNotGet?'"data"':'"params"'}&gt;): Promise&lt;\${responseTypeName}&gt; => {
+export const \${methodName} = (params: \${paramsTypeName},config?:Omit&lt;AxiosRequestConfig,\${isNotGet?'"data"':'"params"'}&gt;): Promise&lt;\${responseTypeName}&gt; => {
   return axios.\${lowerCaseMethod}('\${path}', \${isNotGet ? 'params,config' : '{params,...config}'})    
 };</code> 
                 </p>
