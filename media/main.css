@@ -8,6 +8,16 @@
   min-width: 360px; /* 设置最小宽度确保内容不会过于拥挤 */
 }
 
+/* 旋转动画 */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
 /* Tabs */
 .tabs {
   display: flex;
@@ -218,6 +228,9 @@
   border-radius: 2px;
   cursor: pointer;
   font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   /* margin-right: 6px;
   margin-bottom: 6px; */
 }
