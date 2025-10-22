@@ -43,6 +43,12 @@ jobs:
                   fi
                   echo "Version format is valid: $VERSION"
 
+            - name: Pull latest changes
+              run: |
+                  git config --local user.email "action@github.com"
+                  git config --local user.name "GitHub Action"
+                  git pull origin master --rebase
+
             - name: Update package.json version
               run: |
                   npm version ${{ steps.get_version.outputs.version }} --no-git-tag-version
@@ -50,9 +56,6 @@ jobs:
 
             - name: Commit version update
               run: |
-                  git config --local user.email "action@github.com"
-                  git config --local user.name "GitHub Action"
-                  git pull origin master --rebase
                   git add package.json
                   if git diff --staged --quiet; then
                     echo "No changes to commit"
