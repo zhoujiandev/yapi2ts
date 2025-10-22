@@ -414,12 +414,12 @@
                 <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
               </svg>
             </button>
-            <span class="interface-path">${iface.path}</span>
             <button class="copy-yapi-url-btn" data-interface-id="${iface._id}" title="复制YAPI接口地址">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M13.5 3a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
               </svg>
             </button>
+            <span class="interface-path">${iface.path}</span>
           </div>
         </div>
       `;
