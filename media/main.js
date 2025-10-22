@@ -87,7 +87,7 @@
       const selectedProject = projectSelect.value;
       
       if (!selectedProject) {
-        showMessage('请选择项目', 'error');
+        showMessage('请先选择一个项目，如果还没有配置项目，请切换到"我的项目"标签页进行配置', 'error');
         return;
       }
 
