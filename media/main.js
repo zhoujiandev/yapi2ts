@@ -1160,7 +1160,7 @@
           showMessage(message.message, 'success');
           saveConfig();
           // 连接成功后显示刷新按钮
-          refreshBtn.style.display = 'inline-block';
+          refreshBtn.style.display = 'inline-flex';
         } else {
           showMessage(message.message, 'error');
           // 连接失败时隐藏刷新按钮
@@ -1243,6 +1243,8 @@
           if (project) {
             projectSelect.value = project.id;
             saveConfig();
+            // 如果有有效的配置，显示刷新按钮
+            refreshBtn.style.display = 'inline-flex';
           }
         }
         break;
