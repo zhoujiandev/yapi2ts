@@ -2,7 +2,7 @@
 
 一个强大的VSCode插件，用于从YAPI接口文档自动生成TypeScript类型定义和API接口代码，提升前端开发效率。通过可视化界面轻松管理YAPI项目，浏览接口文档，并一键生成标准化的TypeScript代码。
 
-> **插件名称**: yapi  
+> **插件名称**: yapi-ts  
 > **GitHub仓库**: [https://github.com/zhoujiandev/yapi2ts](https://github.com/zhoujiandev/yapi2ts)
 
 ## ✨ 功能特性
@@ -54,14 +54,14 @@
 #### 方式一：VSCode扩展市场安装（推荐）
 
 1. 打开VSCode，按 `Ctrl+Shift+X`（Mac: `Cmd+Shift+X`）打开扩展面板
-2. 在搜索框中输入 "yapi" 或 "YAPI to TypeScript"
+2. 在搜索框中输入 "yapi-ts" 或 "YAPI to TypeScript"
 3. 找到插件后点击 "安装" 按钮
 4. 安装完成后重启VSCode（如需要）
 
 #### 方式二：命令行安装
 
 ```bash
-code --install-extension zhoujian.yapi
+code --install-extension zhoujian.yapi-ts
 ```
 
 ### 🎯 首次使用

@@ -1,5 +1,5 @@
 {
-    "name": "yapi",
+    "name": "yapi-ts",
     "displayName": "YAPI to TypeScript",
     "description": "Generate TypeScript interfaces and API definitions from YAPI",
     "version": "0.0.49",
