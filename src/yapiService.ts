@@ -21,6 +21,10 @@ export class YapiService {
         return this.baseUrl;
     }
 
+    public isConfigured(): boolean {
+        return this.baseUrl !== '' && this.token !== '';
+    }
+
     private async request<T>(endpoint: string, params: Record<string, any> = {}): Promise<T> {
         const url = new URL(endpoint, this.baseUrl);
 
