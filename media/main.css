@@ -320,6 +320,9 @@
 }
 
 .tree-title {
+  gap:4px;
+  display: flex;
+  align-items: center;
   margin-left: 8px;
   font-size: 12px;
   font-weight: 600;
@@ -923,6 +926,13 @@
 .project-name {
   font-weight: 600;
   font-size: 13px;
+}
+
+/* 接口菜单中的项目名称样式 */
+.tree-title .project-name {
+  color: var(--vscode-descriptionForeground);
+  font-weight: 400;
+  font-size: 12px;
 }
 
 .project-actions {
