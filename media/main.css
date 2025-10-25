@@ -343,8 +343,8 @@
 
 /* 用户手动展开状态 - 覆盖媒体查询 */
 .interface-tree.user-expanded {
-  width: 250px !important;
-  min-width: 250px !important;
+  width: 200px !important;
+  min-width: 200px !important;
 }
 
 .interface-tree.user-expanded .tree-toggle-btn {
