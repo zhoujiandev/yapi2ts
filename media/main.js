@@ -1195,16 +1195,25 @@
             const selectedProject = projectSelect.value;
             const project = currentProjects.find(p => p.id === selectedProject);
             
+            let displayText = '';
+            let fullText = '';
+            
             if (project) {
               // 显示格式：我的项目名-yapi平台项目名
-              projectNameElement.textContent = `(${project.name}-${message.projectInfo.name})`;
+              displayText = `(${project.name}-${message.projectInfo.name})`;
+              fullText = `${project.name}-${message.projectInfo.name}`;
             } else {
               // 如果找不到项目配置，只显示yapi平台项目名
-              projectNameElement.textContent = `(${message.projectInfo.name})`;
+              displayText = `(${message.projectInfo.name})`;
+              fullText = message.projectInfo.name;
             }
+            
+            projectNameElement.textContent = displayText;
+            projectNameElement.title = fullText; // 设置tooltip显示完整内容
           } else {
             // 没有项目信息时清空
             projectNameElement.textContent = '';
+            projectNameElement.title = '';
           }
         }
         

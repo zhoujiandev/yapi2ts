@@ -331,6 +331,7 @@
   overflow: hidden;
   opacity: 1;
   transition: opacity 0.3s ease;
+  min-width: 0; /* 允许flex子元素收缩 */
 }
 
 .tree-content {
@@ -933,6 +934,11 @@
   color: var(--vscode-descriptionForeground);
   font-weight: 400;
   font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0; /* 允许收缩 */
 }
 
 .project-actions {
