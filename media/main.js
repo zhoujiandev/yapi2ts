@@ -409,6 +409,7 @@
           <span class="interface-status" title="${statusIndicator.text}">${statusIndicator.emoji}</span>
           <span class="interface-title">${iface.title}</span>
           <div class="interface-path-container">
+            <span class="interface-path">${iface.path}</span>
             <button class="copy-path-btn" data-path="${iface.path}" title="复制路径">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
@@ -420,7 +421,6 @@
                 <path d="M13.5 3a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
               </svg>
             </button>
-            <span class="interface-path">${iface.path}</span>
           </div>
         </div>
       `;
