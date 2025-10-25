@@ -1189,8 +1189,23 @@
         
         // 更新项目名称显示
         const projectNameElement = document.getElementById('project-name');
-        if (projectNameElement && message.projectInfo) {
-          projectNameElement.textContent = `(${message.projectInfo.name})`;
+        if (projectNameElement) {
+          if (message.projectInfo) {
+            // 获取当前选中的项目配置
+            const selectedProject = projectSelect.value;
+            const project = currentProjects.find(p => p.id === selectedProject);
+            
+            if (project) {
+              // 显示格式：我的项目名-yapi平台项目名
+              projectNameElement.textContent = `(${project.name}-${message.projectInfo.name})`;
+            } else {
+              // 如果找不到项目配置，只显示yapi平台项目名
+              projectNameElement.textContent = `(${message.projectInfo.name})`;
+            }
+          } else {
+            // 没有项目信息时清空
+            projectNameElement.textContent = '';
+          }
         }
         
         renderInterfaceTree();

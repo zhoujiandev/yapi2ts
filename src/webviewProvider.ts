@@ -620,7 +620,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                         <path d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
                       </svg>
                     </button>
-                    <span class="tree-title">接口菜单 <span id="project-name" class="project-name"></span>
+                    <span class="tree-title">目录 <span id="project-name" class="project-name"></span>
                       <button id="refresh-btn" class="btn-icon" title="刷新接口列表" style="margin-left: 8px;">
                         <svg id="refresh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                           <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
