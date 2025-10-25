@@ -13,7 +13,6 @@
   let interfaceSearchTerm = '';
   // 刷新按钮状态管理
   let isRefreshing = false;
-  let refreshButtonOriginalText = '';
 
   // DOM Elements
   const tabButtons = document.querySelectorAll('.tab-button');
@@ -115,10 +114,8 @@
       isRefreshing = true;
       refreshBtn.disabled = true;
       const refreshIcon = document.getElementById('refresh-icon');
-      const refreshText = document.getElementById('refresh-text');
-      if (refreshIcon && refreshText) {
+      if (refreshIcon) {
         refreshIcon.classList.add('spinning');
-        refreshText.textContent = '刷新中...';
       }
 
       vscode.postMessage({
@@ -1159,10 +1156,8 @@
           isRefreshing = true;
           refreshBtn.disabled = true;
           const refreshIcon = document.getElementById('refresh-icon');
-          const refreshText = document.getElementById('refresh-text');
-          if (refreshIcon && refreshText) {
+          if (refreshIcon) {
             refreshIcon.classList.add('spinning');
-            refreshText.textContent = '刷新中...';
           }
         }
         break;
@@ -1223,10 +1218,8 @@
           isRefreshing = false;
           refreshBtn.disabled = false;
           const refreshIcon = document.getElementById('refresh-icon');
-          const refreshText = document.getElementById('refresh-text');
-          if (refreshIcon && refreshText) {
+          if (refreshIcon) {
             refreshIcon.classList.remove('spinning');
-            refreshText.textContent = '刷新';
           }
         }
         break;
@@ -1250,10 +1243,8 @@
           isRefreshing = false;
           refreshBtn.disabled = false;
           const refreshIcon = document.getElementById('refresh-icon');
-          const refreshText = document.getElementById('refresh-text');
-          if (refreshIcon && refreshText) {
+          if (refreshIcon) {
             refreshIcon.classList.remove('spinning');
-            refreshText.textContent = '刷新';
           }
         }
         break;
