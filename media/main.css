@@ -713,12 +713,14 @@
 }
 
 .interface-title {
-  flex: 1;
+  flex: 0 1 auto; /* 根据内容自适应宽度，但允许收缩 */
   margin-right: 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: right;
   min-width: 0; /* 允许完全收缩 */
+  max-width: 200px; /* 设置最大宽度，防止标题过长占用过多空间 */
 }
 
 .interface-path {
@@ -736,7 +738,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  flex: 1;
+  flex: 1; /* 占用剩余空间 */
   min-width: 0; /* 允许完全收缩 */
 }
 
