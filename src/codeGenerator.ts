@@ -602,7 +602,7 @@ export class CodeGenerator {
             {
                 id: 'axios',
                 name: 'Axios Template',
-                description: '这是一个axios请求模版，支持ES6模板字符串语法',
+                description: '这是一个axios请求模板，支持ES6模板字符串语法',
                 content: `/**
  * @description \${title}
  * @url \${interfaceUrl}
