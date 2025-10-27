@@ -251,10 +251,17 @@
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: not-allowed;
   background-color: var(--vscode-button-secondaryBackground) !important;
-  color: var(--vscode-disabledForeground) !important;
+  color: var(--vscode-button-secondaryForeground) !important;
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: var(--vscode-button-background) !important;
+  color: var(--vscode-button-foreground) !important;
 }
 
 .btn-icon:disabled {
@@ -414,20 +421,39 @@
 .interface-search {
   display: flex;
   align-items: center;
-  padding: 0 0 8px;
+  padding: 0 0 8px 2px;
 }
 
 .interface-search input {
   flex-grow: 1;
-  padding: 4px;
+  padding: 8px 12px;
   background-color: var(--vscode-input-background);
   color: var(--vscode-input-foreground);
   border: 1px solid var(--vscode-input-border);
-  border-radius: 2px;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  min-height: 28px;
+  box-sizing: border-box;
+}
+
+.interface-search input:focus {
+  border-color: var(--vscode-focusBorder);
+  box-shadow: 0 0 0 1px var(--vscode-focusBorder), 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--vscode-input-background);
+}
+
+.interface-search input:hover:not(:focus) {
+  border-color: var(--vscode-input-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .interface-search input::placeholder {
   color: var(--vscode-input-placeholderForeground);
+  opacity: 0.7;
 }
 
 .btn-icon {
