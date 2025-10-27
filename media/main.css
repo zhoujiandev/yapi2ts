@@ -212,16 +212,31 @@
   background: var(--vscode-input-background, #f8f8f8);
   border: 1px solid var(--vscode-input-border, #d0d0d0);
   color: var(--vscode-input-foreground, #333333);
-  /* 添加轻微的内阴影，增强视觉层次 */
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  /* 添加轻微的内阴影和外阴影，增强视觉层次 */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 /* 针对浅色主题的特殊处理 */
 .form-control:focus {
   outline: none;
   border-color: var(--vscode-focusBorder, #007acc);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--vscode-focusBorder, #007acc);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 2px var(--vscode-focusBorder, #007acc);
   background: var(--vscode-input-background, #ffffff);
+}
+
+/* 增强普通输入框的边界可见性 */
+.form-group input {
+  background: var(--vscode-input-background, #f8f8f8);
+  border: 1px solid var(--vscode-input-border, #d0d0d0);
+  color: var(--vscode-input-foreground, #333333);
+  /* 添加轻微的外阴影，增强边界 */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--vscode-focusBorder, #007acc);
+  box-shadow: 0 0 0 2px var(--vscode-focusBorder, #007acc), inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .form-group select {
@@ -1206,14 +1221,22 @@
 .template-modal-body textarea {
   width: 100%;
   padding: 8px;
-  background: var(--vscode-input-background);
-  border: 1px solid var(--vscode-input-border);
+  background: var(--vscode-input-background, #f8f8f8);
+  border: 1px solid var(--vscode-input-border, #d0d0d0);
   border-radius: 2px;
-  color: var(--vscode-input-foreground);
+  color: var(--vscode-input-foreground, #333333);
   font-size: 12px;
   font-family: var(--vscode-editor-font-family);
   resize: vertical;
   box-sizing: border-box;
+  /* 添加轻微的外阴影，增强边界可见性 */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.template-modal-body textarea:focus {
+  outline: none;
+  border-color: var(--vscode-focusBorder, #007acc);
+  box-shadow: 0 0 0 2px var(--vscode-focusBorder, #007acc), inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .template-modal-body textarea::placeholder {
