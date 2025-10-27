@@ -245,9 +245,13 @@
 }
 
 .btn-secondary {
-  background: var(--vscode-input-background);
-  color: var(--vscode-foreground);
-  border: 1px solid var(--vscode-input-border);
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+  border: 1px solid var(--vscode-button-border, var(--vscode-input-border));
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--vscode-button-secondaryHoverBackground);
 }
 
 .btn:disabled {
