@@ -195,7 +195,8 @@
   color: var(--vscode-descriptionForeground);
 }
 
-.form-group input {
+.form-group input,
+.form-control {
   width: 100%;
   padding: 6px 8px;
   background: var(--vscode-input-background);
@@ -204,6 +205,23 @@
   color: var(--vscode-input-foreground);
   font-size: 13px;
   box-sizing: border-box;
+}
+
+/* 确保在浅色主题下输入框背景可见 */
+.form-control {
+  background: var(--vscode-input-background, #f8f8f8);
+  border: 1px solid var(--vscode-input-border, #d0d0d0);
+  color: var(--vscode-input-foreground, #333333);
+  /* 添加轻微的内阴影，增强视觉层次 */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 针对浅色主题的特殊处理 */
+.form-control:focus {
+  outline: none;
+  border-color: var(--vscode-focusBorder, #007acc);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--vscode-focusBorder, #007acc);
+  background: var(--vscode-input-background, #ffffff);
 }
 
 .form-group select {
@@ -217,8 +235,9 @@
   box-sizing: border-box;
 }
 
-.form-group input::placeholder {
-  color: var(--vscode-input-placeholderForeground);
+.form-group input::placeholder,
+.form-control::placeholder {
+  color: var(--vscode-input-placeholderForeground, #999999);
 }
 
 /* Buttons */
