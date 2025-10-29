@@ -739,7 +739,8 @@
   align-items: center;
   gap: 4px;
   flex: 1; /* 占用剩余空间 */
-  min-width: 0; /* 允许完全收缩 */
+  min-width: 130px; /* 允许完全收缩 */
+  text-align: right;
 }
 
 .copy-path-btn {
