@@ -285,6 +285,215 @@ export class CodeGenerator {
     }
 
     /**
+     * 生成参数注释列表
+     */
+    private generateParamsComments(iface: YapiInterfaceDetail): string[] {
+        const paramsComments: string[] = [];
+
+        // 添加路径参数
+        if (iface.req_params && iface.req_params.length > 0) {
+            iface.req_params.forEach(param => {
+                const desc = param.desc || '路径参数';
+                paramsComments.push(`@param  params.${param.name} ${desc}`);
+            });
+        }
+
+        // 添加查询参数
+        if (iface.req_query && iface.req_query.length > 0) {
+            iface.req_query.forEach(param => {
+                const required = param.required === '1' ? '' : '?';
+                const desc = param.desc || '查询参数';
+                paramsComments.push(`@param  params.${param.name}${required} ${desc}`);
+            });
+        }
+
+        // 添加请求体参数（JSON Schema）
+        if (
+            iface.req_body_type === 'json' &&
+            iface.req_body_other &&
+            iface.req_body_is_json_schema
+        ) {
+            try {
+                const schema = JSON.parse(iface.req_body_other);
+                if (schema.type === 'object' && schema.properties) {
+                    Object.keys(schema.properties).forEach(key => {
+                        const prop = schema.properties[key];
+                        const isRequired = schema.required && schema.required.includes(key);
+                        const required = isRequired ? '' : '?';
+                        const type = this.getJSDocType(prop);
+                        const desc = prop.description || '请求体参数';
+                        paramsComments.push(`@param {${type}}${required} ${key} ${desc}`);
+                    });
+                }
+            } catch (error) {
+                console.warn(`Failed to parse request body schema for ${iface.title}:`, error);
+            }
+        }
+
+        // 添加表单参数
+        if (
+            iface.req_body_type === 'form' &&
+            iface.req_body_form &&
+            iface.req_body_form.length > 0
+        ) {
+            iface.req_body_form.forEach(param => {
+                const required = param.required === '1' ? '' : '?';
+                const type = this.getFormFieldJSDocType(param.type);
+                const desc = param.desc || '表单参数';
+                paramsComments.push(`@param  params.${param.name}${required} ${desc}`);
+            });
+        }
+
+        return paramsComments;
+    }
+
+    /**
+     * 获取JSDoc类型注释
+     */
+    private getJSDocType(schema: any): string {
+        if (!schema || typeof schema !== 'object') {
+            return 'any';
+        }
+
+        switch (schema.type) {
+            case 'string':
+                return 'string';
+            case 'number':
+            case 'integer':
+                return 'number';
+            case 'boolean':
+                return 'boolean';
+            case 'array':
+                if (schema.items) {
+                    return `${this.getJSDocType(schema.items)}[]`;
+                }
+                return 'any[]';
+            case 'object':
+                return 'object';
+            default:
+                return 'any';
+        }
+    }
+
+    /**
+     * 获取表单字段的JSDoc类型
+     */
+    private getFormFieldJSDocType(type: string): string {
+        switch (type) {
+            case 'text':
+            case 'textarea':
+                return 'string';
+            case 'file':
+                return 'File';
+            default:
+                return 'string';
+        }
+    }
+
+    /**
+     * 检测模板是否包含顶部注释，如果没有则自动添加
+     */
+    private ensureTopComments(
+        template: TemplateConfig,
+        iface: YapiInterfaceDetail,
+        yapiBaseUrl: string
+    ): TemplateConfig {
+        const content = template.content.trim();
+
+        // 检查是否已经包含JSDoc注释
+        const hasJSDocComment = /\/\*\*[\s\S]*?\*\//.test(content);
+
+        if (hasJSDocComment) {
+            // 检查是否包含必要的标签
+            const hasDescription = /@description/.test(content);
+            const hasUrl = /@url/.test(content);
+            const hasParams = /@param/.test(content);
+
+            // 如果已经包含所有必要标签，直接返回原模板
+            if (hasDescription && hasUrl && hasParams) {
+                return template;
+            }
+
+            // 如果有注释但缺少某些标签，尝试智能合并
+            const interfaceUrl = `${yapiBaseUrl.replace(/\/$/, '')}/project/${iface.project_id}/interface/api/${iface._id}`;
+            const paramsComments = this.generateParamsComments(iface);
+
+            // 提取现有的JSDoc注释
+            const jsdocMatch = content.match(/\/\*\*([\s\S]*?)\*\//);
+            if (jsdocMatch) {
+                let existingComment = jsdocMatch[1];
+                const commentLines = existingComment.split('\n').map(line => line.trim());
+
+                // 添加缺失的标签
+                const newLines: string[] = [];
+
+                // 保留现有内容
+                commentLines.forEach(line => {
+                    if (line.startsWith('*')) {
+                        newLines.push(line);
+                    }
+                });
+
+                // 添加缺失的 @description
+                if (!hasDescription) {
+                    // 如果第一行不是标签，将其作为描述
+                    const firstContentLine = newLines.find(
+                        line => line.startsWith('*') && !line.includes('@') && line.trim() !== '*'
+                    );
+
+                    if (!firstContentLine || firstContentLine.trim() === '*') {
+                        newLines.splice(1, 0, ` * @description ${iface.title}`);
+                    } else {
+                        // 在第一个内容行后添加 @description
+                        const index = newLines.indexOf(firstContentLine);
+                        newLines.splice(index + 1, 0, ` * @description ${iface.title}`);
+                    }
+                }
+
+                // 添加缺失的 @url
+                if (!hasUrl) {
+                    newLines.push(` * @url ${interfaceUrl}`);
+                }
+
+                // 添加缺失的 @params
+                if (!hasParams && paramsComments.length > 0) {
+                    paramsComments.forEach(param => {
+                        newLines.push(` * ${param}`);
+                    });
+                }
+
+                // 重新构建注释
+                const newComment = ['/**', ...newLines, ' */'].join('\n');
+                const updatedContent = content.replace(/\/\*\*[\s\S]*?\*\//, newComment);
+
+                return {
+                    ...template,
+                    content: updatedContent
+                };
+            }
+        }
+
+        // 生成完整的顶部注释
+        const interfaceUrl = `${yapiBaseUrl.replace(/\/$/, '')}/project/${iface.project_id}/interface/api/${iface._id}`;
+        const paramsComments = this.generateParamsComments(iface);
+
+        const topComments = [
+            '/**',
+            ` * ${iface.title}`,
+            ` * @description ${iface.title}`,
+            ` * @url ${interfaceUrl}`,
+            ...paramsComments.map(param => ` * ${param}`),
+            ' */'
+        ].join('\n');
+
+        // 没有注释，直接添加到模板开头
+        return {
+            ...template,
+            content: `${topComments}\n${content}`
+        };
+    }
+
+    /**
      * 生成单个API接口定义
      */
     private generateSingleApiDefinition(
@@ -293,6 +502,9 @@ export class CodeGenerator {
         yapiBaseUrl: string,
         segmentCount?: number
     ): string {
+        // 确保模板包含顶部注释
+        const enhancedTemplate = this.ensureTopComments(template, iface, yapiBaseUrl);
+
         const methodName = segmentCount
             ? this.getMethodNameWithSegments(iface, segmentCount)
             : this.getMethodName(iface);
@@ -332,14 +544,14 @@ export class CodeGenerator {
             // 将模板内容包装在反引号中，使其成为模板字符串
             const templateFunction = new Function(
                 ...Object.keys(templateVars),
-                `return \`${template.content}\`;`
+                `return \`${enhancedTemplate.content}\`;`
             );
 
             return templateFunction(...Object.values(templateVars));
         } catch (error) {
             console.error('模板执行错误:', error);
             // 如果模板执行失败，回退到原来的字符串替换方式
-            return template.content
+            return enhancedTemplate.content
                 .replace(/\$\{methodName\}/g, methodName)
                 .replace(/\$\{title\}/g, iface.title)
                 .replace(/\$\{path\}/g, iface.path)
