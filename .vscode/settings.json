@@ -13,6 +13,8 @@
 	"cSpell.words": [
 		"yapi"
 	],
+	// 强制使用LF行尾符
+	"files.eol": "\n",
 	// 保存时自动格式化
 	 "editor.formatOnSave": true,
 	  "editor.codeActionsOnSave": {
