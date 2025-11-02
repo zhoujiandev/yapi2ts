@@ -678,10 +678,10 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
               </div>
               <div class="template-description">
                 <p class="description-text">
-                  您可以创建自定义模板来生成符合项目规范的TypeScript接口定义代码，
-                  模板使用ES6模板字符串语法，支持变量替换。
-                  系统会自动为您的模板添加JSDoc注释（包含@description、@url、@param等标签），
-                  如果模板已有注释但缺少某些标签，会智能补全缺失部分，如有特殊需要您也可以添加其他自定义标签
+                  自定义模板用于生成符合您项目规范的TypeScript接口调用代码。
+                  模板采用ES6模板字符串语法，通过变量占位符实现动态内容替换。
+                  系统将自动为生成的代码添加完整的JSDoc文档注释，其中@description、@url、@param标签由系统自动生成且无法被覆盖。
+                  您可以在模板中添加其他JSDoc注释标签，系统会智能合并
                 </p>
                 <div class="code-example-container">
                   <code id="template-example" class="has-example-tag">/**

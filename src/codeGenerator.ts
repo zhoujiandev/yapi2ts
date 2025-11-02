@@ -1,6 +1,46 @@
 import { TemplateConfig, YapiInterfaceDetail } from './types';
 
 export class CodeGenerator {
+    /**
+     * 解析备注字段，处理HTML标签和特殊字符
+     */
+    private parseDescription(desc: string): string {
+        if (!desc) {
+            return '';
+        }
+
+        // 对于某些标签，在移除前先替换为空格
+        let parsed = desc.replace(/<br\s*\/?>/gi, ' ');
+        parsed = parsed.replace(/<\/?(p|div|h[1-6])\b[^>]*>/gi, ' ');
+
+        // 移除其他HTML标签
+        parsed = parsed.replace(/<[^>]*>/g, '');
+
+        // 处理HTML实体
+        const htmlEntities: { [key: string]: string } = {
+            '&lt;': '<',
+            '&gt;': '>',
+            '&amp;': '&',
+            '&quot;': '"',
+            '&#39;': "'",
+            '&nbsp;': ' ',
+            '&copy;': '©',
+            '&reg;': '®',
+            '&trade;': '™'
+        };
+
+        Object.keys(htmlEntities).forEach(entity => {
+            parsed = parsed.replace(new RegExp(entity, 'g'), htmlEntities[entity]);
+        });
+
+        // 处理换行符，将其转换为空格
+        parsed = parsed.replace(/\n/g, ' ').replace(/\r/g, ' ');
+
+        // 移除多余的空格
+        parsed = parsed.replace(/\s+/g, ' ').trim();
+
+        return parsed;
+    }
     constructor() {}
 
     /**
@@ -96,7 +136,10 @@ export class CodeGenerator {
                     mergedFields.set(name, field); // 后面的字段会覆盖前面的同名字段
                 });
             } catch (error) {
-                console.warn(`Failed to parse request body schema for ${iface.title}:`, error);
+                console.warn(
+                    `Failed to parse request body schema for ${this.parseDescription(iface.title)}:`,
+                    error
+                );
             }
         } else if (
             iface.req_body_type === 'form' &&
@@ -110,7 +153,7 @@ export class CodeGenerator {
         }
 
         // 生成请求参数类型定义
-        interfaceResult += `// ${iface.title} - 请求参数类型\nexport interface ${requestTypeName} {\n`;
+        interfaceResult += `// ${this.parseDescription(iface.title)} - 请求参数类型\nexport interface ${requestTypeName} {\n`;
         Array.from(mergedFields.entries()).forEach(([fieldName, field]) => {
             if (field.comment) {
                 interfaceResult += `  /** ${field.comment} */\n`;
@@ -126,7 +169,7 @@ export class CodeGenerator {
                 const responseFields = this.generateTypeFieldsFromJsonSchema(
                     JSON.parse(iface.res_body)
                 );
-                interfaceResult += `// ${iface.title} - 响应参数类型\nexport interface ${responseTypeName} {\n`;
+                interfaceResult += `// ${this.parseDescription(iface.title)} - 响应参数类型\nexport interface ${responseTypeName} {\n`;
                 Array.from(responseFields.entries()).forEach(([fieldName, field]) => {
                     if (field.comment) {
                         interfaceResult += `  /** ${field.comment} */\n`;
@@ -135,7 +178,10 @@ export class CodeGenerator {
                 });
                 interfaceResult += '}\n\n';
             } catch (error) {
-                console.warn(`Failed to parse response body schema for ${iface.title}:`, error);
+                console.warn(
+                    `Failed to parse response body schema for ${this.parseDescription(iface.title)}:`,
+                    error
+                );
             }
         }
 
@@ -294,7 +340,7 @@ export class CodeGenerator {
         if (iface.req_params && iface.req_params.length > 0) {
             iface.req_params.forEach(param => {
                 const desc = param.desc || '路径参数';
-                paramsComments.push(`@param  params.${param.name} ${desc}`);
+                paramsComments.push(`@param {string} params.${param.name} ${desc}`);
             });
         }
 
@@ -303,7 +349,7 @@ export class CodeGenerator {
             iface.req_query.forEach(param => {
                 const required = param.required === '1' ? '' : '?';
                 const desc = param.desc || '查询参数';
-                paramsComments.push(`@param  params.${param.name}${required} ${desc}`);
+                paramsComments.push(`@param {string} params.${param.name}${required} ${desc}`);
             });
         }
 
@@ -322,11 +368,14 @@ export class CodeGenerator {
                         const required = isRequired ? '' : '?';
                         const type = this.getJSDocType(prop);
                         const desc = prop.description || '请求体参数';
-                        paramsComments.push(`@param {${type}}${required} ${key} ${desc}`);
+                        paramsComments.push(`@param {${type}} params.${key}${required} ${desc}`);
                     });
                 }
             } catch (error) {
-                console.warn(`Failed to parse request body schema for ${iface.title}:`, error);
+                console.warn(
+                    `Failed to parse request body schema for ${this.parseDescription(iface.title)}:`,
+                    error
+                );
             }
         }
 
@@ -340,7 +389,7 @@ export class CodeGenerator {
                 const required = param.required === '1' ? '' : '?';
                 const type = this.getFormFieldJSDocType(param.type);
                 const desc = param.desc || '表单参数';
-                paramsComments.push(`@param  params.${param.name}${required} ${desc}`);
+                paramsComments.push(`@param {${type}} params.${param.name}${required} ${desc}`);
             });
         }
 
@@ -399,71 +448,42 @@ export class CodeGenerator {
         yapiBaseUrl: string
     ): TemplateConfig {
         const content = template.content.trim();
+        const interfaceUrl = `${yapiBaseUrl.replace(/\/$/, '')}/project/${iface.project_id}/interface/api/${iface._id}`;
+        const paramsComments = this.generateParamsComments(iface);
 
         // 检查是否已经包含JSDoc注释
         const hasJSDocComment = /\/\*\*[\s\S]*?\*\//.test(content);
 
         if (hasJSDocComment) {
-            // 检查是否包含必要的标签
-            const hasDescription = /@description/.test(content);
-            const hasUrl = /@url/.test(content);
-            const hasParams = /@param/.test(content);
-
-            // 如果已经包含所有必要标签，直接返回原模板
-            if (hasDescription && hasUrl && hasParams) {
-                return template;
-            }
-
-            // 如果有注释但缺少某些标签，尝试智能合并
-            const interfaceUrl = `${yapiBaseUrl.replace(/\/$/, '')}/project/${iface.project_id}/interface/api/${iface._id}`;
-            const paramsComments = this.generateParamsComments(iface);
-
             // 提取现有的JSDoc注释
             const jsdocMatch = content.match(/\/\*\*([\s\S]*?)\*\//);
             if (jsdocMatch) {
-                let existingComment = jsdocMatch[1];
+                const existingComment = jsdocMatch[1];
                 const commentLines = existingComment.split('\n').map(line => line.trim());
 
-                // 添加缺失的标签
-                const newLines: string[] = [];
-
-                // 保留现有内容
+                // 提取用户自定义的标签（排除 @description、@url、@param）
+                const userCustomTags: string[] = [];
                 commentLines.forEach(line => {
-                    if (line.startsWith('*')) {
-                        newLines.push(line);
+                    if (line.startsWith('*') && line.includes('@')) {
+                        // 检查是否是需要排除的标签
+                        if (!/@description|@url|@param/.test(line)) {
+                            userCustomTags.push(line);
+                        }
                     }
                 });
 
-                // 添加缺失的 @description
-                if (!hasDescription) {
-                    // 如果第一行不是标签，将其作为描述
-                    const firstContentLine = newLines.find(
-                        line => line.startsWith('*') && !line.includes('@') && line.trim() !== '*'
-                    );
+                // 构建新的注释结构
+                const newCommentLines = [
+                    '/**',
+                    ` * ${this.parseDescription(iface.title)}`,
+                    ` * @description ${this.parseDescription(iface.desc)}`,
+                    ` * @url ${interfaceUrl}`,
+                    ...userCustomTags, // 用户自定义标签放在 description、url 之后
+                    ...paramsComments.map(param => ` * ${param}`), // param 标签放在最后
+                    ' */'
+                ];
 
-                    if (!firstContentLine || firstContentLine.trim() === '*') {
-                        newLines.splice(1, 0, ` * @description ${iface.title}`);
-                    } else {
-                        // 在第一个内容行后添加 @description
-                        const index = newLines.indexOf(firstContentLine);
-                        newLines.splice(index + 1, 0, ` * @description ${iface.title}`);
-                    }
-                }
-
-                // 添加缺失的 @url
-                if (!hasUrl) {
-                    newLines.push(` * @url ${interfaceUrl}`);
-                }
-
-                // 添加缺失的 @params
-                if (!hasParams && paramsComments.length > 0) {
-                    paramsComments.forEach(param => {
-                        newLines.push(` * ${param}`);
-                    });
-                }
-
-                // 重新构建注释
-                const newComment = ['/**', ...newLines, ' */'].join('\n');
+                const newComment = newCommentLines.join('\n');
                 const updatedContent = content.replace(/\/\*\*[\s\S]*?\*\//, newComment);
 
                 return {
@@ -473,14 +493,11 @@ export class CodeGenerator {
             }
         }
 
-        // 生成完整的顶部注释
-        const interfaceUrl = `${yapiBaseUrl.replace(/\/$/, '')}/project/${iface.project_id}/interface/api/${iface._id}`;
-        const paramsComments = this.generateParamsComments(iface);
-
+        // 生成完整的顶部注释（没有现有注释的情况）
         const topComments = [
             '/**',
-            ` * ${iface.title}`,
-            ` * @description ${iface.title}`,
+            ` * ${this.parseDescription(iface.title)}`,
+            ` * @description ${this.parseDescription(iface.desc)}`,
             ` * @url ${interfaceUrl}`,
             ...paramsComments.map(param => ` * ${param}`),
             ' */'
@@ -518,7 +535,7 @@ export class CodeGenerator {
         // 创建模板变量对象
         const templateVars = {
             methodName,
-            title: iface.title,
+            title: this.parseDescription(iface.title),
             path: iface.path,
             method: iface.method.toUpperCase(),
             lowerCaseMethod,
@@ -553,7 +570,7 @@ export class CodeGenerator {
             // 如果模板执行失败，回退到原来的字符串替换方式
             return enhancedTemplate.content
                 .replace(/\$\{methodName\}/g, methodName)
-                .replace(/\$\{title\}/g, iface.title)
+                .replace(/\$\{title\}/g, this.parseDescription(iface.title))
                 .replace(/\$\{path\}/g, iface.path)
                 .replace(/\$\{method\}/g, iface.method.toUpperCase())
                 .replace(/\$\{lowerCaseMethod\}/g, lowerCaseMethod)

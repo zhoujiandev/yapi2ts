@@ -22,6 +22,7 @@ export interface YapiCategory {
 export interface YapiInterface {
     _id: number;
     title: string;
+    desc: string;
     path: string;
     method: string;
     project_id: number;
