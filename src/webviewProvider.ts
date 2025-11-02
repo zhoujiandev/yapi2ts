@@ -163,7 +163,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             this._view?.webview.postMessage({
                 type: 'configResult',
                 success: connectionResult.success,
-                message: connectionResult.success ? '连接成功' : '连接失败，请检查配置'
+                message: connectionResult.success ? '连接成功' : '连接失败，请检查项目配置和网络'
             });
 
             if (connectionResult.success && connectionResult.project) {
