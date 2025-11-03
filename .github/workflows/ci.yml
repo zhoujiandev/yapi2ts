@@ -57,10 +57,18 @@ jobs:
                   ls -la dist/
                   echo "✅ Build verification passed"
 
+            - name: Setup virtual display for tests
+              run: |
+                  echo "🖥️ Setting up virtual display for VS Code tests..."
+                  sudo apt-get update
+                  sudo apt-get install -y xvfb
+                  echo "✅ Virtual display setup complete"
+
             - name: Run tests
+              timeout-minutes: 10
               run: |
                   echo "🧪 Running tests..."
-                  pnpm run test
+                  pnpm run test:ci
                   echo "✅ Tests passed"
 
             - name: Build production package
