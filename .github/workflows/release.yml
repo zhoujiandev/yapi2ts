@@ -72,7 +72,7 @@ jobs:
                   echo "🔍 Running linting checks..."
                   pnpm run lint:check
                   echo "✅ Linting passed"
-                  
+
                   echo "🎨 Running format checks..."
                   pnpm run format:check
                   echo "✅ Format checks passed"
@@ -88,7 +88,7 @@ jobs:
                   echo "🔨 Compiling extension..."
                   pnpm run compile
                   echo "✅ Compilation successful"
-                  
+
                   echo "📦 Building production package..."
                   pnpm run package
                   echo "✅ Package build successful"
@@ -100,7 +100,7 @@ jobs:
                     echo "❌ Error: dist/extension.js not found"
                     exit 1
                   fi
-                  
+
                   echo "📊 Build output size:"
                   ls -lh dist/
                   echo "✅ Build verification passed"
@@ -109,7 +109,7 @@ jobs:
               run: |
                   echo "📦 Creating VSIX package..."
                   npx @vscode/vsce package
-                  
+
                   echo "📊 VSIX package info:"
                   ls -lh *.vsix
                   echo "✅ VSIX package created successfully"
@@ -130,5 +130,5 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: vsix-package
-                  path: "*.vsix"
+                  path: '*.vsix'
                   retention-days: 90

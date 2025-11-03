@@ -9,7 +9,7 @@ on:
 jobs:
     build-and-test:
         runs-on: ubuntu-latest
-        
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -52,7 +52,7 @@ jobs:
                     echo "❌ Error: dist/extension.js not found after compilation"
                     exit 1
                   fi
-                  
+
                   echo "📊 Build output:"
                   ls -la dist/
                   echo "✅ Build verification passed"
@@ -73,7 +73,7 @@ jobs:
               run: |
                   echo "📦 Creating VSIX package for validation..."
                   npx @vscode/vsce package --no-dependencies
-                  
+
                   echo "📊 VSIX package created:"
                   ls -lh *.vsix
                   echo "✅ VSIX package validation passed"
