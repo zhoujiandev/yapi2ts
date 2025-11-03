@@ -1,1 +1,16 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# 运行代码检查和格式化
 npx lint-staged
+
+# 轻量级编译检查（仅验证语法，不生成文件）
+echo "🔍 Checking TypeScript compilation..."
+npx tsc --noEmit
+
+if [ $? -eq 0 ]; then
+    echo "✅ TypeScript check passed"
+else
+    echo "❌ TypeScript compilation failed"
+    exit 1
+fi

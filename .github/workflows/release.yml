@@ -67,11 +67,68 @@ jobs:
             - name: Install dependencies
               run: pnpm install
 
-            - name: Build and package extension
-              run: pnpm run package
+            - name: Run linting and formatting checks
+              run: |
+                  echo "🔍 Running linting checks..."
+                  pnpm run lint:check
+                  echo "✅ Linting passed"
+                  
+                  echo "🎨 Running format checks..."
+                  pnpm run format:check
+                  echo "✅ Format checks passed"
+
+            - name: Run tests
+              run: |
+                  echo "🧪 Running tests..."
+                  pnpm run test
+                  echo "✅ Tests passed"
+
+            - name: Build and compile extension
+              run: |
+                  echo "🔨 Compiling extension..."
+                  pnpm run compile
+                  echo "✅ Compilation successful"
+                  
+                  echo "📦 Building production package..."
+                  pnpm run package
+                  echo "✅ Package build successful"
+
+            - name: Verify build output
+              run: |
+                  echo "🔍 Verifying build output..."
+                  if [ ! -f "dist/extension.js" ]; then
+                    echo "❌ Error: dist/extension.js not found"
+                    exit 1
+                  fi
+                  
+                  echo "📊 Build output size:"
+                  ls -lh dist/
+                  echo "✅ Build verification passed"
+
+            - name: Create VSIX package
+              run: |
+                  echo "📦 Creating VSIX package..."
+                  npx @vscode/vsce package
+                  
+                  echo "📊 VSIX package info:"
+                  ls -lh *.vsix
+                  echo "✅ VSIX package created successfully"
 
             - name: Publish to VSCode Marketplace
-              run: npx @vscode/vsce publish -p ${{ secrets.VSCE_TOKEN }}
+              run: |
+                  echo "🚀 Publishing to VSCode Marketplace..."
+                  npx @vscode/vsce publish -p ${{ secrets.VSCE_TOKEN }}
+                  echo "✅ Published to VSCode Marketplace"
 
             - name: Publish to Open VSX
-              run: npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
+              run: |
+                  echo "🚀 Publishing to Open VSX..."
+                  npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
+                  echo "✅ Published to Open VSX"
+
+            - name: Upload VSIX as release asset
+              uses: actions/upload-artifact@v4
+              with:
+                  name: vsix-package
+                  path: "*.vsix"
+                  retention-days: 90

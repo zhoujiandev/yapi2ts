@@ -1,0 +1,89 @@
+name: CI
+
+on:
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-latest
+        
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                  version: latest
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Run linting
+              run: |
+                  echo "🔍 Running linting checks..."
+                  pnpm run lint:check
+                  echo "✅ Linting passed"
+
+            - name: Run formatting check
+              run: |
+                  echo "🎨 Checking code formatting..."
+                  pnpm run format:check
+                  echo "✅ Format check passed"
+
+            - name: Compile TypeScript
+              run: |
+                  echo "🔨 Compiling TypeScript..."
+                  pnpm run compile
+                  echo "✅ TypeScript compilation successful"
+
+            - name: Verify build output
+              run: |
+                  echo "🔍 Verifying build output..."
+                  if [ ! -f "dist/extension.js" ]; then
+                    echo "❌ Error: dist/extension.js not found after compilation"
+                    exit 1
+                  fi
+                  
+                  echo "📊 Build output:"
+                  ls -la dist/
+                  echo "✅ Build verification passed"
+
+            - name: Run tests
+              run: |
+                  echo "🧪 Running tests..."
+                  pnpm run test
+                  echo "✅ Tests passed"
+
+            - name: Build production package
+              run: |
+                  echo "📦 Building production package..."
+                  pnpm run package
+                  echo "✅ Production build successful"
+
+            - name: Create VSIX package (dry run)
+              run: |
+                  echo "📦 Creating VSIX package for validation..."
+                  npx @vscode/vsce package --no-dependencies
+                  
+                  echo "📊 VSIX package created:"
+                  ls -lh *.vsix
+                  echo "✅ VSIX package validation passed"
+
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: build-artifacts
+                  path: |
+                      dist/
+                      *.vsix
+                  retention-days: 7
