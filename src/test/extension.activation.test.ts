@@ -13,7 +13,7 @@ suite('Extension Activation Test Suite', () => {
             assert.ok(packageJson.version, 'Package should have a version');
             assert.strictEqual(
                 packageJson.engines.vscode,
-                '^1.100.0',
+                '^1.50.0',
                 'Should target correct VS Code version'
             );
         });
