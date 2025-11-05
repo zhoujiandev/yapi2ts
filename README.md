@@ -5,6 +5,12 @@
 > **插件名称**: yapi-ts  
 > **GitHub仓库**: [https://github.com/zhoujiandev/yapi2ts](https://github.com/zhoujiandev/yapi2ts)
 
+## 🎬 功能演示
+
+### 快速预览
+
+![功能演示](https://github.com/zhoujiandev/yapi2ts/releases/download/assets/presentation.gif)
+
 ## ✨ 功能特性
 
 ### 🔗 YAPI集成
