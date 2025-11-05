@@ -461,12 +461,23 @@ export class CodeGenerator {
                 const existingComment = jsdocMatch[1];
                 const commentLines = existingComment.split('\n').map(line => line.trim());
 
-                // 提取用户自定义的标签（排除 @description、@url、@param）
+                // 提取用户自定义的标签（排除 @param，但保留用户自定义的 @description 和 @url）
                 const userCustomTags: string[] = [];
+                let userDescription: string | null = null;
+                let userUrl: string | null = null;
+
                 commentLines.forEach(line => {
                     if (line.startsWith('*') && line.includes('@')) {
-                        // 检查是否是需要排除的标签
-                        if (!/@description|@url|@param/.test(line)) {
+                        // 检查是否是 @description（可被用户覆盖）
+                        if (/@description/.test(line)) {
+                            userDescription = line;
+                        }
+                        // 检查是否是 @url（可被用户覆盖）
+                        else if (/@url/.test(line)) {
+                            userUrl = line;
+                        }
+                        // 排除 @param（不可被用户覆盖）
+                        else if (!/@param/.test(line)) {
                             userCustomTags.push(line);
                         }
                     }
@@ -476,10 +487,12 @@ export class CodeGenerator {
                 const newCommentLines = [
                     '/**',
                     ` * ${this.parseDescription(iface.title)}`,
-                    ` * @description ${this.parseDescription(iface.desc)}`,
-                    ` * @url ${interfaceUrl}`,
-                    ...userCustomTags, // 用户自定义标签放在 description、url 之后
-                    ...paramsComments.map(param => ` * ${param}`), // param 标签放在最后
+                    userDescription
+                        ? ` ${userDescription}`
+                        : ` * @description ${this.parseDescription(iface.desc)}`, // 优先使用用户的 @description
+                    userUrl ? ` ${userUrl}` : ` * @url ${interfaceUrl}`, // 优先使用用户的 @url
+                    ...userCustomTags.map(tag => ` ${tag}`), // 其他用户自定义标签，确保前导空格
+                    ...paramsComments.map(param => ` * ${param}`), // @param 标签始终由系统生成
                     ' */'
                 ];
 
