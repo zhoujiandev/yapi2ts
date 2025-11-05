@@ -64,6 +64,12 @@ jobs:
                   sudo apt-get install -y xvfb
                   echo "✅ Virtual display setup complete"
 
+            - name: Compile tests
+              run: |
+                  echo "🔨 Compiling tests..."
+                  pnpm run compile-tests
+                  echo "✅ Tests compiled"
+
             - name: Run tests
               timeout-minutes: 10
               run: |

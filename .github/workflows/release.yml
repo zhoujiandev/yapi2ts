@@ -77,22 +77,6 @@ jobs:
                   pnpm run format:check
                   echo "✅ Format checks passed"
 
-            - name: Setup virtual display for tests
-              run: |
-                  echo "🖥️ Setting up virtual display..."
-                  sudo apt-get update
-                  sudo apt-get install -y xvfb
-                  export DISPLAY=:99
-                  Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-                  echo "✅ Virtual display setup complete"
-
-            - name: Run tests
-              run: |
-                  echo "🧪 Running tests..."
-                  export DISPLAY=:99
-                  pnpm run test
-                  echo "✅ Tests passed"
-
             - name: Build and compile extension
               run: |
                   echo "🔨 Compiling extension..."
@@ -102,6 +86,26 @@ jobs:
                   echo "📦 Building production package..."
                   pnpm run package
                   echo "✅ Package build successful"
+
+            - name: Setup virtual display for tests
+              run: |
+                  echo "🖥️ Setting up virtual display..."
+                  sudo apt-get update
+                  sudo apt-get install -y xvfb
+                  echo "✅ Virtual display setup complete"
+
+            - name: Compile tests
+              run: |
+                  echo "🔨 Compiling tests..."
+                  pnpm run compile-tests
+                  echo "✅ Tests compiled"
+
+            - name: Run tests
+              timeout-minutes: 10
+              run: |
+                  echo "🧪 Running tests..."
+                  pnpm run test:ci
+                  echo "✅ Tests passed"
 
             - name: Verify build output
               run: |
