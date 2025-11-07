@@ -1,9 +1,14 @@
 # YAPI to TypeScript
 
+[![Version](https://img.shields.io/open-vsx/v/zhoujian/yapi-ts)](https://open-vsx.org/extension/zhoujian/yapi-ts)
+[![Downloads](https://img.shields.io/open-vsx/dt/zhoujian/yapi-ts)](https://open-vsx.org/extension/zhoujian/yapi-ts)
+[![Rating](https://img.shields.io/open-vsx/rating/zhoujian/yapi-ts)](https://open-vsx.org/extension/zhoujian/yapi-ts)
+
 一个强大的VSCode插件，用于从YAPI接口文档自动生成TypeScript类型定义和API接口代码，提升前端开发效率。通过可视化界面轻松管理YAPI项目，浏览接口文档，并一键生成标准化的TypeScript代码。
 
 > **插件名称**: yapi-ts  
-> **GitHub仓库**: [https://github.com/zhoujiandev/yapi2ts](https://github.com/zhoujiandev/yapi2ts)
+> **GitHub仓库**: [https://github.com/zhoujiandev/yapi2ts](https://github.com/zhoujiandev/yapi2ts)  
+> **Open VSX**: [https://open-vsx.org/extension/zhoujian/yapi-ts](https://open-vsx.org/extension/zhoujian/yapi-ts)
 
 ## 🎬 功能演示
 
