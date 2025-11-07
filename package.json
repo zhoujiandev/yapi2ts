@@ -1,17 +1,67 @@
 {
     "name": "yapi-ts",
     "displayName": "YAPI to TypeScript",
-    "description": "Generate TypeScript interfaces and API definitions from YAPI",
+    "description": "YAPI to TypeScript converter - Generate TypeScript interfaces, types, and API request functions from YAPI platform. Support automatic code generation, custom templates, and seamless integration with your development workflow.",
     "version": "0.0.66",
     "publisher": "zhoujian",
-    "repository": "https://github.com/zhoujiandev/yapi2ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zhoujiandev/yapi2ts"
+    },
+    "bugs": {
+        "url": "https://github.com/zhoujiandev/yapi2ts/issues"
+    },
+    "homepage": "https://github.com/zhoujiandev/yapi2ts#readme",
+    "license": "MIT",
     "icon": "media/icon.png",
+    "galleryBanner": {
+        "color": "#1e1e1e",
+        "theme": "dark"
+    },
+    "badges": [
+        {
+            "url": "https://img.shields.io/open-vsx/v/zhoujian/yapi-ts",
+            "href": "https://open-vsx.org/extension/zhoujian/yapi-ts",
+            "description": "Version"
+        },
+        {
+            "url": "https://img.shields.io/open-vsx/dt/zhoujian/yapi-ts",
+            "href": "https://open-vsx.org/extension/zhoujian/yapi-ts",
+            "description": "Downloads"
+        },
+        {
+            "url": "https://img.shields.io/open-vsx/rating/zhoujian/yapi-ts",
+            "href": "https://open-vsx.org/extension/zhoujian/yapi-ts",
+            "description": "Rating"
+        }
+    ],
     "engines": {
         "vscode": "^1.50.0"
     },
     "categories": [
-        "Snippets",
+        "Programming Languages",
         "Other"
+    ],
+    "keywords": [
+        "yapi",
+        "yapi2ts",
+        "yapi typescript",
+        "typescript",
+        "ts",
+        "api",
+        "interface",
+        "type",
+        "types",
+        "code generator",
+        "api definition",
+        "rest api",
+        "http",
+        "axios",
+        "fetch",
+        "request",
+        "type generation",
+        "codegen",
+        "api documentation"
     ],
     "main": "./dist/extension.js",
     "activationEvents": [
