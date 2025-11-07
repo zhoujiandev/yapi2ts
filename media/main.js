@@ -1212,6 +1212,22 @@
           }
         }
         
+        // 更新时间显示
+        const lastUpdateTimeElement = document.getElementById('last-update-time');
+        if (lastUpdateTimeElement && message.updateTime) {
+          const updateDate = new Date(message.updateTime);
+          const timeStr = updateDate.toLocaleString('zh-CN', {
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+          });
+          lastUpdateTimeElement.textContent = `更新于 ${timeStr}`;
+          lastUpdateTimeElement.title = `上次更新时间: ${updateDate.toLocaleString('zh-CN')}`;
+        }
+        
         renderInterfaceTree();
         // 恢复刷新按钮状态
         if (isRefreshing) {

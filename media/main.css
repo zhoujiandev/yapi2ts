@@ -337,10 +337,22 @@
 .tree-header {
   display: flex;
   align-items: center;
-  padding: 8px;
+  padding: 8px 8px 4px;
+  background: var(--vscode-list-headerBackground, var(--vscode-panel-background));
+  flex-shrink: 0;
+}
+
+.tree-update-time {
+  display: block;
+  padding-bottom: 6px;
+  text-align: center;
   background: var(--vscode-list-headerBackground, var(--vscode-panel-background));
   border-bottom: 1px solid var(--vscode-panel-border);
   flex-shrink: 0;
+}
+
+.tree-update-time .last-update-time {
+  display: inline-block;
 }
 
 .tree-toggle-btn {
@@ -425,6 +437,10 @@
   pointer-events: none !important;
 }
 
+.interface-tree.user-collapsed .tree-update-time {
+  display: none !important;
+}
+
 /* 响应式布局 - 当容器宽度小于630px时自动收缩，但不影响用户手动操作 */
 @media (max-width: 630px) {
   .interface-tree:not(.user-expanded):not(.user-collapsed) {
@@ -443,6 +459,10 @@
   .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-content {
     opacity: 0;
     pointer-events: none;
+  }
+  
+  .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-update-time {
+    display: none;
   }
 }
 

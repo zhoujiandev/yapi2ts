@@ -216,7 +216,8 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 type: 'interfacesLoaded',
                 categories,
                 interfaces,
-                projectInfo
+                projectInfo,
+                updateTime: Date.now()
             });
         } catch (error) {
             // 通知 Webview：加载失败，隐藏 loading 并显示错误
@@ -628,6 +629,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                         </svg>
                       </button>
                     </span>
+                  </div>
+                  <div class="tree-update-time">
+                    <span id="last-update-time" class="last-update-time" style="font-size: 12px; color: var(--vscode-descriptionForeground);"></span>
                   </div>
                   <div class="tree-content">
                     <div class="loading">请先选择项目</div>
