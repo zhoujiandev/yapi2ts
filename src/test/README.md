@@ -69,32 +69,32 @@
 确保已安装所有依赖：
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 运行所有测试
 
 ```bash
-npm test
+pnpm test
 ```
 
 ### 运行特定测试文件
 
 ```bash
 # 运行 YAPI 服务测试
-npm test -- --grep "YapiService Test Suite"
+pnpm test -- --grep "YapiService Test Suite"
 
 # 运行代码生成器测试
-npm test -- --grep "CodeGenerator Test Suite"
+pnpm test -- --grep "CodeGenerator Test Suite"
 
 # 运行 Webview 提供者测试
-npm test -- --grep "YapiWebviewProvider Test Suite"
+pnpm test -- --grep "YapiWebviewProvider Test Suite"
 
 # 运行扩展激活测试
-npm test -- --grep "Extension Activation Test Suite"
+pnpm test -- --grep "Extension Activation Test Suite"
 
 # 运行集成测试
-npm test -- --grep "Integration Test Suite"
+pnpm test -- --grep "Integration Test Suite"
 ```
 
 ### 调试测试
@@ -259,12 +259,15 @@ jobs:
     test:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: '16'
-            - run: npm install
-            - run: npm test
+            - uses: pnpm/action-setup@v2
+              with:
+                  version: 7
+            - run: pnpm install
+            - run: pnpm test
 ```
 
 ## 贡献指南

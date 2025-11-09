@@ -2,12 +2,25 @@
 
 [![Version](https://img.shields.io/open-vsx/v/zhoujian/yapi-ts)](https://open-vsx.org/extension/zhoujian/yapi-ts)
 [![Downloads](https://img.shields.io/open-vsx/dt/zhoujian/yapi-ts)](https://open-vsx.org/extension/zhoujian/yapi-ts)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-一个强大的VSCode插件，用于从YAPI接口文档自动生成TypeScript类型定义和API接口代码，提升前端开发效率。通过可视化界面轻松管理YAPI项目，浏览接口文档，并一键生成标准化的TypeScript代码。
+一个强大的编辑器插件，用于从 YAPI 接口文档自动生成 TypeScript 类型定义和 API 接口代码，提升前端开发效率。支持 VSCode、Cursor、VSCodium 等兼容编辑器。通过可视化界面轻松管理 YAPI 项目，浏览接口文档，并一键生成标准化的 TypeScript 代码。
 
 > **插件名称**: yapi-ts  
-> **GitHub仓库**: [https://github.com/zhoujiandev/yapi2ts](https://github.com/zhoujiandev/yapi2ts)  
+> **GitHub 仓库**: [https://github.com/zhoujiandev/yapi2ts](https://github.com/zhoujiandev/yapi2ts)  
 > **Open VSX**: [https://open-vsx.org/extension/zhoujian/yapi-ts](https://open-vsx.org/extension/zhoujian/yapi-ts)
+
+## 📑 目录
+
+- [功能演示](#-功能演示)
+- [功能特性](#-功能特性)
+- [快速开始](#-快速开始)
+- [详细使用指南](#-详细使用指南)
+- [模板变量](#-模板变量)
+- [YAPI API支持](#-yapi-api支持)
+- [技术栈](#-技术栈)
+- [开发指南](#-开发指南)
+- [贡献指南](#-贡献指南)
 
 ## 🎬 功能演示
 
@@ -23,10 +36,13 @@
 
 ### 🎯 智能代码生成
 
-- **TypeScript类型定义** - 自动解析请求参数和响应数据，生成标准TS接口
-- **API接口代码** - 基于模板生成完整的API调用函数
-- **智能类型推导** - 支持JSON Schema解析，准确生成复杂类型
+- **TypeScript类型定义** - 自动解析请求参数和响应数据，生成标准 TS 接口
+- **API接口代码** - 基于模板生成完整的 API 调用函数
+- **智能类型推导** - 支持 JSON Schema 解析，准确生成复杂类型
 - **批量生成** - 支持同时选择多个接口进行批量代码生成
+- **智能命名冲突处理** - 自动检测并解决方法名冲突，使用路径分段策略
+- **多种请求类型支持** - 支持 Query 参数、JSON Body、Form Data 等
+- **自动注释生成** - 为生成的代码添加完整的 JSDoc 注释，包含参数说明和接口链接
 
 ### 🌲 直观的界面设计
 
@@ -37,16 +53,18 @@
 
 ### 🛠️ 灵活的模板系统
 
-- **内置模板** - 提供Axios等主流HTTP库的默认模板
+- **内置模板** - 提供优化的 Axios 模板，开箱即用
 - **自定义模板** - 支持创建和编辑个性化代码模板
+- **ES6 模板字符串** - 使用标准的 ES6 模板字符串语法编写模板
 - **变量替换** - 丰富的模板变量支持，满足各种代码生成需求
 - **模板管理** - 可视化的模板编辑器，支持增删改查操作
+- **自动注释增强** - 模板会自动添加 JSDoc 注释，即使模板中没有定义
 
 ### 💾 项目配置管理
 
-- **多项目支持** - 同时管理多个YAPI项目配置
+- **多项目支持** - 同时管理多个 YAPI 项目配置
 - **快速切换** - 项目间一键切换，提高工作效率
-- **配置持久化** - 项目配置自动保存，重启VSCode后自动恢复
+- **配置持久化** - 项目配置自动保存，重启编辑器后自动恢复
 
 ### 📋 便捷的操作体验
 
@@ -59,29 +77,33 @@
 
 ### 📦 安装插件
 
-#### 方式一：VSCode扩展市场安装（推荐）
+#### 方式一：扩展市场安装（推荐）
 
-1. 打开VSCode，按 `Ctrl+Shift+X`（Mac: `Cmd+Shift+X`）打开扩展面板
+1. 打开编辑器，按 `Ctrl+Shift+X`（Mac: `Cmd+Shift+X`）打开扩展面板
 2. 在搜索框中输入 "yapi-ts" 或 "YAPI to TypeScript"
 3. 找到插件后点击 "安装" 按钮
-4. 安装完成后重启VSCode（如需要）
+4. 安装完成后重启编辑器（如需要）
 
 #### 方式二：命令行安装
 
 ```bash
+# VSCode / Cursor
 code --install-extension zhoujian.yapi-ts
+
+# VSCodium
+codium --install-extension zhoujian.yapi-ts
 ```
 
 ### 🎯 首次使用
 
-安装完成后，您会在VSCode左侧活动栏看到 **YAPI to TypeScript** 图标 📋
+安装完成后，您会在编辑器左侧活动栏看到 **YAPI to TypeScript** 图标 📋
 
 #### 1. 打开插件面板
 
 - 点击左侧活动栏的 YAPI to TypeScript 图标
 - 插件界面包含三个主要标签页：
     - **📋 接口列表** - 浏览接口文档，生成代码
-    - **🏗️ 我的项目** - 管理YAPI项目配置
+    - **🏗️ 我的项目** - 管理 YAPI 项目配置
     - **📝 我的模板** - 管理代码生成模板
 
 #### 2. 配置YAPI项目
@@ -229,6 +251,40 @@ code --install-extension zhoujian.yapi-ts
 
 代码生成是插件的核心价值，支持生成TypeScript类型定义和API接口代码。
 
+#### 智能命名特性
+
+插件采用智能命名策略，自动处理方法名冲突：
+
+**命名规则**：
+
+1. 从接口路径的最后一段生成方法名
+2. 自动添加 HTTP 方法前缀（get、post、put、delete 等）
+3. 识别并保留版本号（v1、v2 等）
+4. 支持多种命名格式转换（蛇形命名、驼峰命名等）
+
+**冲突处理**：
+
+- 当检测到方法名冲突时，自动增加路径分段数
+- 采用渐进式策略，最多使用 5 层路径
+- 按分类独立处理，避免跨分类干扰
+
+**示例**：
+
+```typescript
+// 路径: /api/user/info
+// 生成: getUserInfo
+
+// 路径: /api/v1/user/info (带版本号)
+// 生成: getUserInfoV1
+
+// 路径: /api/user_profile/info (蛇形命名)
+// 生成: getUserProfileInfo
+
+// 冲突情况:
+// /api/user/info -> getUserInfo
+// /api/admin/info -> getAdminInfo (自动使用上一级路径避免冲突)
+```
+
 #### 生成TypeScript类型定义
 
 **操作步骤**：
@@ -336,7 +392,7 @@ export const getUserInfo = (params: GetUserInfoRequest): Promise<GetUserInfoResp
 
 - **📝 编辑模板**：点击模板列表中的 "编辑" 按钮，修改模板内容
 - **🗑️ 删除模板**：点击模板列表中的 "删除" 按钮，移除自定义模板
-- **🔄 重置模板**：使用命令面板执行 "YAPI to TypeScript: Reset Templates" 恢复默认模板
+- **🔄 重置模板**：使用命令面板（`Ctrl+Shift+P` / `Cmd+Shift+P`）执行 "YAPI to TypeScript: Reset Templates" 恢复默认模板
 
 #### 模板变量详解
 
@@ -486,21 +542,62 @@ export const ${methodName} = (params: ${paramsTypeName}): Promise<${responseType
 
 ## 📋 内置模板
 
-### Axios模板
+### Axios 模板
 
-适用于使用axios库的项目：
+插件内置了一个优化的 Axios 模板，支持以下特性：
+
+- 自动区分 GET 和非 GET 请求的参数传递方式
+- 支持额外的 AxiosRequestConfig 配置
+- 自动生成完整的 JSDoc 注释
+- 使用 ES6 模板字符串语法
+
+**模板示例**：
 
 ```typescript
 /**
- * {{description}}
+ * @description ${title}
+ * @url ${interfaceUrl}
  */
-export const {{methodName}} = (params: {{queryType}}, data: {{requestType}}): Promise<{{responseType}}> => {
-  return request({
-    url: '{{path}}',
-    method: '{{method}}',
-    params,
-    data,
-  });
+export const ${methodName} = (
+  params: ${paramsTypeName},
+  config?: Omit<AxiosRequestConfig, ${isNotGet ? '"data"' : '"params"'}>
+): Promise<${responseTypeName}> => {
+  return axios.${lowerCaseMethod}('${path}', ${isNotGet ? 'params, config' : '{params, ...config}'})
+};
+```
+
+**生成示例**（GET 请求）：
+
+```typescript
+/**
+ * 获取用户信息
+ * @description 根据用户ID获取用户详细信息
+ * @url https://yapi.example.com/project/123/interface/api/456
+ * @param {string} params.userId 用户ID
+ */
+export const getUserInfo = (
+    params: GetUserInfoParams,
+    config?: Omit<AxiosRequestConfig, 'params'>
+): Promise<GetUserInfoResponse> => {
+    return axios.get('/api/user/info', { params, ...config });
+};
+```
+
+**生成示例**（POST 请求）：
+
+```typescript
+/**
+ * 创建订单
+ * @description 创建新的订单记录
+ * @url https://yapi.example.com/project/123/interface/api/789
+ * @param {string} params.productId 商品ID
+ * @param {number} params.quantity 购买数量
+ */
+export const createOrder = (
+    params: CreateOrderParams,
+    config?: Omit<AxiosRequestConfig, 'data'>
+): Promise<CreateOrderResponse> => {
+    return axios.post('/api/order/create', params, config);
 };
 ```
 
@@ -515,6 +612,36 @@ export const {{methodName}} = (params: {{queryType}}, data: {{requestType}}): Pr
 | `/api/interface/list_cat`   | 获取分类下的接口列表 | `token`, `catid`, `page`, `limit` |
 | `/api/interface/get`        | 获取接口详情         | `token`, `id`                     |
 
+## 🔧 技术栈
+
+本项目采用现代化的前端开发技术栈：
+
+### 核心技术
+
+- **TypeScript** - 类型安全的 JavaScript 超集
+- **VSCode Extension API** - VSCode 插件开发接口
+- **Webpack** - 模块打包工具
+
+### 开发工具
+
+- **ESLint** - 代码质量检查工具
+    - `@typescript-eslint/eslint-plugin` - TypeScript ESLint 插件
+    - `eslint-plugin-prettier` - Prettier 集成
+- **Prettier** - 代码格式化工具
+- **Husky** - Git hooks 管理工具
+- **lint-staged** - Git 暂存文件代码检查
+
+### 测试工具
+
+- **Mocha** - 测试框架
+- **@vscode/test-electron** - VSCode 插件测试工具
+- **@vscode/test-cli** - VSCode 测试命令行工具
+
+### 构建工具
+
+- **Webpack** - 代码打包和优化
+- **ts-loader** - TypeScript loader for Webpack
+
 ## 🛠️ 开发指南
 
 ### 📋 环境要求
@@ -523,37 +650,96 @@ export const {{methodName}} = (params: {{queryType}}, data: {{requestType}}): Pr
 
 - **Node.js** >= 16.0.0（推荐使用 LTS 版本）
 - **pnpm** >= 7.0.0（包管理器）
-- **VSCode** >= 1.100.0（开发和测试环境）
+- **编辑器** >= VSCode 1.50.0（支持 VSCode、Cursor、VSCodium 等）
 - **Git** >= 2.0.0（版本控制）
 
 **开发工具**（可选但推荐）：
 
-- **VSCode 扩展**：TypeScript Importer、ESLint、Prettier
-- **调试工具**：VSCode 内置调试器
-- **测试工具**：Jest（已集成）
+- **编辑器扩展**：TypeScript Importer、ESLint、Prettier
+- **调试工具**：编辑器内置调试器
+- **测试工具**：Mocha + @vscode/test-electron（已集成）
 
 ### 🏗️ 项目结构
 
 ```
 yapi2ts/
-├── src/                    # 源代码目录
-│   ├── extension.ts        # 插件入口文件
-│   ├── webviewProvider.ts  # Webview 提供者
-│   ├── yapiService.ts      # YAPI API 服务
-│   ├── codeGenerator.ts    # 代码生成器
-│   ├── types.ts           # 类型定义
-│   └── utils/             # 工具函数
-├── media/                 # 静态资源
-│   ├── main.js           # Webview 前端脚本
-│   ├── style.css         # 样式文件
-│   └── icons/            # 图标资源
-├── templates/            # 代码模板
-│   └── default.json      # 默认模板配置
-├── test/                # 测试文件
-├── package.json         # 项目配置
-├── tsconfig.json       # TypeScript 配置
-└── README.md           # 项目文档
+├── src/                        # 源代码目录
+│   ├── extension.ts            # 插件入口文件，激活插件和注册命令
+│   ├── webviewProvider.ts      # Webview 提供者，处理 UI 渲染和消息通信
+│   ├── yapiService.ts          # YAPI API 服务，封装所有 YAPI 接口调用
+│   ├── codeGenerator.ts        # 代码生成器，负责生成 TS 类型和 API 代码
+│   ├── types.ts                # TypeScript 类型定义，定义项目使用的所有类型
+│   └── test/                   # 测试文件目录
+│       ├── extension.test.ts   # 插件激活和命令测试
+│       ├── yapiService.test.ts # YAPI 服务单元测试
+│       ├── codeGenerator.test.ts # 代码生成器单元测试
+│       ├── webviewProvider.test.ts # Webview 提供者测试
+│       └── integration.test.ts # 集成测试
+├── media/                      # 静态资源目录
+│   ├── main.js                 # Webview 前端脚本（纯 JavaScript）
+│   ├── main.css                # 主样式文件
+│   ├── reset.css               # CSS 重置文件
+│   ├── vscode.css              # 编辑器主题样式变量
+│   ├── icon.svg                # 插件图标（SVG）
+│   └── icon.png                # 插件图标（PNG）
+├── dist/                       # 编译输出目录（Webpack 打包）
+│   └── extension.js            # 打包后的插件代码（生产环境）
+├── out/                        # 测试编译输出目录
+├── package.json                # 项目配置和依赖管理
+├── tsconfig.json               # TypeScript 编译配置
+├── webpack.config.js           # Webpack 打包配置
+├── eslint.config.mjs           # ESLint 代码检查配置
+├── .prettierrc.json            # Prettier 格式化配置
+└── README.md                   # 项目文档
 ```
+
+### 📚 核心组件说明
+
+#### 1. extension.ts - 插件入口
+
+- 插件的激活入口点
+- 注册 Webview 视图提供者
+- 注册插件命令（如重置模板）
+- 管理插件的生命周期
+
+#### 2. webviewProvider.ts - Webview 提供者
+
+- 实现 `WebviewViewProvider` 接口
+- 渲染插件的用户界面
+- 处理前端和后端的消息通信
+- 管理项目和模板的状态持久化
+- 协调 YapiService 和 CodeGenerator
+
+#### 3. yapiService.ts - YAPI 服务
+
+- 封装所有 YAPI API 调用
+- 处理 HTTP 请求和错误
+- 提供以下功能：
+    - 获取项目信息
+    - 获取接口分类菜单
+    - 获取接口列表
+    - 获取接口详情
+    - 批量获取接口
+
+#### 4. codeGenerator.ts - 代码生成器
+
+- 生成 TypeScript 类型定义
+- 生成 API 接口代码
+- 支持模板系统
+- 智能处理命名冲突
+- 解析 JSON Schema
+- 处理多种请求类型（query、body、form）
+
+#### 5. types.ts - 类型定义
+
+定义项目中使用的所有 TypeScript 类型：
+
+- `YapiProject` - YAPI 项目信息
+- `YapiCategory` - 接口分类
+- `YapiInterface` - 接口基本信息
+- `YapiInterfaceDetail` - 接口详细信息
+- `TemplateConfig` - 模板配置
+- `ProjectConfig` - 项目配置
 
 ### 🚀 本地开发
 
@@ -574,26 +760,38 @@ pnpm run compile
 #### 2. 开发命令
 
 ```bash
-# 编译 TypeScript（一次性）
+# 编译 TypeScript（使用 Webpack）
 pnpm run compile
 
 # 监听文件变化（开发模式）
 pnpm run watch
 
-# 代码检查
+# 类型检查（不输出文件）
+pnpm run compile:check
+
+# 打包生产版本
+pnpm run package
+
+# 代码检查（自动修复）
 pnpm run lint
 
-# 自动修复代码格式
-pnpm run lint:fix
+# 代码检查（仅检查不修复）
+pnpm run lint:check
 
 # 格式化代码
 pnpm run format
 
+# 检查代码格式
+pnpm run format:check
+
 # 运行测试
 pnpm run test
 
-# 运行测试并生成覆盖率报告
-pnpm run test:coverage
+# 编译测试文件
+pnpm run compile-tests
+
+# 监听测试文件变化
+pnpm run watch-tests
 ```
 
 #### 3. 开发工作流
@@ -604,15 +802,19 @@ pnpm run test:coverage
     pnpm run watch
     ```
 
-2. **在 VSCode 中打开项目**：
+2. **在编辑器中打开项目**：
 
     ```bash
+    # VSCode / Cursor
     code .
+
+    # VSCodium
+    codium .
     ```
 
 3. **按 `F5` 启动调试模式**，这会：
     - 编译 TypeScript 代码
-    - 启动新的 VSCode 窗口（Extension Development Host）
+    - 启动新的编辑器窗口（Extension Development Host）
     - 在新窗口中加载开发中的插件
 
 4. **在新窗口中测试功能**：
@@ -626,7 +828,7 @@ pnpm run test:coverage
 
 **启动调试**：
 
-- 在主 VSCode 窗口中按 `F5`
+- 在主编辑器窗口中按 `F5`
 - 或者使用 `Ctrl+Shift+P` 输入 "Debug: Start Debugging"
 
 **调试技巧**：
@@ -634,7 +836,7 @@ pnpm run test:coverage
 - 在代码中设置断点
 - 使用 `console.log()` 输出调试信息
 - 查看 "Developer Tools" 中的控制台输出
-- 使用 VSCode 的调试面板查看变量值
+- 使用调试面板查看变量值
 
 #### 2. Webview 调试
 
@@ -655,7 +857,7 @@ pnpm run test:coverage
 
 **查看插件日志**：
 
-- 打开 VSCode 输出面板：`Ctrl+Shift+U`
+- 打开编辑器输出面板：`Ctrl+Shift+U`（或 `View` → `Output`）
 - 选择 "YAPI to TypeScript" 输出通道
 - 查看详细的运行日志和错误信息
 
@@ -670,9 +872,6 @@ pnpm run test:coverage
 #### 1. 本地打包
 
 ```bash
-# 安装 vsce（如果未安装）
-npm install -g vsce
-
 # 代码检查和格式化
 pnpm run lint
 pnpm run format
@@ -680,27 +879,26 @@ pnpm run format
 # 运行测试
 pnpm run test
 
-# 打包插件
+# 打包插件（生产模式）
 pnpm run package
-# 或者直接使用 vsce
-vsce package
 ```
+
+打包后的文件位于 `dist/` 目录，包含优化后的生产代码。
 
 #### 2. 发布到市场
 
 ```bash
-# 登录到 VSCode 市场（首次需要）
-vsce login <publisher-name>
+# 安装 vsce（如果未安装）
+npm install -g @vscode/vsce
 
-# 发布新版本
-vsce publish
+# 登录到 Open VSX（首次需要）
+npx ovsx login
 
-# 发布指定版本
-vsce publish 1.0.1
-
-# 发布预发布版本
-vsce publish --pre-release
+# 发布到 Open VSX
+npx ovsx publish
 ```
+
+**注意**：本项目发布到 Open VSX Registry，与 VSCode、Cursor、VSCodium 等兼容编辑器完美兼容。
 
 #### 3. 版本管理
 
@@ -758,10 +956,12 @@ pnpm run test:coverage
 
 #### 1. 代码规范
 
-- 使用 TypeScript 严格模式
-- 遵循 ESLint 规则
-- 使用 Prettier 格式化代码
-- 添加适当的类型注解和注释
+- **TypeScript 严格模式**：项目启用了 TypeScript 严格类型检查
+- **ESLint**：使用 `@typescript-eslint` 插件进行代码检查
+- **Prettier**：自动格式化代码，配置文件：`.prettierrc.json`
+- **Husky + lint-staged**：Git 提交前自动运行代码检查和格式化
+- **命名规范**：遵循 camelCase 和 PascalCase 命名约定
+- 添加适当的类型注解和 JSDoc 注释
 
 #### 2. 性能优化
 
