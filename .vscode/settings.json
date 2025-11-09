@@ -12,7 +12,9 @@
 	"typescript.tsc.autoDetect": "off",
 	"cSpell.words": [
 		"catid",
-		"yapi"
+		"codegen",
+		"yapi",
+		"zhoujian"
 	],
 	// 强制使用LF行尾符
 	"files.eol": "\n",

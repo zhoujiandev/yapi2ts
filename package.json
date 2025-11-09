@@ -59,9 +59,7 @@
         "api documentation"
     ],
     "main": "./dist/extension.js",
-    "activationEvents": [
-        "onView:yapi2ts.explorer"
-    ],
+    "activationEvents": [],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
