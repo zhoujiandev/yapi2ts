@@ -28,11 +28,6 @@
             "url": "https://img.shields.io/open-vsx/dt/zhoujian/yapi-ts",
             "href": "https://open-vsx.org/extension/zhoujian/yapi-ts",
             "description": "Downloads"
-        },
-        {
-            "url": "https://img.shields.io/open-vsx/rating/zhoujian/yapi-ts",
-            "href": "https://open-vsx.org/extension/zhoujian/yapi-ts",
-            "description": "Rating"
         }
     ],
     "engines": {
