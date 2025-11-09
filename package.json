@@ -1,7 +1,7 @@
 {
     "name": "yapi-ts",
-    "displayName": "YAPI to TypeScript",
-    "description": "YAPI to TypeScript converter - Generate TypeScript interfaces, types, and API request functions from YAPI platform. Support automatic code generation, custom templates, and seamless integration with your development workflow.",
+    "displayName": "YAPI TypeScript",
+    "description": "Generate TypeScript interfaces and API functions from YAPI. Support custom templates and automatic code generation.",
     "version": "0.0.67",
     "publisher": "zhoujian",
     "repository": {
@@ -40,23 +40,16 @@
     "keywords": [
         "yapi",
         "yapi2ts",
-        "yapi typescript",
         "typescript",
-        "ts",
         "api",
-        "interface",
-        "type",
-        "types",
         "code generator",
-        "api definition",
-        "rest api",
-        "http",
-        "axios",
-        "fetch",
-        "request",
         "type generation",
         "codegen",
-        "api documentation"
+        "yapi typescript",
+        "interface",
+        "rest api",
+        "type",
+        "ts"
     ],
     "main": "./dist/extension.js",
     "activationEvents": [],
@@ -65,7 +58,7 @@
             "activitybar": [
                 {
                     "id": "yapi2ts",
-                    "title": "YAPI to TypeScript",
+                    "title": "YAPI TypeScript",
                     "icon": "./media/icon.svg"
                 }
             ]
@@ -83,8 +76,8 @@
         "commands": [
             {
                 "command": "yapi2ts.resetTemplates",
-                "title": "YAPI to TypeScript: Reset Templates",
-                "category": "YAPI to TypeScript"
+                "title": "YAPI TypeScript: Reset Templates",
+                "category": "YAPI TypeScript"
             }
         ]
     },

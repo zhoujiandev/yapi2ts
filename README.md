@@ -1,4 +1,4 @@
-# YAPI to TypeScript
+# YAPI TypeScript
 
 [![Version](https://img.shields.io/open-vsx/v/zhoujian/yapi-ts)](https://open-vsx.org/extension/zhoujian/yapi-ts)
 [![Downloads](https://img.shields.io/open-vsx/dt/zhoujian/yapi-ts)](https://open-vsx.org/extension/zhoujian/yapi-ts)
@@ -80,7 +80,7 @@
 #### 方式一：扩展市场安装（推荐）
 
 1. 打开编辑器，按 `Ctrl+Shift+X`（Mac: `Cmd+Shift+X`）打开扩展面板
-2. 在搜索框中输入 "yapi-ts" 或 "YAPI to TypeScript"
+2. 在搜索框中输入 "yapi-ts" 或 "YAPI TypeScript"
 3. 找到插件后点击 "安装" 按钮
 4. 安装完成后重启编辑器（如需要）
 
@@ -96,11 +96,11 @@ codium --install-extension zhoujian.yapi-ts
 
 ### 🎯 首次使用
 
-安装完成后，您会在编辑器左侧活动栏看到 **YAPI to TypeScript** 图标 📋
+安装完成后，您会在编辑器左侧活动栏看到 **YAPI TypeScript** 图标 📋
 
 #### 1. 打开插件面板
 
-- 点击左侧活动栏的 YAPI to TypeScript 图标
+- 点击左侧活动栏的 YAPI TypeScript 图标
 - 插件界面包含三个主要标签页：
     - **📋 接口列表** - 浏览接口文档，生成代码
     - **🏗️ 我的项目** - 管理 YAPI 项目配置
@@ -392,7 +392,7 @@ export const getUserInfo = (params: GetUserInfoRequest): Promise<GetUserInfoResp
 
 - **📝 编辑模板**：点击模板列表中的 "编辑" 按钮，修改模板内容
 - **🗑️ 删除模板**：点击模板列表中的 "删除" 按钮，移除自定义模板
-- **🔄 重置模板**：使用命令面板（`Ctrl+Shift+P` / `Cmd+Shift+P`）执行 "YAPI to TypeScript: Reset Templates" 恢复默认模板
+- **🔄 重置模板**：使用命令面板（`Ctrl+Shift+P` / `Cmd+Shift+P`）执行 "YAPI TypeScript: Reset Templates" 恢复默认模板
 
 #### 模板变量详解
 
@@ -858,7 +858,7 @@ pnpm run watch-tests
 **查看插件日志**：
 
 - 打开编辑器输出面板：`Ctrl+Shift+U`（或 `View` → `Output`）
-- 选择 "YAPI to TypeScript" 输出通道
+- 选择 "YAPI TypeScript" 输出通道
 - 查看详细的运行日志和错误信息
 
 **常见问题排查**：

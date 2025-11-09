@@ -1,5 +1,4 @@
 import * as assert from 'assert';
-import * as vscode from 'vscode';
 
 suite('Extension Activation Test Suite', () => {
     suite('Extension Registration', () => {
@@ -21,10 +20,11 @@ suite('Extension Activation Test Suite', () => {
         test('should have correct activation events', () => {
             const packageJson = require('../../package.json');
 
-            assert.ok(Array.isArray(packageJson.activationEvents), 'Should have activation events');
+            // 从 VS Code 1.74 开始，扩展会根据 contributes 字段自动激活
+            // activationEvents 可以为空数组
             assert.ok(
-                packageJson.activationEvents.includes('onView:yapi2ts.explorer'),
-                'Should activate on view'
+                Array.isArray(packageJson.activationEvents),
+                'Should have activation events array'
             );
         });
 
@@ -178,14 +178,14 @@ suite('Extension Activation Test Suite', () => {
             const packageJson = require('../../package.json');
             const activationEvents = packageJson.activationEvents;
 
+            // 从 VS Code 1.74 开始，扩展会根据 contributes 字段自动激活
+            // activationEvents 可以为空数组，VS Code 会自动处理
             assert.ok(Array.isArray(activationEvents), 'Activation events should be an array');
-            assert.ok(activationEvents.length > 0, 'Should have at least one activation event');
 
-            // 检查是否有正确的激活事件
-            const hasViewActivation = activationEvents.some((event: string) =>
-                event.startsWith('onView:')
-            );
-            assert.ok(hasViewActivation, 'Should have view activation event');
+            // 验证扩展有足够的贡献点来自动激活
+            assert.ok(packageJson.contributes, 'Should have contributes section');
+            assert.ok(packageJson.contributes.views, 'Should have views for auto-activation');
+            assert.ok(packageJson.contributes.commands, 'Should have commands for auto-activation');
         });
 
         test('should handle resource management', () => {

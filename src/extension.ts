@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
                 await context.globalState.update('yapi2ts.templates', undefined);
 
                 vscode.window.showInformationMessage(
-                    'YAPI to TypeScript: 模板已重置，重新加载插件后生效'
+                    'YAPI TypeScript: 模板已重置，重新加载插件后生效'
                 );
             } catch (error) {
                 vscode.window.showErrorMessage(`重置模板失败: ${error}`);

@@ -584,7 +584,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         <link href="${styleResetUri}" rel="stylesheet">
         <link href="${styleVSCodeUri}" rel="stylesheet">
         <link href="${styleMainUri}" rel="stylesheet">
-        <title>YAPI to TypeScript</title>
+        <title>YAPI TypeScript</title>
       </head>
       <body>
         <div class="container">
