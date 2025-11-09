@@ -2,7 +2,7 @@
     "name": "yapi-ts",
     "displayName": "YAPI to TypeScript",
     "description": "YAPI to TypeScript converter - Generate TypeScript interfaces, types, and API request functions from YAPI platform. Support automatic code generation, custom templates, and seamless integration with your development workflow.",
-    "version": "0.0.67",
+    "version": "0.0.68",
     "publisher": "zhoujian",
     "repository": {
         "type": "git",
