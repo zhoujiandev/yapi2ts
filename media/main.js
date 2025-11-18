@@ -25,6 +25,7 @@
   const tableContent = document.getElementById('table-content');
   const generateTypesBtn = document.getElementById('generate-types-btn');
   const generateApiBtn = document.getElementById('generate-api-btn');
+  const generateAllBtn = document.getElementById('generate-all-btn');
   const templateSelect = document.getElementById('template-select');
   const addTemplateBtn = document.getElementById('add-template-btn');
   const templateList = document.getElementById('template-list');
@@ -158,6 +159,31 @@
 
       vscode.postMessage({
         type: 'generateApi',
+        interfaceIds: Array.from(selectedInterfaces),
+        templateId
+      });
+    });
+
+    // Generate all button - 一键生成完整代码
+    generateAllBtn.addEventListener('click', () => {
+      if (selectedInterfaces.size === 0) {
+        showMessage('请选择要生成的接口', 'error');
+        return;
+      }
+
+      const templateId = templateSelect.value;
+      if (!templateId) {
+        showMessage('请选择模板', 'error');
+        return;
+      }
+
+      // 设置loading状态
+      generateAllBtn.disabled = true;
+      const originalText = generateAllBtn.textContent;
+      generateAllBtn.textContent = '生成中...';
+
+      vscode.postMessage({
+        type: 'generateAll',
         interfaceIds: Array.from(selectedInterfaces),
         templateId
       });
@@ -1315,7 +1341,7 @@
       case 'generateTypesResult':
         // 恢复按钮状态
         generateTypesBtn.disabled = false;
-        generateTypesBtn.textContent = '复制参数';
+        generateTypesBtn.textContent = '📝 仅类型定义';
         
         if (message.success) {
           showMessage(message.message, 'success');
@@ -1327,7 +1353,19 @@
       case 'generateApiResult':
         // 恢复按钮状态
         generateApiBtn.disabled = false;
-        generateApiBtn.textContent = '复制API';
+        generateApiBtn.textContent = '🔧 仅API代码';
+        
+        if (message.success) {
+          showMessage(message.message, 'success');
+        } else {
+          showMessage(message.message, 'error');
+        }
+        break;
+
+      case 'generateAllResult':
+        // 恢复按钮状态
+        generateAllBtn.disabled = false;
+        generateAllBtn.textContent = '⚡ 生成完整代码';
         
         if (message.success) {
           showMessage(message.message, 'success');

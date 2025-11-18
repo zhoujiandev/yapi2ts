@@ -1488,3 +1488,101 @@
 .confirm-btn-secondary:hover {
   background: var(--vscode-button-secondaryHoverBackground);
 }
+
+/* Primary Action Group - 主操作区域 */
+.primary-action-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-focusBorder);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.template-select-main {
+  min-width: 150px;
+  flex: 1;
+  padding: 6px 8px;
+  background: var(--vscode-dropdown-background);
+  color: var(--vscode-dropdown-foreground);
+  border: 1px solid var(--vscode-dropdown-border);
+  border-radius: 2px;
+  font-size: 12px;
+}
+
+/* Gradient Button - 渐变主按钮 */
+.btn-gradient {
+  background: linear-gradient(135deg, var(--vscode-button-background) 0%, var(--vscode-button-hoverBackground) 100%);
+  color: var(--vscode-button-foreground);
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.btn-gradient:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-gradient:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Outline Button - 次要按钮 */
+.btn-outline {
+  background: transparent;
+  color: var(--vscode-button-secondaryForeground);
+  border: 1px solid var(--vscode-button-border);
+  font-weight: normal;
+  opacity: 0.9;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: var(--vscode-button-secondaryHoverBackground);
+  opacity: 1;
+}
+
+/* Advanced Options - 高级选项折叠区域 */
+.advanced-options {
+  width: 100%;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--vscode-panel-border);
+}
+
+.advanced-options-summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+  padding: 4px 8px;
+  border-radius: 2px;
+  list-style: none;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.advanced-options-summary:hover {
+  background: var(--vscode-list-hoverBackground);
+  color: var(--vscode-foreground);
+}
+
+.advanced-options-summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced-options-content {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 4px;
+}
+
+.advanced-options[open] .advanced-options-summary {
+  margin-bottom: 0;
+}

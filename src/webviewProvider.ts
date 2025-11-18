@@ -117,6 +117,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             case 'generateApi':
                 await this.handleGenerateApi(message.interfaceIds, message.templateId);
                 break;
+            case 'generateAll':
+                await this.handleGenerateAll(message.interfaceIds, message.templateId);
+                break;
             case 'saveTemplate':
                 await this.handleSaveTemplate(message.template);
                 break;
@@ -365,6 +368,93 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             });
 
             this.sendNotification(`生成API定义失败: ${error}`, 'error');
+        }
+    }
+
+    private async handleGenerateAll(interfaceIds: number[], templateId: string) {
+        try {
+            // 获取接口详情
+            const interfaces = await this.yapiService.getInterfaceDetails(interfaceIds);
+            const template = this.templates.find(t => t.id === templateId);
+
+            if (!template) {
+                this._view?.webview.postMessage({
+                    type: 'generateAllResult',
+                    success: false,
+                    message: '未找到指定的模板'
+                });
+                this.sendNotification('未找到指定的模板', 'error');
+                return;
+            }
+
+            // 按分类分组接口
+            const interfacesByCategory = new Map<number, YapiInterfaceDetail[]>();
+            interfaces.forEach(iface => {
+                if (!interfacesByCategory.has(iface.catid)) {
+                    interfacesByCategory.set(iface.catid, []);
+                }
+                interfacesByCategory.get(iface.catid)!.push(iface);
+            });
+
+            // 为每个分类获取完整的接口列表用于命名冲突计算
+            const categoryInterfacesMap = new Map<number, YapiInterfaceDetail[]>();
+            for (const catId of interfacesByCategory.keys()) {
+                try {
+                    const categoryInterfaceList = await this.yapiService.getInterfaceList(
+                        catId,
+                        1,
+                        1000
+                    );
+                    const allCategoryInterfaceIds = categoryInterfaceList.list.map(
+                        iface => iface._id
+                    );
+                    const categoryInterfaces =
+                        await this.yapiService.getInterfaceDetails(allCategoryInterfaceIds);
+                    categoryInterfacesMap.set(catId, categoryInterfaces);
+                } catch (error) {
+                    console.warn(`Failed to get interfaces for category ${catId}:`, error);
+                    // 如果获取失败，至少使用当前选中的接口
+                    categoryInterfacesMap.set(catId, interfacesByCategory.get(catId) || []);
+                }
+            }
+
+            // 生成类型定义
+            const typeDefinitions = this.codeGenerator.generateTypeDefinitions(
+                interfaces,
+                categoryInterfacesMap
+            );
+
+            // 生成API定义
+            const apiDefinitions = this.codeGenerator.generateApiDefinitions(
+                interfaces,
+                template,
+                this.yapiService.getBaseUrl(),
+                categoryInterfacesMap
+            );
+
+            // 合并输出：类型定义 + 空行 + API定义
+            const completeCode = `${typeDefinitions}\n\n${apiDefinitions}`;
+
+            // 复制到剪贴板
+            await vscode.env.clipboard.writeText(completeCode);
+
+            // 发送成功消息给前端
+            this._view?.webview.postMessage({
+                type: 'generateAllResult',
+                success: true,
+                message: `已生成并复制 ${interfaces.length} 个接口的完整代码（类型定义 + API代码）`
+            });
+        } catch (error) {
+            console.error('Generate all error:', error);
+
+            // 发送失败消息给前端
+            this._view?.webview.postMessage({
+                type: 'generateAllResult',
+                success: false,
+                message: `生成完整代码失败: ${error}`
+            });
+
+            this.sendNotification(`生成完整代码失败: ${error}`, 'error');
         }
     }
 
@@ -646,13 +736,24 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                     </div>
                   </div>
                   <div class="table-actions">
-                    <button id="generate-types-btn" class="btn btn-secondary">复制参数</button>
-                    <div class="action-group api-generation-group">
-                        <select id="template-select">
-                          <option value="">选择模板</option>
-                        </select>
-                        <button id="generate-api-btn" class="btn btn-primary">复制API</button>
+                    <!-- 主操作：一键生成完整代码 -->
+                    <div class="primary-action-group">
+                      <select id="template-select" class="template-select-main">
+                        <option value="">选择模板</option>
+                      </select>
+                      <button id="generate-all-btn" class="btn btn-primary btn-gradient">
+                        ⚡ 生成完整代码
+                      </button>
                     </div>
+                    
+                    <!-- 高级选项：单独生成 -->
+                    <details class="advanced-options">
+                      <summary class="advanced-options-summary">🔧 高级选项（单独生成）</summary>
+                      <div class="advanced-options-content">
+                        <button id="generate-types-btn" class="btn btn-outline">📝 仅类型定义</button>
+                        <button id="generate-api-btn" class="btn btn-outline">🔧 仅API代码</button>
+                      </div>
+                    </details>
                   </div>
                 </div>
                 <div class="table-content" id="table-content">
