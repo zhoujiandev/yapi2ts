@@ -1,3 +1,4 @@
+import { ApiError, AuthenticationError, NetworkError, TimeoutError, YapiError } from './errors';
 import {
     YapiCategory,
     YapiInterface,
@@ -6,9 +7,18 @@ import {
     YapiResponse
 } from './types';
 
+interface RequestOptions {
+    timeout?: number;
+    retries?: number;
+    retryDelay?: number;
+}
+
 export class YapiService {
     private baseUrl: string = '';
     private token: string = '';
+    private readonly DEFAULT_TIMEOUT = 30000; // 30秒
+    private readonly DEFAULT_RETRIES = 3;
+    private readonly DEFAULT_RETRY_DELAY = 1000; // 1秒
 
     constructor() {}
 
@@ -25,7 +35,52 @@ export class YapiService {
         return this.baseUrl !== '' && this.token !== '';
     }
 
-    private async request<T>(endpoint: string, params: Record<string, any> = {}): Promise<T> {
+    private async request<T>(
+        endpoint: string,
+        params: Record<string, unknown> = {},
+        options: RequestOptions = {}
+    ): Promise<T> {
+        const {
+            timeout = this.DEFAULT_TIMEOUT,
+            retries = this.DEFAULT_RETRIES,
+            retryDelay = this.DEFAULT_RETRY_DELAY
+        } = options;
+
+        let lastError: Error | undefined;
+
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            try {
+                return await this.doRequest<T>(endpoint, params, timeout);
+            } catch (error) {
+                lastError = error as Error;
+
+                // 如果是最后一次尝试，直接抛出错误
+                if (attempt === retries) {
+                    break;
+                }
+
+                // 认证错误不需要重试
+                if (
+                    error instanceof AuthenticationError ||
+                    (error instanceof ApiError && error.statusCode === 401)
+                ) {
+                    throw error;
+                }
+
+                // 等待后重试
+                console.warn(`Request failed (attempt ${attempt + 1}/${retries + 1}), retrying...`);
+                await this.delay(retryDelay * (attempt + 1));
+            }
+        }
+
+        throw lastError;
+    }
+
+    private async doRequest<T>(
+        endpoint: string,
+        params: Record<string, unknown>,
+        timeout: number
+    ): Promise<T> {
         const url = new URL(endpoint, this.baseUrl);
 
         // 添加token参数
@@ -36,28 +91,65 @@ export class YapiService {
         // 构建查询参数
         Object.keys(params).forEach(key => {
             if (params[key] !== undefined && params[key] !== null) {
-                url.searchParams.append(key, params[key].toString());
+                url.searchParams.append(key, String(params[key]));
             }
         });
 
         try {
-            const response = await fetch(url.toString());
+            // 实现超时控制
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            const response = await fetch(url.toString(), {
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                // 特殊处理401认证错误
+                if (response.status === 401) {
+                    throw new AuthenticationError();
+                }
+
+                const errorText = await response.text().catch(() => response.statusText);
+                throw new ApiError(
+                    `HTTP ${response.status}: ${response.statusText}`,
+                    response.status,
+                    errorText
+                );
             }
 
             const data = (await response.json()) as YapiResponse<T>;
 
             if (data.errcode !== 0) {
-                throw new Error(`YAPI Error ${data.errcode}: ${data.errmsg}`);
+                // YAPI 特定错误码处理
+                if (data.errcode === 40011) {
+                    throw new AuthenticationError(data.errmsg || 'Token 无效');
+                }
+
+                throw new ApiError(data.errmsg || 'Unknown YAPI error', data.errcode, data);
             }
 
             return data.data;
         } catch (error) {
-            console.error('YAPI API request failed:', error);
-            throw error;
+            // 已经是自定义错误类型，直接抛出
+            if (error instanceof YapiError) {
+                throw error;
+            }
+
+            // AbortError 表示超时
+            if ((error as Error).name === 'AbortError') {
+                throw new TimeoutError(`请求超时 (${timeout}ms)`, timeout);
+            }
+
+            // 网络错误
+            throw new NetworkError('网络请求失败，请检查网络连接', error);
         }
+    }
+
+    private delay(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     /**

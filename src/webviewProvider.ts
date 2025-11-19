@@ -1,6 +1,13 @@
 import * as vscode from 'vscode';
 import { CodeGenerator } from './codeGenerator';
-import { ProjectConfig, TemplateConfig, YapiInterfaceDetail } from './types';
+import { ApiError, AuthenticationError, NetworkError, TimeoutError } from './errors';
+import {
+    ProjectConfig,
+    TemplateConfig,
+    WebviewMessage,
+    YapiInterfaceDetail,
+    YapiProject
+} from './types';
 import { YapiService } from './yapiService';
 
 export class YapiWebviewProvider implements vscode.WebviewViewProvider {
@@ -11,6 +18,8 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     private codeGenerator: CodeGenerator;
     private templates: TemplateConfig[] = [];
     private projects: ProjectConfig[] = [];
+    private disposables: vscode.Disposable[] = [];
+    private timers: NodeJS.Timeout[] = [];
 
     constructor(
         private readonly _extensionUri: vscode.Uri,
@@ -38,21 +47,31 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
         // 监听来自WebView的消息
-        webviewView.webview.onDidReceiveMessage(
+        const messageDisposable = webviewView.webview.onDidReceiveMessage(
             message => {
                 console.log('Received message from webview:', message);
                 this.handleMessage(message);
             },
             undefined,
-            this.context.subscriptions
+            this.disposables
         );
 
         // 恢复状态并发送初始数据
-        setTimeout(async () => {
+        const timer = setTimeout(async () => {
             console.log('WebView ready, starting initialization...');
             this.restoreState();
             await this.sendInitialData();
         }, 500); // 增加延迟时间，确保webview完全加载
+        this.timers.push(timer);
+
+        // 注册清理函数
+        webviewView.onDidDispose(
+            () => {
+                this.dispose();
+            },
+            null,
+            this.disposables
+        );
     }
 
     private restoreState() {
@@ -103,52 +122,76 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    private async handleMessage(message: any) {
+    private async handleMessage(message: WebviewMessage) {
         switch (message.type) {
             case 'setConfig':
-                await this.handleSetConfig(message.yapiUrl, message.projectToken);
+                if (message.yapiUrl && message.projectToken) {
+                    await this.handleSetConfig(message.yapiUrl, message.projectToken);
+                }
                 break;
             case 'loadInterfaces':
                 await this.handleLoadInterfaces();
                 break;
             case 'generateTypes':
-                await this.handleGenerateTypes(message.interfaceIds);
+                if (message.interfaceIds) {
+                    await this.handleGenerateTypes(message.interfaceIds);
+                }
                 break;
             case 'generateApi':
-                await this.handleGenerateApi(message.interfaceIds, message.templateId);
+                if (message.interfaceIds && message.templateId) {
+                    await this.handleGenerateApi(message.interfaceIds, message.templateId);
+                }
                 break;
             case 'generateAll':
-                await this.handleGenerateAll(message.interfaceIds, message.templateId);
+                if (message.interfaceIds && message.templateId) {
+                    await this.handleGenerateAll(message.interfaceIds, message.templateId);
+                }
                 break;
             case 'saveTemplate':
-                await this.handleSaveTemplate(message.template);
+                if (message.template) {
+                    await this.handleSaveTemplate(message.template);
+                }
                 break;
             case 'deleteTemplate':
-                await this.handleDeleteTemplate(message.templateId);
+                if (message.templateId) {
+                    await this.handleDeleteTemplate(message.templateId);
+                }
                 break;
             case 'loadTemplates':
                 await this.handleLoadTemplates();
                 break;
             case 'saveProject':
-                await this.handleSaveProject(message.project);
+                if (message.project) {
+                    await this.handleSaveProject(message.project);
+                }
                 break;
             case 'deleteProject':
-                await this.handleDeleteProject(message.projectId);
+                if (message.projectId) {
+                    await this.handleDeleteProject(message.projectId);
+                }
                 break;
             case 'loadProjects':
                 await this.handleLoadProjects();
                 break;
             case 'copyPath':
-                await this.handleCopyPath(message.path);
+                if (message.path) {
+                    await this.handleCopyPath(message.path);
+                }
                 break;
             case 'copyYapiUrl':
-                await this.handleCopyYapiUrl(message.interfaceId);
+                if (message.interfaceId) {
+                    await this.handleCopyYapiUrl(message.interfaceId);
+                }
                 break;
             case 'copyTemplate':
-                await this.handleCopyTemplate(message.content);
+                if (message.content) {
+                    await this.handleCopyTemplate(message.content);
+                }
                 break;
             case 'copyTemplateExample':
-                await this.handleCopyTemplateExample(message.content);
+                if (message.content) {
+                    await this.handleCopyTemplateExample(message.content);
+                }
                 break;
         }
     }
@@ -182,15 +225,17 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 });
 
                 // 稍微延迟后再加载接口，确保树展开动画完成
-                setTimeout(() => {
+                const loadTimer = setTimeout(() => {
                     this.handleLoadInterfaces();
                 }, 300);
+                this.timers.push(loadTimer);
             }
         } catch (error) {
+            const errorMessage = this.getErrorMessage(error);
             this._view?.webview.postMessage({
                 type: 'configResult',
                 success: false,
-                message: `连接失败: ${error}`
+                message: `连接失败: ${errorMessage}`
             });
         }
     }
@@ -223,12 +268,15 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 updateTime: Date.now()
             });
         } catch (error) {
+            const errorMessage = this.getDetailedErrorMessage(error);
             // 通知 Webview：加载失败，隐藏 loading 并显示错误
             this._view?.webview.postMessage({
                 type: 'interfacesLoadFailed',
-                error: String(error)
+                error: errorMessage.message,
+                detail: errorMessage.detail,
+                actions: errorMessage.actions
             });
-            this.sendNotification(`加载接口失败: ${error}`, 'error');
+            this.sendNotification(`加载接口失败: ${errorMessage.message}`, 'error');
         }
     }
 
@@ -583,7 +631,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         try {
             // 获取当前配置的YAPI URL和项目信息
             const yapiUrl = this.context.globalState.get<string>('yapi2ts.yapiUrl', '');
-            const projectInfo = this.context.globalState.get<any>('yapi2ts.projectInfo');
+            const projectInfo = this.context.globalState.get<YapiProject>('yapi2ts.projectInfo');
 
             if (!yapiUrl || !projectInfo) {
                 this.sendNotification('请先配置YAPI地址和项目Token', 'error');
@@ -817,6 +865,78 @@ export const \${methodName} = (params: \${paramsTypeName},config?:Omit&lt;AxiosR
         <script nonce="${nonce}" src="${scriptUri}"></script>
       </body>
       </html>`;
+    }
+
+    /**
+     * 清理资源，防止内存泄漏
+     */
+    private dispose(): void {
+        // 清理所有定时器
+        this.timers.forEach(timer => clearTimeout(timer));
+        this.timers = [];
+
+        // 清理所有 disposables
+        this.disposables.forEach(d => d.dispose());
+        this.disposables = [];
+
+        console.log('YapiWebviewProvider disposed');
+    }
+
+    /**
+     * 获取错误消息
+     */
+    private getErrorMessage(error: unknown): string {
+        if (error instanceof Error) {
+            return error.message;
+        }
+        return String(error);
+    }
+
+    /**
+     * 获取详细的错误信息，包含可操作的建议
+     */
+    private getDetailedErrorMessage(error: unknown): {
+        message: string;
+        detail?: string;
+        actions?: Array<{ label: string; command: string }>;
+    } {
+        let message = '加载失败';
+        let detail: string | undefined;
+        let actions: Array<{ label: string; command: string }> | undefined;
+
+        if (error instanceof TimeoutError) {
+            message = '请求超时';
+            detail = `连接 YAPI 服务器超时 (${error.timeout}ms)，请检查网络连接`;
+            actions = [
+                { label: '重试', command: 'retry' },
+                { label: '检查网络', command: 'checkNetwork' }
+            ];
+        } else if (error instanceof AuthenticationError) {
+            message = '认证失败';
+            detail = 'Token 无效或已过期，请重新配置';
+            actions = [{ label: '配置 Token', command: 'configureToken' }];
+        } else if (error instanceof ApiError) {
+            message = `API 错误 (${error.statusCode})`;
+            detail = error.message;
+            if (error.statusCode === 404) {
+                actions = [{ label: '检查配置', command: 'checkConfig' }];
+            }
+        } else if (error instanceof NetworkError) {
+            message = '网络错误';
+            detail = '无法连接到 YAPI 服务器，请检查网络和服务器地址';
+            actions = [
+                { label: '重试', command: 'retry' },
+                { label: '检查配置', command: 'checkConfig' }
+            ];
+        } else if (error instanceof Error) {
+            message = '未知错误';
+            detail = error.message;
+        } else {
+            message = '未知错误';
+            detail = String(error);
+        }
+
+        return { message, detail, actions };
     }
 }
 

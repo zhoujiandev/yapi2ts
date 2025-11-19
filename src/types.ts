@@ -1,5 +1,17 @@
 // YAPI 接口类型定义
 
+// HTTP 方法类型
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
+
+// 接口状态类型
+export type InterfaceStatus = 'done' | 'undone' | 'deprecated';
+
+// 请求体类型
+export type RequestBodyType = 'json' | 'form' | 'file' | 'raw';
+
+// 必填字段标识（YAPI 返回字符串）
+export type RequiredFlag = '0' | '1';
+
 export interface YapiProject {
     _id: number;
     name: string;
@@ -38,13 +50,13 @@ export interface YapiInterface {
     req_body_other?: string;
     req_query?: Array<{
         name: string;
-        required: string;
+        required: RequiredFlag;
         desc: string;
     }>;
     req_headers?: Array<{
         name: string;
         value: string;
-        required: string;
+        required: RequiredFlag;
         desc: string;
     }>;
     req_params?: Array<{
@@ -61,7 +73,7 @@ export interface YapiInterfaceDetail extends YapiInterface {
     res_body_is_json_schema: boolean;
 }
 
-export interface YapiResponse<T = any> {
+export interface YapiResponse<T = unknown> {
     errcode: number;
     errmsg: string;
     data: T;
@@ -91,4 +103,19 @@ export interface ProjectConfig {
     projectToken: string;
     createdAt: number;
     updatedAt: number;
+}
+
+// Webview 消息类型
+export interface WebviewMessage {
+    type: string;
+    yapiUrl?: string;
+    projectToken?: string;
+    interfaceIds?: number[];
+    templateId?: string;
+    template?: TemplateConfig;
+    project?: ProjectConfig;
+    projectId?: string;
+    path?: string;
+    interfaceId?: string;
+    content?: string;
 }

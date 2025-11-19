@@ -1,9 +1,9 @@
 import * as assert from 'assert';
-import { YapiService } from '../yapiService';
-import { CodeGenerator } from '../codeGenerator';
-import { YapiWebviewProvider } from '../webviewProvider';
-import { YapiInterfaceDetail, TemplateConfig } from '../types';
 import * as vscode from 'vscode';
+import { CodeGenerator } from '../codeGenerator';
+import { TemplateConfig, YapiInterfaceDetail } from '../types';
+import { YapiWebviewProvider } from '../webviewProvider';
+import { YapiService } from '../yapiService';
 
 suite('Integration Test Suite', () => {
     let yapiService: YapiService;
@@ -94,8 +94,8 @@ suite('Integration Test Suite', () => {
  * \${title}
  * \${desc}
  */
-export const \${methodName} = (params: \${queryType}) => {
-    return request<\${responseType}>({
+export const \${methodName} = (params: \${paramsTypeName}) => {
+    return request<\${responseTypeName}>({
         url: '\${path}',
         method: '\${method}',
         params

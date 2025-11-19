@@ -4,6 +4,33 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.0.1] - 2025-11-19
+
+### Fixed
+
+- **修复内存泄漏风险** - WebView Provider 中的定时器和事件监听器未正确清理
+    - 添加 `disposables` 和 `timers` 数组追踪资源
+    - 实现 `dispose()` 方法确保资源正确释放
+    - 注册 WebView 销毁回调自动清理
+- **完善错误处理机制** - 添加超时、重试和详细错误信息
+    - 创建完整的错误类型体系（NetworkError, TimeoutError, ApiError, AuthenticationError）
+    - 实现请求超时控制（默认 30 秒）
+    - 实现自动重试机制（最多 3 次，指数退避策略）
+    - 提供详细的错误信息和可操作的恢复建议
+- **提升类型安全性** - 移除 `any` 类型，使用具体类型定义
+    - 将 `YapiResponse<T = any>` 改为 `YapiResponse<T = unknown>`
+    - 新增 `HttpMethod`, `InterfaceStatus`, `RequestBodyType`, `RequiredFlag` 等类型定义
+    - 添加 `WebviewMessage` 接口定义
+    - 为所有函数参数添加类型验证
+
+### Technical
+
+- 新增 `src/errors.ts` - 错误类型定义模块
+- 优化 `yapiService.ts` - 重构请求方法，添加超时和重试逻辑
+- 优化 `webviewProvider.ts` - 添加资源清理和错误处理辅助方法
+- 完善测试覆盖 - 更新 mock 对象以支持新的 API
+- 代码质量提升 - 所有测试通过（46/46）
+
 ## [1.0.0] - 2025-11-18
 
 ### Added

@@ -1,6 +1,6 @@
 import * as assert from 'assert';
-import { YapiWebviewProvider } from '../webviewProvider';
 import * as vscode from 'vscode';
+import { YapiWebviewProvider } from '../webviewProvider';
 
 suite('YapiWebviewProvider Test Suite', () => {
     let provider: YapiWebviewProvider;
@@ -96,7 +96,8 @@ suite('YapiWebviewProvider Test Suite', () => {
                 },
                 visible: true,
                 show: () => {},
-                title: 'Test'
+                title: 'Test',
+                onDidDispose: (callback: () => void) => ({ dispose: () => {} })
             } as any;
 
             // 调用 resolveWebviewView 方法
@@ -137,7 +138,8 @@ suite('YapiWebviewProvider Test Suite', () => {
                 },
                 visible: true,
                 show: () => {},
-                title: 'Test'
+                title: 'Test',
+                onDidDispose: (callback: () => void) => ({ dispose: () => {} })
             } as any;
 
             provider.resolveWebviewView(mockWebviewView, {} as any, {} as any);
