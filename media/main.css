@@ -442,7 +442,7 @@
 }
 
 /* 响应式布局 - 当容器宽度小于630px时自动收缩，但不影响用户手动操作 */
-@media (max-width: 630px) {
+@media (max-width: 558px) {
   .interface-tree:not(.user-expanded):not(.user-collapsed) {
     width: 40px;
     min-width: 40px;
@@ -474,6 +474,7 @@
   border: 1px solid var(--vscode-panel-border);
   border-radius: 4px;
   overflow: hidden;
+  min-width:320px;
 }
 
 .interface-search {
@@ -561,7 +562,7 @@
 .table-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   flex-wrap: wrap; /* 允许按钮换行 */
   margin-top: 6px;
 }
