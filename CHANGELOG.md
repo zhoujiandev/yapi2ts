@@ -4,6 +4,19 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.0.2] - 2025-11-20
+
+### Added
+
+- **CD工作流优化** - 改进GitHub Actions发布流程
+    - 优化自动化发布配置
+    - 提升CI/CD流水线稳定性
+
+### Technical
+
+- **代码清理** - 移除冗余测试代码，提升代码质量
+- **样式优化** - 更新CSS样式，改善用户界面体验
+
 ## [1.0.1] - 2025-11-19
 
 ### Fixed
