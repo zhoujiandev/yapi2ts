@@ -13,12 +13,56 @@ interface RequestOptions {
     retryDelay?: number;
 }
 
+/**
+ * 并发控制器
+ */
+class ConcurrencyLimiter {
+    private queue: Array<() => void> = [];
+    private activeCount = 0;
+
+    constructor(private limit: number) {}
+
+    async add<T>(fn: () => Promise<T>): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            const task = async () => {
+                try {
+                    const result = await fn();
+                    resolve(result);
+                } catch (err) {
+                    reject(err);
+                } finally {
+                    this.activeCount--;
+                    this.next();
+                }
+            };
+
+            if (this.activeCount < this.limit) {
+                this.activeCount++;
+                task();
+            } else {
+                this.queue.push(() => {
+                    this.activeCount++;
+                    task();
+                });
+            }
+        });
+    }
+
+    private next() {
+        if (this.activeCount < this.limit && this.queue.length > 0) {
+            const task = this.queue.shift();
+            task?.();
+        }
+    }
+}
+
 export class YapiService {
     private baseUrl: string = '';
     private token: string = '';
     private readonly DEFAULT_TIMEOUT = 30000; // 30秒
     private readonly DEFAULT_RETRIES = 3;
     private readonly DEFAULT_RETRY_DELAY = 1000; // 1秒
+    private limiter = new ConcurrencyLimiter(5); // 限制并发请求数为5
 
     constructor() {}
 
@@ -196,7 +240,7 @@ export class YapiService {
      * 批量获取接口详情
      */
     async getInterfaceDetails(ids: number[]): Promise<YapiInterfaceDetail[]> {
-        const promises = ids.map(id => this.getInterfaceDetail(id));
+        const promises = ids.map(id => this.limiter.add(() => this.getInterfaceDetail(id)));
         return Promise.all(promises);
     }
 
@@ -223,15 +267,20 @@ export class YapiService {
         const interfaces: Record<number, YapiInterface[]> = {};
 
         // 并发获取所有分类的接口
-        const promises = categories.map(async category => {
-            try {
-                const result = await this.getInterfaceList(category._id, 1, 1000); // 获取大量接口
-                interfaces[category._id] = result.list;
-            } catch (error) {
-                console.error(`Failed to fetch interfaces for category ${category.name}:`, error);
-                interfaces[category._id] = [];
-            }
-        });
+        const promises = categories.map(category =>
+            this.limiter.add(async () => {
+                try {
+                    const result = await this.getInterfaceList(category._id, 1, 1000); // 获取大量接口
+                    interfaces[category._id] = result.list;
+                } catch (error) {
+                    console.error(
+                        `Failed to fetch interfaces for category ${category.name}:`,
+                        error
+                    );
+                    interfaces[category._id] = [];
+                }
+            })
+        );
 
         await Promise.all(promises);
 
