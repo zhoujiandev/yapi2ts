@@ -1,4 +1,4 @@
-import { TemplateConfig, YapiInterfaceDetail } from './types';
+import { FormFieldType, JsonSchema, TemplateConfig, YapiInterfaceDetail } from './types';
 
 export class CodeGenerator {
     /**
@@ -399,12 +399,14 @@ export class CodeGenerator {
     /**
      * 获取JSDoc类型注释
      */
-    private getJSDocType(schema: any): string {
+    private getJSDocType(schema: JsonSchema): string {
         if (!schema || typeof schema !== 'object') {
             return 'any';
         }
 
-        switch (schema.type) {
+        const schemaType = Array.isArray(schema.type) ? schema.type[0] : schema.type;
+
+        switch (schemaType) {
             case 'string':
                 return 'string';
             case 'number':
@@ -419,6 +421,8 @@ export class CodeGenerator {
                 return 'any[]';
             case 'object':
                 return 'object';
+            case 'null':
+                return 'null';
             default:
                 return 'any';
         }
@@ -427,11 +431,14 @@ export class CodeGenerator {
     /**
      * 获取表单字段的JSDoc类型
      */
-    private getFormFieldJSDocType(type: string): string {
+    private getFormFieldJSDocType(type: FormFieldType): string {
         switch (type) {
             case 'text':
             case 'textarea':
+            case 'select':
                 return 'string';
+            case 'number':
+                return 'number';
             case 'file':
                 return 'File';
             default:
@@ -620,7 +627,7 @@ export class CodeGenerator {
      * 从JSON Schema生成TypeScript类型字段（返回字段对象而不是字符串）
      */
     private generateTypeFieldsFromJsonSchema(
-        schema: any
+        schema: JsonSchema
     ): Map<string, { type: string; optional: boolean; comment?: string }> {
         const fields = new Map<string, { type: string; optional: boolean; comment?: string }>();
 
@@ -628,9 +635,11 @@ export class CodeGenerator {
             return fields;
         }
 
-        if (schema.type === 'object' && schema.properties) {
+        const schemaType = Array.isArray(schema.type) ? schema.type[0] : schema.type;
+
+        if (schemaType === 'object' && schema.properties) {
             Object.keys(schema.properties).forEach(key => {
-                const prop = schema.properties[key];
+                const prop = schema.properties![key];
                 const isRequired = schema.required && schema.required.includes(key);
 
                 fields.set(key, {
@@ -670,7 +679,7 @@ export class CodeGenerator {
     /**
      * 获取表单字段类型
      */
-    private getFormFieldType(type: string): string {
+    private getFormFieldType(type: FormFieldType): string {
         switch (type) {
             case 'text':
             case 'textarea':
@@ -688,12 +697,19 @@ export class CodeGenerator {
     /**
      * 获取TypeScript类型
      */
-    private getTypeScriptType(schema: any): string {
+    private getTypeScriptType(schema: JsonSchema): string {
         if (!schema) {
             return 'any';
         }
 
-        switch (schema.type) {
+        // 处理枚举类型
+        if (schema.enum && schema.enum.length > 0) {
+            return schema.enum.map(v => (typeof v === 'string' ? `'${v}'` : String(v))).join(' | ');
+        }
+
+        const schemaType = Array.isArray(schema.type) ? schema.type[0] : schema.type;
+
+        switch (schemaType) {
             case 'string':
                 return 'string';
             case 'number':
@@ -701,15 +717,17 @@ export class CodeGenerator {
                 return 'number';
             case 'boolean':
                 return 'boolean';
+            case 'null':
+                return 'null';
             case 'array': {
-                const itemType = schema.items ? this.getTypeScriptType(schema.items) : 'any';
+                const itemType = schema.items ? this.getTypeScriptType(schema.items) : 'unknown';
                 return `${itemType}[]`;
             }
             case 'object':
                 if (schema.properties) {
                     const properties = Object.keys(schema.properties)
                         .map(key => {
-                            const prop = schema.properties[key];
+                            const prop = schema.properties![key];
                             const isRequired = schema.required && schema.required.includes(key);
                             const optional = isRequired ? '' : '?';
                             const type = this.getTypeScriptType(prop);
@@ -722,9 +740,9 @@ export class CodeGenerator {
                         .join('; ');
                     return `{${properties}\n}`;
                 }
-                return 'Record<string, any>';
+                return 'Record<string, unknown>';
             default:
-                return 'any';
+                return 'unknown';
         }
     }
 

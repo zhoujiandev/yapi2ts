@@ -228,12 +228,12 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
         });
 
         test('should handle code generation errors gracefully', () => {
-            // 测试无效接口数据
+            // 测试无效接口数据（故意使用无效 method 来测试边界情况）
             const invalidInterface = {
                 _id: 1,
                 title: '',
                 path: '',
-                method: 'INVALID',
+                method: 'INVALID', // 故意使用无效的 HTTP 方法
                 catid: 1,
                 desc: '',
                 project_id: 1,
@@ -248,7 +248,7 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
                 markdown: '',
                 req_body_is_json_schema: false,
                 res_body_is_json_schema: false
-            } as YapiInterfaceDetail;
+            } as unknown as YapiInterfaceDetail;
 
             // 应该能处理无效数据而不抛出错误
             const result = codeGenerator.generateTypeDefinitions([invalidInterface]);
