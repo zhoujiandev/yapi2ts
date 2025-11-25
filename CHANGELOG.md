@@ -4,6 +4,21 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.0.3] - 2025-11-25
+
+### Added
+
+- **并发控制** - 新增 `ConcurrencyLimiter` 并发控制器
+    - 限制并发请求数为 5，避免大量接口批量请求时对服务器造成压力
+    - 应用于批量获取接口详情和获取所有接口分类数据
+
+### Improved
+
+- **完善类型定义** - 增强 TypeScript 类型安全
+    - 新增 `JsonSchema` 完整类型定义，支持 JSON Schema 规范
+    - 新增 `FormFieldType`、`ReqBodyFormItem`、`ReqQueryItem`、`ReqHeaderItem`、`ReqParamItem` 等接口类型
+    - 完善 `YapiInterface` 和 `YapiInterfaceDetail` 类型，添加请求/响应体详细字段
+
 ## [1.0.2] - 2025-11-20
 
 ### Added
