@@ -1,8 +1,8 @@
 # YAPI TypeScript
 
-[![Version](https://img.shields.io/open-vsx/v/zhoujian/yapi-ts)](https://open-vsx.org/extension/zhoujian/yapi-ts)
-[![Downloads](https://img.shields.io/open-vsx/dt/zhoujian/yapi-ts)](https://open-vsx.org/extension/zhoujian/yapi-ts)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+[![Version](https://img.shields.io/open-vsx/v/zhoujian/yapi-ts?color=FF561B)](https://open-vsx.org/extension/zhoujian/yapi-ts)
+[![Downloads](https://img.shields.io/open-vsx/dt/zhoujian/yapi-ts?color=57CF27)](https://open-vsx.org/extension/zhoujian/yapi-ts)
+![License](https://img.shields.io/badge/license-MIT-2359F1.svg)
 
 一个强大的编辑器插件，用于从 YAPI 接口文档自动生成 TypeScript 类型定义和 API 接口代码，提升前端开发效率。支持 VSCode、Cursor、VSCodium 等兼容编辑器。通过可视化界面轻松管理 YAPI 项目，浏览接口文档，并一键生成标准化的 TypeScript 代码。
 

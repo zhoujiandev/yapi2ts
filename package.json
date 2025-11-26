@@ -42,14 +42,10 @@
         "yapi2ts",
         "typescript",
         "api",
+        "interface",
         "code generator",
         "type generation",
-        "codegen",
-        "yapi typescript",
-        "interface",
-        "rest api",
-        "type",
-        "ts"
+        "yapi typescript"
     ],
     "main": "./dist/extension.js",
     "activationEvents": [],
