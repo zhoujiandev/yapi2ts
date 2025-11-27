@@ -517,9 +517,18 @@ export const ${methodName} = (params: ${paramsTypeName}): Promise<${responseType
 - 包含请求参数、响应示例、接口说明等完整文档
 - 便于开发者深入了解接口规范
 
-## <a id="template-variables"></a>🔧 模板变量
+## <a id="template-variables"></a>🔧 模板系统
 
-在自定义模板中，可以使用以下变量来动态生成代码：
+模板系统基于 **EJS** 引擎，支持两种语法风格：
+
+### 支持的语法
+
+| 语法风格       | 示例                | 说明                   |
+| -------------- | ------------------- | ---------------------- |
+| ES6 模板字符串 | `${methodName}`     | 推荐，会自动转换为 EJS |
+| EJS 原生语法   | `<%= methodName %>` | 支持更复杂的逻辑控制   |
+
+### 可用变量
 
 | 变量名                | 描述                           | 示例                                                    |
 | --------------------- | ------------------------------ | ------------------------------------------------------- |
@@ -539,35 +548,78 @@ export const ${methodName} = (params: ${paramsTypeName}): Promise<${responseType
 | `${isHead}`           | 是否为HEAD请求                 | `true` 或 `false`                                       |
 | `${isOptions}`        | 是否为OPTIONS请求              | `true` 或 `false`                                       |
 | `${isNotGet}`         | 是否为非GET请求                | `true` 或 `false`                                       |
-| `${interface}`        | 完整的接口对象                 | 包含所有YAPI接口属性的对象                              |
+| `${iface}`            | 完整的接口对象                 | 包含所有YAPI接口属性的对象                              |
+
+### EJS 高级语法
+
+```typescript
+// 条件判断
+<% if (isGet) { %>
+  // GET 请求逻辑
+<% } else { %>
+  // 非 GET 请求逻辑
+<% } %>
+
+// 三元表达式
+${isGet ? 'params' : 'data'}
+
+// 访问接口对象属性
+${iface.status}  // 接口状态: done | undone | deprecated
+${iface.catid}   // 分类ID
+${iface._id}     // 接口ID
+```
 
 ## <a id="built-in-templates"></a>📋 内置模板
 
-### Axios 模板
+插件内置了三个常用模板：
 
-插件内置了一个优化的 Axios 模板，支持以下特性：
+### 1. Axios Template
 
-- 自动区分 GET 和非 GET 请求的参数传递方式
-- 支持额外的 AxiosRequestConfig 配置
-- 自动生成完整的 JSDoc 注释
-- 使用 ES6 模板字符串语法
-
-**模板示例**：
+基于 Axios 的请求模板，自动区分 GET/非GET 请求参数：
 
 ```typescript
-/**
- * @description ${title}
- * @url ${interfaceUrl}
- */
-export const ${methodName} = (
-  params: ${paramsTypeName},
-  config?: Omit<AxiosRequestConfig, ${isNotGet ? '"data"' : '"params"'}>
-): Promise<${responseTypeName}> => {
-  return axios.${lowerCaseMethod}('${path}', ${isNotGet ? 'params, config' : '{params, ...config}'})
+export const ${methodName} = (params: ${paramsTypeName}, config?: Omit<AxiosRequestConfig, ${isNotGet ? '"data"' : '"params"'}>): Promise<${responseTypeName}> => {
+  return axios.${lowerCaseMethod}('${path}', ${isNotGet ? 'params, config' : '{ params, ...config }'});
 };
 ```
 
-**生成示例**（GET 请求）：
+### 2. Fetch Template
+
+基于原生 Fetch API 的请求模板，使用 EJS 条件语法：
+
+```typescript
+export async function ${methodName}(params: ${paramsTypeName}): Promise<${responseTypeName}> {
+<% if (isGet) { %>
+  const query = new URLSearchParams(params as Record<string, string>).toString();
+  const response = await fetch(`${path}?${query}`);
+<% } else { %>
+  const response = await fetch('${path}', {
+    method: '${method}',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params)
+  });
+<% } %>
+  return response.json();
+}
+```
+
+### 3. Simple Request
+
+简洁的请求模板，适用于自定义 request 封装：
+
+```typescript
+export const ${methodName} = (params: ${paramsTypeName}) => {
+  return request<${responseTypeName}>({
+    url: '${path}',
+    method: '${lowerCaseMethod}',
+    ${isGet ? 'params' : 'data'}: params
+  });
+};
+```
+
+### 生成示例
+
+**GET 请求生成结果**：
 
 ```typescript
 /**
@@ -584,7 +636,7 @@ export const getUserInfo = (
 };
 ```
 
-**生成示例**（POST 请求）：
+**POST 请求生成结果**：
 
 ```typescript
 /**

@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { CodeGenerator } from '../codeGenerator';
-import { YapiInterfaceDetail, TemplateConfig } from '../types';
+import { TemplateConfig, YapiInterfaceDetail } from '../types';
 
 suite('CodeGenerator Test Suite', () => {
     let codeGenerator: CodeGenerator;
@@ -184,6 +184,219 @@ export const \${methodName} = (id: number) => {
             const uniqueIds = new Set(ids);
 
             assert.strictEqual(ids.length, uniqueIds.size, 'All template IDs should be unique');
+        });
+
+        test('should have three built-in templates', () => {
+            const templates = CodeGenerator.getDefaultTemplates();
+            assert.strictEqual(templates.length, 3, 'Should have 3 built-in templates');
+
+            const templateIds = templates.map(t => t.id);
+            assert.ok(templateIds.includes('axios'), 'Should have axios template');
+            assert.ok(templateIds.includes('fetch'), 'Should have fetch template');
+            assert.ok(
+                templateIds.includes('request-simple'),
+                'Should have simple request template'
+            );
+        });
+    });
+
+    suite('Template System (EJS)', () => {
+        test('should render ES6 template syntax with variables', () => {
+            const mockInterface = createMockInterface({
+                title: 'Get User Info',
+                path: '/api/user/info',
+                method: 'GET'
+            });
+
+            const template = createMockTemplate({
+                content: 'export const ${methodName} = () => request.${lowerCaseMethod}("${path}");'
+            });
+
+            const result = codeGenerator.generateApiDefinitions(
+                [mockInterface],
+                template,
+                'https://yapi.example.com'
+            );
+
+            assert.ok(result.includes('request.get'), 'Should render lowerCaseMethod');
+            assert.ok(result.includes('/api/user/info'), 'Should render path');
+        });
+
+        test('should render ternary expressions for GET requests', () => {
+            const mockInterface = createMockInterface({
+                title: 'Get Data',
+                path: '/api/data',
+                method: 'GET'
+            });
+
+            const template = createMockTemplate({
+                content: 'const paramKey = ${isGet ? "params" : "data"};'
+            });
+
+            const result = codeGenerator.generateApiDefinitions(
+                [mockInterface],
+                template,
+                'https://yapi.example.com'
+            );
+
+            assert.ok(result.includes('const paramKey = params'), 'Should render params for GET');
+        });
+
+        test('should render ternary expressions for POST requests', () => {
+            const mockInterface = createMockInterface({
+                title: 'Create Data',
+                path: '/api/data',
+                method: 'POST'
+            });
+
+            const template = createMockTemplate({
+                content: 'const paramKey = ${isGet ? "params" : "data"};'
+            });
+
+            const result = codeGenerator.generateApiDefinitions(
+                [mockInterface],
+                template,
+                'https://yapi.example.com'
+            );
+
+            assert.ok(result.includes('const paramKey = data'), 'Should render data for POST');
+        });
+
+        test('should render EJS conditional syntax', () => {
+            const mockInterface = createMockInterface({
+                title: 'Get Data',
+                path: '/api/data',
+                method: 'GET'
+            });
+
+            const template = createMockTemplate({
+                content: `<% if (isGet) { %>GET_BLOCK<% } else { %>OTHER_BLOCK<% } %>`
+            });
+
+            const result = codeGenerator.generateApiDefinitions(
+                [mockInterface],
+                template,
+                'https://yapi.example.com'
+            );
+
+            assert.ok(result.includes('GET_BLOCK'), 'Should render GET block');
+            assert.ok(!result.includes('OTHER_BLOCK'), 'Should not render OTHER block');
+        });
+
+        test('should render EJS conditional syntax for non-GET', () => {
+            const mockInterface = createMockInterface({
+                title: 'Update Data',
+                path: '/api/data',
+                method: 'PUT'
+            });
+
+            const template = createMockTemplate({
+                content: `<% if (isGet) { %>GET_BLOCK<% } else { %>OTHER_BLOCK<% } %>`
+            });
+
+            const result = codeGenerator.generateApiDefinitions(
+                [mockInterface],
+                template,
+                'https://yapi.example.com'
+            );
+
+            assert.ok(!result.includes('GET_BLOCK'), 'Should not render GET block');
+            assert.ok(result.includes('OTHER_BLOCK'), 'Should render OTHER block');
+        });
+
+        test('should provide all HTTP method boolean flags', () => {
+            const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] as const;
+
+            methods.forEach(method => {
+                const mockInterface = createMockInterface({
+                    title: `${method} Test`,
+                    path: '/api/test',
+                    method: method
+                });
+
+                const flagName = `is${method.charAt(0)}${method.slice(1).toLowerCase()}`;
+                const template = createMockTemplate({
+                    content: `\${${flagName} ? "YES" : "NO"}`
+                });
+
+                const result = codeGenerator.generateApiDefinitions(
+                    [mockInterface],
+                    template,
+                    'https://yapi.example.com'
+                );
+
+                assert.ok(result.includes('YES'), `Should have ${flagName}=true for ${method}`);
+            });
+        });
+
+        test('should provide iface object with interface properties', () => {
+            const mockInterface = createMockInterface({
+                _id: 123,
+                title: 'Test Interface',
+                path: '/api/test',
+                status: 'done'
+            });
+
+            const template = createMockTemplate({
+                content: 'ID: ${iface._id}, Status: ${iface.status}'
+            });
+
+            const result = codeGenerator.generateApiDefinitions(
+                [mockInterface],
+                template,
+                'https://yapi.example.com'
+            );
+
+            assert.ok(result.includes('ID: 123'), 'Should render iface._id');
+            assert.ok(result.includes('Status: done'), 'Should render iface.status');
+        });
+
+        test('should handle template rendering errors gracefully', () => {
+            const mockInterface = createMockInterface({
+                title: 'Error Test',
+                path: '/api/error'
+            });
+
+            // 使用无效的 EJS 语法
+            const template = createMockTemplate({
+                content: '<% if (undefinedVar) { %>test<% } %>'
+            });
+
+            // 应该不抛出错误，而是回退到简单替换
+            const result = codeGenerator.generateApiDefinitions(
+                [mockInterface],
+                template,
+                'https://yapi.example.com'
+            );
+
+            assert.ok(
+                typeof result === 'string',
+                'Should return string even with invalid template'
+            );
+        });
+
+        test('should render interfaceUrl correctly', () => {
+            const mockInterface = createMockInterface({
+                _id: 456,
+                project_id: 123,
+                title: 'Test',
+                path: '/api/test'
+            });
+
+            const template = createMockTemplate({
+                content: 'URL: ${interfaceUrl}'
+            });
+
+            const result = codeGenerator.generateApiDefinitions(
+                [mockInterface],
+                template,
+                'https://yapi.example.com'
+            );
+
+            assert.ok(
+                result.includes('https://yapi.example.com/project/123/interface/api/456'),
+                'Should render correct interfaceUrl'
+            );
         });
     });
 

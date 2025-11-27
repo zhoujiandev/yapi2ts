@@ -581,11 +581,7 @@ export class CodeGenerator {
         const ejsTemplate = this.convertToEjsTemplate(enhancedTemplate.content);
 
         try {
-            return ejs.render(ejsTemplate, templateVars, {
-                // 禁用文件包含，增强安全性
-                localsName: 'locals',
-                _with: false
-            });
+            return ejs.render(ejsTemplate, templateVars);
         } catch (error) {
             const err = error as Error;
             console.error(`模板渲染失败 [${template.name}]: ${err.message}`);
@@ -877,19 +873,71 @@ export class CodeGenerator {
 
     /**
      * 获取默认模板
+     *
+     * 模板支持两种语法：
+     * 1. ES6 模板字符串语法：${变量名}（推荐，会自动转换为 EJS）
+     * 2. EJS 原生语法：<%= 变量名 %>
+     *
+     * 可用变量：
+     * - methodName: 方法名
+     * - title: 接口标题
+     * - path: 接口路径
+     * - method: HTTP方法（大写）
+     * - lowerCaseMethod: HTTP方法（小写）
+     * - responseTypeName: 响应类型名
+     * - paramsTypeName: 参数类型名
+     * - interfaceUrl: YAPI接口链接
+     * - isGet/isPost/isPut/isDelete/isPatch/isHead/isOptions: HTTP方法判断
+     * - isNotGet: 是否为非GET请求
+     * - iface: 完整接口对象
+     *
+     * EJS 高级语法：
+     * - <% if (isGet) { %> ... <% } %>: 条件判断
+     * - <% for (let item of array) { %> ... <% } %>: 循环
      */
     static getDefaultTemplates(): TemplateConfig[] {
         return [
             {
                 id: 'axios',
                 name: 'Axios Template',
-                description: '这是一个axios请求模板，支持ES6模板字符串语法',
-                content: `/**
- * @description \${title}
- * @url \${interfaceUrl}
- */
-export const \${methodName} = (params: \${paramsTypeName},config?:Omit<AxiosRequestConfig,\${isNotGet?'"data"':'"params"'}>): Promise<\${responseTypeName}> => {
-  return axios.\${lowerCaseMethod}('\${path}', \${isNotGet ? 'params,config' : '{params,...config}'})    
+                description:
+                    '基于 Axios 的请求模板，支持 ES6 模板字符串语法，自动区分 GET/非GET 请求参数',
+                content: `export const \${methodName} = (params: \${paramsTypeName}, config?: Omit<AxiosRequestConfig, \${isNotGet ? '"data"' : '"params"'}>): Promise<\${responseTypeName}> => {
+  return axios.\${lowerCaseMethod}('\${path}', \${isNotGet ? 'params, config' : '{ params, ...config }'});
+};`,
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            },
+            {
+                id: 'fetch',
+                name: 'Fetch Template',
+                description: '基于原生 Fetch API 的请求模板，适用于不依赖第三方库的项目',
+                content: `export async function \${methodName}(params: \${paramsTypeName}): Promise<\${responseTypeName}> {
+<% if (isGet) { %>
+  const query = new URLSearchParams(params as Record<string, string>).toString();
+  const response = await fetch(\`\${path}?\${query}\`);
+<% } else { %>
+  const response = await fetch('\${path}', {
+    method: '\${method}',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params)
+  });
+<% } %>
+  return response.json();
+}`,
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            },
+            {
+                id: 'request-simple',
+                name: 'Simple Request',
+                description: '简洁的请求模板，适用于自定义 request 封装',
+                content: `export const \${methodName} = (params: \${paramsTypeName}) => {
+  return request<\${responseTypeName}>({
+    url: '\${path}',
+    method: '\${lowerCaseMethod}',
+    \${isGet ? 'params' : 'data'}: params
+  });
 };`,
                 createdAt: Date.now(),
                 updatedAt: Date.now()
