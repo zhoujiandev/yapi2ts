@@ -16,8 +16,7 @@
 - [功能特性](#features)
 - [快速开始](#quick-start)
 - [详细使用指南](#usage-guide)
-- [模板变量](#template-variables)
-- [内置模板](#built-in-templates)
+- [模板系统](#template-system)
 - [YAPI API支持](#yapi-api-support)
 - [技术栈](#tech-stack)
 - [开发指南](#development-guide)
@@ -355,151 +354,17 @@ export const getUserInfo = (params: GetUserInfoRequest): Promise<GetUserInfoResp
 
 ### 📝 模板管理
 
-模板系统是插件的核心功能之一，支持使用内置模板和创建自定义模板来生成不同风格的API代码。
+模板系统支持使用内置模板和创建自定义模板来生成不同风格的 API 代码。
 
-#### 使用内置模板
+#### 基本操作
 
-插件提供了经过优化的内置模板，开箱即用：
+1. **查看模板**：切换到 **"我的模板"** 标签页
+2. **新增模板**：点击 **"新增模板"** 按钮，填写模板名称、描述和内容
+3. **编辑模板**：点击模板列表中的 "编辑" 按钮
+4. **删除模板**：点击模板列表中的 "删除" 按钮
+5. **重置模板**：使用命令面板执行 "YAPI TypeScript: Reset Templates"
 
-**🔧 Axios模板**
-
-- 基于流行的Axios HTTP库
-- 支持TypeScript类型安全
-- 包含完整的请求配置
-- 适用于大多数前端项目
-
-#### 创建自定义模板
-
-1. **进入模板管理**
-    - 切换到 **"我的模板"** 标签页
-    - 查看现有模板列表
-
-2. **新增模板**
-    - 点击 **"新增模板"** 按钮
-    - 在弹出的编辑器中填写模板信息：
-
-| 字段         | 说明                       | 示例                               |
-| ------------ | -------------------------- | ---------------------------------- |
-| **模板名称** | 自定义模板名称，便于识别   | `Fetch API模板`、`自定义Axios模板` |
-| **模板描述** | 模板的用途和特点说明       | `基于原生Fetch API的轻量级模板`    |
-| **模板内容** | 使用模板变量编写的代码模板 | 见下方示例                         |
-
-3. **编写模板内容**
-    - 使用 `${变量名}` 语法引用模板变量
-    - 支持条件判断和循环逻辑
-    - 可以参考内置模板的写法
-
-#### 模板管理操作
-
-- **📝 编辑模板**：点击模板列表中的 "编辑" 按钮，修改模板内容
-- **🗑️ 删除模板**：点击模板列表中的 "删除" 按钮，移除自定义模板
-- **🔄 重置模板**：使用命令面板（`Ctrl+Shift+P` / `Cmd+Shift+P`）执行 "YAPI TypeScript: Reset Templates" 恢复默认模板
-
-#### 模板变量详解
-
-在自定义模板中，可以使用以下变量来动态生成代码：
-
-##### 基础信息变量
-
-| 变量名               | 描述                           | 示例值                                |
-| -------------------- | ------------------------------ | ------------------------------------- |
-| `${methodName}`      | 方法名（根据接口路径自动生成） | `getUserInfo`、`createOrder`          |
-| `${title}`           | 接口标题                       | `获取用户信息`、`创建订单`            |
-| `${path}`            | 接口路径                       | `/api/user/info`、`/api/order/create` |
-| `${method}`          | HTTP方法（大写）               | `GET`、`POST`、`PUT`、`DELETE`        |
-| `${lowerCaseMethod}` | HTTP方法（小写）               | `get`、`post`、`put`、`delete`        |
-
-##### 类型相关变量
-
-| 变量名                | 描述           | 示例值                                       |
-| --------------------- | -------------- | -------------------------------------------- |
-| `${responseTypeName}` | 响应数据类型名 | `GetUserInfoResponse`、`CreateOrderResponse` |
-| `${paramsTypeName}`   | 参数类型名     | `GetUserInfoParams`、`CreateOrderParams`     |
-| `${queryTypeName}`    | 查询参数类型名 | `GetUserInfoQuery`、`SearchOrderQuery`       |
-
-##### 条件判断变量
-
-| 变量名         | 描述              | 用途                    |
-| -------------- | ----------------- | ----------------------- |
-| `${isGet}`     | 是否为GET请求     | 条件渲染GET特定逻辑     |
-| `${isPost}`    | 是否为POST请求    | 条件渲染POST特定逻辑    |
-| `${isPut}`     | 是否为PUT请求     | 条件渲染PUT特定逻辑     |
-| `${isDelete}`  | 是否为DELETE请求  | 条件渲染DELETE特定逻辑  |
-| `${isPatch}`   | 是否为PATCH请求   | 条件渲染PATCH特定逻辑   |
-| `${isHead}`    | 是否为HEAD请求    | 条件渲染HEAD特定逻辑    |
-| `${isOptions}` | 是否为OPTIONS请求 | 条件渲染OPTIONS特定逻辑 |
-| `${isNotGet}`  | 是否为非GET请求   | 条件渲染非GET请求逻辑   |
-
-##### 高级变量
-
-| 变量名            | 描述              | 用途               |
-| ----------------- | ----------------- | ------------------ |
-| `${interfaceUrl}` | YAPI接口详情页URL | 生成文档链接注释   |
-| `${interface}`    | 完整的接口对象    | 访问接口的所有属性 |
-
-#### 模板示例
-
-##### Axios模板示例
-
-```typescript
-/**
- * ${title}
- * @description ${interface.desc || ''}
- * @see ${interfaceUrl}
- */
-export const ${methodName} = (
-  ${isGet ? 'params' : 'data'}: ${paramsTypeName}
-): Promise<${responseTypeName}> => {
-  return request({
-    url: '${path}',
-    method: '${method}',
-    ${isGet ? 'params' : 'data'},
-  });
-};
-```
-
-##### Fetch API模板示例
-
-```typescript
-/**
- * ${title}
- */
-export const ${methodName} = async (
-  ${isGet ? 'params' : 'data'}: ${paramsTypeName}
-): Promise<${responseTypeName}> => {
-  const url = '${path}' + ${isGet ? '?' + new URLSearchParams(params).toString()' : ''};
-
-  const response = await fetch(url, {
-    method: '${method}',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    ${isNotGet ? 'body: JSON.stringify(data),' : ''}
-  });
-
-  return response.json();
-};
-```
-
-##### 自定义请求库模板示例
-
-```typescript
-/**
- * ${title}
- * 接口文档: ${interfaceUrl}
- */
-export const ${methodName} = (params: ${paramsTypeName}): Promise<${responseTypeName}> => {
-  return http.${lowerCaseMethod}<${responseTypeName}>('${path}', ${isGet ? 'params' : 'params'});
-};
-```
-
-#### 模板最佳实践
-
-1. **保持一致性**：在同一项目中使用统一的模板风格
-2. **添加注释**：为生成的代码添加有意义的注释
-3. **类型安全**：充分利用TypeScript的类型系统
-4. **错误处理**：在模板中考虑错误处理逻辑
-5. **文档链接**：使用 `${interfaceUrl}` 提供接口文档链接
+> 💡 模板语法和变量详情请参考 [模板系统](#template-system) 章节
 
 ### 🔗 其他实用功能
 
@@ -517,7 +382,7 @@ export const ${methodName} = (params: ${paramsTypeName}): Promise<${responseType
 - 包含请求参数、响应示例、接口说明等完整文档
 - 便于开发者深入了解接口规范
 
-## <a id="template-variables"></a>🔧 模板系统
+## <a id="template-system"></a>🔧 模板系统
 
 模板系统基于 **EJS** 引擎。
 
@@ -575,11 +440,11 @@ export const <%- methodName %> = () => {};
 <%- iface._id %>     // 接口ID
 ```
 
-## <a id="built-in-templates"></a>📋 内置模板
+### 内置模板
 
 插件内置了三个常用模板：
 
-### 1. Axios Template
+#### 1. Axios Template
 
 基于 Axios 的请求模板，自动区分 GET/非GET 请求参数：
 
@@ -589,7 +454,7 @@ export const <%- methodName %> = (params: <%- paramsTypeName %>, config?: Omit<A
 };
 ```
 
-### 2. Fetch Template
+#### 2. Fetch Template
 
 基于原生 Fetch API 的请求模板，使用 EJS 条件语法：
 
@@ -609,7 +474,7 @@ export async function <%- methodName %>(params: <%- paramsTypeName %>): Promise<
 }
 ```
 
-### 3. Simple Request
+#### 3. Simple Request
 
 简洁的请求模板，适用于自定义 request 封装：
 
@@ -623,7 +488,7 @@ export const <%- methodName %> = (params: <%- paramsTypeName %>) => {
 };
 ```
 
-### 生成示例
+#### 生成示例
 
 **GET 请求生成结果**：
 

@@ -4,6 +4,38 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.0.4] - 2025-11-27
+
+### Added
+
+- **EJS 模板引擎** - 模板系统全面升级
+    - 引入 EJS 作为模板渲染引擎，支持完整的 JavaScript 表达式
+    - 支持条件判断 `<% if (isGet) { %> ... <% } %>`
+    - 支持循环语法 `<% for (let item of array) { %> ... <% } %>`
+    - 支持三元表达式 `<%- isGet ? 'params' : 'data' %>`
+    - 向后兼容 ES6 模板字符串语法 `${variable}`（自动转换为 EJS）
+
+- **新增内置模板**
+    - **Fetch Template** - 基于原生 Fetch API 的请求模板
+    - **Simple Request** - 简洁的请求模板，适用于自定义 request 封装
+
+- **新增模板变量 `iface`** - 完整的接口对象，可访问所有 YAPI 接口属性
+    - `iface.status` - 接口状态 (done | undone | deprecated)
+    - `iface.catid` - 分类 ID
+    - `iface._id` - 接口 ID
+
+### Improved
+
+- **模板渲染容错** - EJS 渲染失败时自动回退到简单字符串替换
+- **文档更新** - README 新增完整的 EJS 语法说明和示例
+
+### Technical
+
+- 新增 `ejs` 依赖用于模板渲染
+- 新增 `convertToEjsTemplate()` 方法支持 ES6 语法自动转换
+- 新增 `fallbackRender()` 方法作为渲染失败的回退方案
+- 完善测试覆盖，新增 EJS 模板渲染相关测试用例
+
 ## [1.0.3] - 2025-11-25
 
 ### Added
