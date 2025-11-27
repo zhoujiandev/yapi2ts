@@ -1,3 +1,4 @@
+import ejs from 'ejs';
 import { FormFieldType, JsonSchema, TemplateConfig, YapiInterfaceDetail } from './types';
 
 export class CodeGenerator {
@@ -547,7 +548,8 @@ export class CodeGenerator {
             : this.getMethodName(iface);
         const responseTypeName = this.getResponseTypeName(iface, segmentCount);
         const paramsTypeName = this.getQueryTypeName(iface, segmentCount);
-        const lowerCaseMethod = iface.method.toLocaleLowerCase();
+        const upperMethod = iface.method.toUpperCase();
+        const lowerCaseMethod = iface.method.toLowerCase();
 
         // 构建接口在YAPI中的完整URL
         const interfaceUrl = `${yapiBaseUrl.replace(/\/$/, '')}/project/${iface.project_id}/interface/api/${iface._id}`;
@@ -557,47 +559,66 @@ export class CodeGenerator {
             methodName,
             title: this.parseDescription(iface.title),
             path: iface.path,
-            method: iface.method.toUpperCase(),
+            method: upperMethod,
             lowerCaseMethod,
             responseTypeName,
             paramsTypeName,
             interfaceUrl,
-            // 添加HTTP方法判断变量
-            isGet: iface.method.toUpperCase() === 'GET',
-            isPost: iface.method.toUpperCase() === 'POST',
-            isPut: iface.method.toUpperCase() === 'PUT',
-            isDelete: iface.method.toUpperCase() === 'DELETE',
-            isPatch: iface.method.toUpperCase() === 'PATCH',
-            isHead: iface.method.toUpperCase() === 'HEAD',
-            isOptions: iface.method.toUpperCase() === 'OPTIONS',
-            // 添加非GET请求的判断变量
-            isNotGet: iface.method.toUpperCase() !== 'GET',
-            // 添加接口的其他属性，方便在模板中使用
-            interface: iface
+            // HTTP方法判断变量
+            isGet: upperMethod === 'GET',
+            isPost: upperMethod === 'POST',
+            isPut: upperMethod === 'PUT',
+            isDelete: upperMethod === 'DELETE',
+            isPatch: upperMethod === 'PATCH',
+            isHead: upperMethod === 'HEAD',
+            isOptions: upperMethod === 'OPTIONS',
+            isNotGet: upperMethod !== 'GET',
+            // 接口完整对象，方便在模板中访问更多属性
+            iface
         };
 
-        try {
-            // 使用Function构造函数来支持ES6模板字符串
-            // 将模板内容包装在反引号中，使其成为模板字符串
-            const templateFunction = new Function(
-                ...Object.keys(templateVars),
-                `return \`${enhancedTemplate.content}\`;`
-            );
+        // 转换模板语法：将 ${var} 转换为 <%= var %>
+        const ejsTemplate = this.convertToEjsTemplate(enhancedTemplate.content);
 
-            return templateFunction(...Object.values(templateVars));
+        try {
+            return ejs.render(ejsTemplate, templateVars, {
+                // 禁用文件包含，增强安全性
+                localsName: 'locals',
+                _with: false
+            });
         } catch (error) {
-            console.error('模板执行错误:', error);
-            // 如果模板执行失败，回退到原来的字符串替换方式
-            return enhancedTemplate.content
-                .replace(/\$\{methodName\}/g, methodName)
-                .replace(/\$\{title\}/g, this.parseDescription(iface.title))
-                .replace(/\$\{path\}/g, iface.path)
-                .replace(/\$\{method\}/g, iface.method.toUpperCase())
-                .replace(/\$\{lowerCaseMethod\}/g, lowerCaseMethod)
-                .replace(/\$\{responseTypeName\}/g, responseTypeName)
-                .replace(/\$\{paramsTypeName\}/g, paramsTypeName)
-                .replace(/\$\{interfaceUrl\}/g, interfaceUrl);
+            const err = error as Error;
+            console.error(`模板渲染失败 [${template.name}]: ${err.message}`);
+            // 回退到简单字符串替换
+            return this.fallbackRender(enhancedTemplate.content, templateVars);
         }
+    }
+
+    /**
+     * 将 ES6 模板字符串语法转换为 EJS 语法
+     * ${var} -> <%= var %>
+     * 支持表达式如 ${isGet ? 'params' : 'data'}
+     */
+    private convertToEjsTemplate(content: string): string {
+        // 匹配 ${...} 模式，支持嵌套括号和三元表达式
+        return content.replace(/\$\{([^}]+)\}/g, '<%= $1 %>');
+    }
+
+    /**
+     * 回退渲染：简单字符串替换（当 EJS 渲染失败时使用）
+     */
+    private fallbackRender(content: string, vars: Record<string, unknown>): string {
+        let result = content;
+        for (const [key, value] of Object.entries(vars)) {
+            if (
+                typeof value === 'string' ||
+                typeof value === 'number' ||
+                typeof value === 'boolean'
+            ) {
+                result = result.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), String(value));
+            }
+        }
+        return result;
     }
 
     /**
