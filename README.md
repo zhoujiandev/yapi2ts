@@ -519,40 +519,46 @@ export const ${methodName} = (params: ${paramsTypeName}): Promise<${responseType
 
 ## <a id="template-variables"></a>🔧 模板系统
 
-模板系统基于 **EJS** 引擎，支持两种语法风格：
+模板系统基于 **EJS** 引擎。
 
-### 支持的语法
+### EJS 语法（推荐）
 
-| 语法风格       | 示例                | 说明                   |
-| -------------- | ------------------- | ---------------------- |
-| ES6 模板字符串 | `${methodName}`     | 推荐，会自动转换为 EJS |
-| EJS 原生语法   | `<%= methodName %>` | 支持更复杂的逻辑控制   |
+| 语法              | 说明               | 示例                               |
+| ----------------- | ------------------ | ---------------------------------- |
+| `<%- variable %>` | 输出变量（不转义） | `<%- methodName %>`                |
+| `<% code %>`      | 执行 JS 代码       | `<% if (isGet) { %>`               |
+| `<%- expr %>`     | 输出表达式结果     | `<%- isGet ? 'params' : 'data' %>` |
+
+> 💡 也支持 ES6 模板字符串语法 `${variable}`（会自动转换为 EJS，兼容旧模板）
 
 ### 可用变量
 
-| 变量名                | 描述                           | 示例                                                    |
-| --------------------- | ------------------------------ | ------------------------------------------------------- |
-| `${methodName}`       | 方法名（根据接口路径自动生成） | `getUserInfo`                                           |
-| `${title}`            | 接口标题                       | `获取用户信息`                                          |
-| `${path}`             | 接口路径                       | `/api/user/info`                                        |
-| `${method}`           | HTTP方法（大写）               | `GET`, `POST`, `PUT`, `DELETE`                          |
-| `${lowerCaseMethod}`  | HTTP方法（小写）               | `get`, `post`, `put`, `delete`                          |
-| `${responseTypeName}` | 响应数据类型名                 | `GetUserInfoResponse`                                   |
-| `${paramsTypeName}`   | 参数类型名                     | `GetUserInfoParams`                                     |
-| `${interfaceUrl}`     | YAPI接口详情页URL              | `http://yapi.example.com/project/123/interface/api/456` |
-| `${isGet}`            | 是否为GET请求                  | `true` 或 `false`                                       |
-| `${isPost}`           | 是否为POST请求                 | `true` 或 `false`                                       |
-| `${isPut}`            | 是否为PUT请求                  | `true` 或 `false`                                       |
-| `${isDelete}`         | 是否为DELETE请求               | `true` 或 `false`                                       |
-| `${isPatch}`          | 是否为PATCH请求                | `true` 或 `false`                                       |
-| `${isHead}`           | 是否为HEAD请求                 | `true` 或 `false`                                       |
-| `${isOptions}`        | 是否为OPTIONS请求              | `true` 或 `false`                                       |
-| `${isNotGet}`         | 是否为非GET请求                | `true` 或 `false`                                       |
-| `${iface}`            | 完整的接口对象                 | 包含所有YAPI接口属性的对象                              |
+| 变量名             | 描述                           | 示例                                                    |
+| ------------------ | ------------------------------ | ------------------------------------------------------- |
+| `methodName`       | 方法名（根据接口路径自动生成） | `getUserInfo`                                           |
+| `title`            | 接口标题                       | `获取用户信息`                                          |
+| `path`             | 接口路径                       | `/api/user/info`                                        |
+| `method`           | HTTP方法（大写）               | `GET`, `POST`, `PUT`, `DELETE`                          |
+| `lowerCaseMethod`  | HTTP方法（小写）               | `get`, `post`, `put`, `delete`                          |
+| `responseTypeName` | 响应数据类型名                 | `GetUserInfoResponse`                                   |
+| `paramsTypeName`   | 参数类型名                     | `GetUserInfoParams`                                     |
+| `interfaceUrl`     | YAPI接口详情页URL              | `http://yapi.example.com/project/123/interface/api/456` |
+| `isGet`            | 是否为GET请求                  | `true` 或 `false`                                       |
+| `isPost`           | 是否为POST请求                 | `true` 或 `false`                                       |
+| `isPut`            | 是否为PUT请求                  | `true` 或 `false`                                       |
+| `isDelete`         | 是否为DELETE请求               | `true` 或 `false`                                       |
+| `isPatch`          | 是否为PATCH请求                | `true` 或 `false`                                       |
+| `isHead`           | 是否为HEAD请求                 | `true` 或 `false`                                       |
+| `isOptions`        | 是否为OPTIONS请求              | `true` 或 `false`                                       |
+| `isNotGet`         | 是否为非GET请求                | `true` 或 `false`                                       |
+| `iface`            | 完整的接口对象                 | 包含所有YAPI接口属性的对象                              |
 
-### EJS 高级语法
+### 语法示例
 
 ```typescript
+// 输出变量
+export const <%- methodName %> = () => {};
+
 // 条件判断
 <% if (isGet) { %>
   // GET 请求逻辑
@@ -561,12 +567,12 @@ export const ${methodName} = (params: ${paramsTypeName}): Promise<${responseType
 <% } %>
 
 // 三元表达式
-${isGet ? 'params' : 'data'}
+<%- isGet ? 'params' : 'data' %>
 
 // 访问接口对象属性
-${iface.status}  // 接口状态: done | undone | deprecated
-${iface.catid}   // 分类ID
-${iface._id}     // 接口ID
+<%- iface.status %>  // 接口状态: done | undone | deprecated
+<%- iface.catid %>   // 分类ID
+<%- iface._id %>     // 接口ID
 ```
 
 ## <a id="built-in-templates"></a>📋 内置模板
@@ -578,8 +584,8 @@ ${iface._id}     // 接口ID
 基于 Axios 的请求模板，自动区分 GET/非GET 请求参数：
 
 ```typescript
-export const ${methodName} = (params: ${paramsTypeName}, config?: Omit<AxiosRequestConfig, ${isNotGet ? '"data"' : '"params"'}>): Promise<${responseTypeName}> => {
-  return axios.${lowerCaseMethod}('${path}', ${isNotGet ? 'params, config' : '{ params, ...config }'});
+export const <%- methodName %> = (params: <%- paramsTypeName %>, config?: Omit<AxiosRequestConfig, <%- isNotGet ? '"data"' : '"params"' %>>): Promise<<%- responseTypeName %>> => {
+  return axios.<%- lowerCaseMethod %>('<%- path %>', <%- isNotGet ? 'params, config' : '{ params, ...config }' %>);
 };
 ```
 
@@ -588,13 +594,13 @@ export const ${methodName} = (params: ${paramsTypeName}, config?: Omit<AxiosRequ
 基于原生 Fetch API 的请求模板，使用 EJS 条件语法：
 
 ```typescript
-export async function ${methodName}(params: ${paramsTypeName}): Promise<${responseTypeName}> {
+export async function <%- methodName %>(params: <%- paramsTypeName %>): Promise<<%- responseTypeName %>> {
 <% if (isGet) { %>
   const query = new URLSearchParams(params as Record<string, string>).toString();
-  const response = await fetch(`${path}?${query}`);
+  const response = await fetch(`<%- path %>?${query}`);
 <% } else { %>
-  const response = await fetch('${path}', {
-    method: '${method}',
+  const response = await fetch('<%- path %>', {
+    method: '<%- method %>',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params)
   });
@@ -608,11 +614,11 @@ export async function ${methodName}(params: ${paramsTypeName}): Promise<${respon
 简洁的请求模板，适用于自定义 request 封装：
 
 ```typescript
-export const ${methodName} = (params: ${paramsTypeName}) => {
-  return request<${responseTypeName}>({
-    url: '${path}',
-    method: '${lowerCaseMethod}',
-    ${isGet ? 'params' : 'data'}: params
+export const <%- methodName %> = (params: <%- paramsTypeName %>) => {
+  return request<<%- responseTypeName %>>({
+    url: '<%- path %>',
+    method: '<%- lowerCaseMethod %>',
+    <%- isGet ? 'params' : 'data' %>: params
   });
 };
 ```

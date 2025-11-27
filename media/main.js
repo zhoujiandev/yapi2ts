@@ -674,91 +674,71 @@
             <input type="text" id="template-description" value="${template?.description || ''}" placeholder="请输入模板描述（可选）">
           </div>
           <div class="form-group">
-            <label>支持的变量:</label>
+            <label>支持的变量 (推荐使用 EJS 语法 &lt;%- variable %&gt;):</label>
             <div class="template-variables">
-              <div class="variable-item" data-variable="\${methodName}">
-                <span class="variable-name">\${methodName}</span>
+              <div class="variable-item" data-variable="<%- methodName %>">
+                <span class="variable-name">&lt;%- methodName %&gt;</span>
                 <span class="variable-desc">方法名称 (如: getUserInfo)</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${title}">
-                <span class="variable-name">\${title}</span>
+              <div class="variable-item" data-variable="<%- title %>">
+                <span class="variable-name">&lt;%- title %&gt;</span>
                 <span class="variable-desc">接口标题 (如: 获取用户信息)</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${path}">
-                <span class="variable-name">\${path}</span>
+              <div class="variable-item" data-variable="<%- path %>">
+                <span class="variable-name">&lt;%- path %&gt;</span>
                 <span class="variable-desc">接口路径 (如: /api/user/info)</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${method}">
-                <span class="variable-name">\${method}</span>
+              <div class="variable-item" data-variable="<%- method %>">
+                <span class="variable-name">&lt;%- method %&gt;</span>
                 <span class="variable-desc">HTTP方法大写 (如: GET, POST)</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${lowerCaseMethod}">
-                <span class="variable-name">\${lowerCaseMethod}</span>
+              <div class="variable-item" data-variable="<%- lowerCaseMethod %>">
+                <span class="variable-name">&lt;%- lowerCaseMethod %&gt;</span>
                 <span class="variable-desc">HTTP方法小写 (如: get, post)</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${responseTypeName}">
-                <span class="variable-name">\${responseTypeName}</span>
+              <div class="variable-item" data-variable="<%- responseTypeName %>">
+                <span class="variable-name">&lt;%- responseTypeName %&gt;</span>
                 <span class="variable-desc">响应类型名 (如: GetUserInfoResponse)</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${paramsTypeName}">
-                <span class="variable-name">\${paramsTypeName}</span>
+              <div class="variable-item" data-variable="<%- paramsTypeName %>">
+                <span class="variable-name">&lt;%- paramsTypeName %&gt;</span>
                 <span class="variable-desc">参数类型名 (如: GetUserInfoParams)</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${interfaceUrl}">
-                <span class="variable-name">\${interfaceUrl}</span>
+              <div class="variable-item" data-variable="<%- interfaceUrl %>">
+                <span class="variable-name">&lt;%- interfaceUrl %&gt;</span>
                 <span class="variable-desc">YAPI接口详情页URL</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${isGet}">
-                <span class="variable-name">\${isGet}</span>
+              <div class="variable-item" data-variable="<%- isGet %>">
+                <span class="variable-name">&lt;%- isGet %&gt;</span>
                 <span class="variable-desc">是否为GET请求 (true/false)</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${isPost}">
-                <span class="variable-name">\${isPost}</span>
+              <div class="variable-item" data-variable="<%- isPost %>">
+                <span class="variable-name">&lt;%- isPost %&gt;</span>
                 <span class="variable-desc">是否为POST请求 (true/false)</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${isPut}">
-                <span class="variable-name">\${isPut}</span>
-                <span class="variable-desc">是否为PUT请求 (true/false)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="\${isDelete}">
-                <span class="variable-name">\${isDelete}</span>
-                <span class="variable-desc">是否为DELETE请求 (true/false)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="\${isPatch}">
-                <span class="variable-name">\${isPatch}</span>
-                <span class="variable-desc">是否为PATCH请求 (true/false)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="\${isHead}">
-                <span class="variable-name">\${isHead}</span>
-                <span class="variable-desc">是否为HEAD请求 (true/false)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="\${isOptions}">
-                <span class="variable-name">\${isOptions}</span>
-                <span class="variable-desc">是否为OPTIONS请求 (true/false)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="\${isNotGet}">
-                <span class="variable-name">\${isNotGet}</span>
+              <div class="variable-item" data-variable="<%- isNotGet %>">
+                <span class="variable-name">&lt;%- isNotGet %&gt;</span>
                 <span class="variable-desc">是否为非GET请求 (true/false)</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
-              <div class="variable-item" data-variable="\${interface}">
-                <span class="variable-name">\${interface}</span>
+              <div class="variable-item" data-variable="<%- iface %>">
+                <span class="variable-name">&lt;%- iface %&gt;</span>
                 <span class="variable-desc">完整的接口对象，包含所有YAPI接口属性</span>
+                <button class="copy-btn" title="点击复制">📋</button>
+              </div>
+              <div class="variable-item" data-variable="<% if (isGet) { %> ... <% } %>">
+                <span class="variable-name">&lt;% if (isGet) { %&gt;</span>
+                <span class="variable-desc">条件判断语法</span>
                 <button class="copy-btn" title="点击复制">📋</button>
               </div>
             </div>

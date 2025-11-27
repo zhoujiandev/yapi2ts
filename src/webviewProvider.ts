@@ -832,16 +832,16 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
               <div class="template-description">
                 <p class="description-text">
                   自定义模板用于生成符合您项目规范的TypeScript接口调用代码。
-                  模板基于 EJS 引擎，支持 ES6 模板字符串语法（如 \${methodName}）和 EJS 原生语法（如 &lt;%= methodName %&gt;、&lt;% if (isGet) { %&gt;）。
-                  系统将自动为生成的代码添加完整的JSDoc文档注释，包含@description、@url、@param标签，其中@param标签无法被覆盖。
-                  您可以在模板中添加其他JSDoc注释标签，系统会智能合并。
+                  模板基于 EJS 引擎，推荐使用 EJS 语法：&lt;%- methodName %&gt; 输出变量，&lt;% if (isGet) { %&gt; 条件判断。
+                  也兼容 ES6 模板字符串语法 \${methodName}（会自动转换为 EJS）。
+                  系统将自动添加 JSDoc 注释（@description、@url、@param），其中 @param 无法被覆盖。
                 </p>
                 <div class="code-example-container">
                   <code id="template-example" class="has-example-tag">/**
  * @JSDoc说明 如无需添加额外的JSDoc标签，可以把模板的整个JSDoc注释去掉
  */
-export const \${methodName} = (params: \${paramsTypeName},config?:Omit&lt;AxiosRequestConfig,\${isNotGet?'"data"':'"params"'}&gt;): Promise&lt;\${responseTypeName}&gt; => {
-  return axios.\${lowerCaseMethod}('\${path}', \${isNotGet ? 'params,config' : '{params,...config}'})    
+export const &lt;%- methodName %&gt; = (params: &lt;%- paramsTypeName %&gt;, config?: Omit&lt;AxiosRequestConfig, &lt;%- isNotGet ? '"data"' : '"params"' %&gt;&gt;): Promise&lt;&lt;%- responseTypeName %&gt;&gt; => {
+  return axios.&lt;%- lowerCaseMethod %&gt;('&lt;%- path %&gt;', &lt;%- isNotGet ? 'params, config' : '{ params, ...config }' %&gt;);
 };</code>
                   <button class="copy-btn" title="复制示例代码">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

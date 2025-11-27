@@ -593,11 +593,55 @@ export class CodeGenerator {
     /**
      * 将 ES6 模板字符串语法转换为 EJS 语法
      * ${var} -> <%= var %>
-     * 支持表达式如 ${isGet ? 'params' : 'data'}
+     * 支持表达式如 ${isGet ? 'params' : 'data'} 和嵌套花括号 ${isGet ? '{a}' : '{b}'}
      */
     private convertToEjsTemplate(content: string): string {
-        // 匹配 ${...} 模式，支持嵌套括号和三元表达式
-        return content.replace(/\$\{([^}]+)\}/g, '<%= $1 %>');
+        // 使用更复杂的匹配逻辑，支持嵌套花括号和字符串中的花括号
+        let result = '';
+        let i = 0;
+
+        while (i < content.length) {
+            // 检查是否是 ${ 开头
+            if (content[i] === '$' && content[i + 1] === '{') {
+                // 找到匹配的结束 }
+                let braceCount = 1;
+                let j = i + 2;
+                let inString: string | null = null;
+
+                while (j < content.length && braceCount > 0) {
+                    const char = content[j];
+
+                    // 处理字符串（单引号或双引号）
+                    if ((char === '"' || char === "'") && content[j - 1] !== '\\') {
+                        if (inString === null) {
+                            inString = char;
+                        } else if (inString === char) {
+                            inString = null;
+                        }
+                    }
+
+                    // 只在非字符串内计算花括号
+                    if (inString === null) {
+                        if (char === '{') {
+                            braceCount++;
+                        } else if (char === '}') {
+                            braceCount--;
+                        }
+                    }
+                    j++;
+                }
+
+                // 提取表达式内容并转换为 EJS（使用 <%- 不转义 HTML）
+                const expr = content.slice(i + 2, j - 1);
+                result += `<%- ${expr} %>`;
+                i = j;
+            } else {
+                result += content[i];
+                i++;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -874,9 +918,12 @@ export class CodeGenerator {
     /**
      * 获取默认模板
      *
-     * 模板支持两种语法：
-     * 1. ES6 模板字符串语法：${变量名}（推荐，会自动转换为 EJS）
-     * 2. EJS 原生语法：<%= 变量名 %>
+     * 模板使用 EJS 语法（推荐）：
+     * - <%- variable %>: 输出变量（不转义）
+     * - <% if (condition) { %> ... <% } %>: 条件判断
+     * - <% for (let item of array) { %> ... <% } %>: 循环
+     *
+     * 也支持 ES6 模板字符串语法 ${variable}（会自动转换为 EJS，兼容旧模板）
      *
      * 可用变量：
      * - methodName: 方法名
@@ -890,20 +937,15 @@ export class CodeGenerator {
      * - isGet/isPost/isPut/isDelete/isPatch/isHead/isOptions: HTTP方法判断
      * - isNotGet: 是否为非GET请求
      * - iface: 完整接口对象
-     *
-     * EJS 高级语法：
-     * - <% if (isGet) { %> ... <% } %>: 条件判断
-     * - <% for (let item of array) { %> ... <% } %>: 循环
      */
     static getDefaultTemplates(): TemplateConfig[] {
         return [
             {
                 id: 'axios',
                 name: 'Axios Template',
-                description:
-                    '基于 Axios 的请求模板，支持 ES6 模板字符串语法，自动区分 GET/非GET 请求参数',
-                content: `export const \${methodName} = (params: \${paramsTypeName}, config?: Omit<AxiosRequestConfig, \${isNotGet ? '"data"' : '"params"'}>): Promise<\${responseTypeName}> => {
-  return axios.\${lowerCaseMethod}('\${path}', \${isNotGet ? 'params, config' : '{ params, ...config }'});
+                description: '基于 Axios 的请求模板，自动区分 GET/非GET 请求参数',
+                content: `export const <%- methodName %> = (params: <%- paramsTypeName %>, config?: Omit<AxiosRequestConfig, <%- isNotGet ? '"data"' : '"params"' %>>): Promise<<%- responseTypeName %>> => {
+  return axios.<%- lowerCaseMethod %>('<%- path %>', <%- isNotGet ? 'params, config' : '{ params, ...config }' %>);
 };`,
                 createdAt: Date.now(),
                 updatedAt: Date.now()
@@ -911,14 +953,14 @@ export class CodeGenerator {
             {
                 id: 'fetch',
                 name: 'Fetch Template',
-                description: '基于原生 Fetch API 的请求模板，适用于不依赖第三方库的项目',
-                content: `export async function \${methodName}(params: \${paramsTypeName}): Promise<\${responseTypeName}> {
+                description: '基于原生 Fetch API 的请求模板，使用 EJS 条件语法',
+                content: `export async function <%- methodName %>(params: <%- paramsTypeName %>): Promise<<%- responseTypeName %>> {
 <% if (isGet) { %>
   const query = new URLSearchParams(params as Record<string, string>).toString();
-  const response = await fetch(\`\${path}?\${query}\`);
+  const response = await fetch(\`<%- path %>?\${query}\`);
 <% } else { %>
-  const response = await fetch('\${path}', {
-    method: '\${method}',
+  const response = await fetch('<%- path %>', {
+    method: '<%- method %>',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params)
   });
@@ -932,11 +974,11 @@ export class CodeGenerator {
                 id: 'request-simple',
                 name: 'Simple Request',
                 description: '简洁的请求模板，适用于自定义 request 封装',
-                content: `export const \${methodName} = (params: \${paramsTypeName}) => {
-  return request<\${responseTypeName}>({
-    url: '\${path}',
-    method: '\${lowerCaseMethod}',
-    \${isGet ? 'params' : 'data'}: params
+                content: `export const <%- methodName %> = (params: <%- paramsTypeName %>) => {
+  return request<<%- responseTypeName %>>({
+    url: '<%- path %>',
+    method: '<%- lowerCaseMethod %>',
+    <%- isGet ? 'params' : 'data' %>: params
   });
 };`,
                 createdAt: Date.now(),
