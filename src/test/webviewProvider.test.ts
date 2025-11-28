@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { YapiWebviewProvider } from '../webviewProvider';
 
@@ -31,7 +32,10 @@ suite('YapiWebviewProvider Test Suite', () => {
             extensionMode: vscode.ExtensionMode.Test
         } as any;
 
-        provider = new YapiWebviewProvider(vscode.Uri.file('/test'), mockContext);
+        // 使用真实的扩展路径以便能加载 media 目录下的模板文件
+        const extensionRoot = path.resolve(__dirname, '..', '..');
+        const extensionUri = vscode.Uri.file(extensionRoot);
+        provider = new YapiWebviewProvider(extensionUri, mockContext);
     });
 
     suite('Basic Functionality', () => {
