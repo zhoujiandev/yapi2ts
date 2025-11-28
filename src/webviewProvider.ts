@@ -8,6 +8,7 @@ import {
     YapiInterfaceDetail,
     YapiProject
 } from './types';
+import { loadTemplate } from './utils/templateLoader';
 import { YapiService } from './yapiService';
 
 export class YapiWebviewProvider implements vscode.WebviewViewProvider {
@@ -695,7 +696,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         await this.context.globalState.update('yapi2ts.projects', this.projects);
     }
 
-    private _getHtmlForWebview(webview: vscode.Webview) {
+    private _getHtmlForWebview(webview: vscode.Webview): string {
         // 获取样式和脚本的URI
         const styleResetUri = webview.asWebviewUri(
             vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css')
@@ -713,158 +714,15 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         // 使用nonce来确保安全
         const nonce = getNonce();
 
-        return `<!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}' ${webview.cspSource}; img-src ${webview.cspSource} https:; font-src ${webview.cspSource};">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="${styleResetUri}" rel="stylesheet">
-        <link href="${styleVSCodeUri}" rel="stylesheet">
-        <link href="${styleMainUri}" rel="stylesheet">
-        <title>YAPI TypeScript</title>
-      </head>
-      <body>
-        <div class="container">
-          <div class="tabs">
-            <button class="tab-button active" data-tab="interfaces">接口列表</button>
-            <button class="tab-button" data-tab="projects">我的项目</button>
-            <button class="tab-button" data-tab="templates">我的模板</button>
-          </div>
-
-          <div id="interfaces-tab" class="tab-content active">
-            <div class="config-section">
-              <div class="form-group inline-form">
-                <select id="project-select">
-                  <option value="">选择项目</option>
-                </select>
-                <button id="connect-btn" class="btn btn-primary">连接</button>
-              </div>
-            </div>
-
-            <div class="interface-search">
-                <input type="text" id="interface-search-input" placeholder="输入接口路径，支持模糊匹配项目中所有接口">
-                <button id="interface-clear-btn" class="btn-icon" title="清空">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
-                </button>
-                <button id="interface-search-btn" class="btn-icon" title="搜索">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
-                </button>
-            </div>
-              <div class="interface-section">
-                <div class="interface-tree collapsible" id="interface-tree">
-                  <div class="tree-header">
-                    <button id="tree-toggle-btn" class="tree-toggle-btn" title="展开/收缩菜单">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
-                      </svg>
-                    </button>
-                    <span class="tree-title">目录 <span id="project-name" class="project-name" title=""></span>
-                      <button id="refresh-btn" class="btn-icon" title="刷新接口列表" style="margin-left: 8px; flex-shrink: 0;">
-                        <svg id="refresh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                          <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
-                          <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
-                        </svg>
-                      </button>
-                    </span>
-                  </div>
-                  <div class="tree-update-time">
-                    <span id="last-update-time" class="last-update-time" style="font-size: 12px; color: var(--vscode-descriptionForeground);"></span>
-                  </div>
-                  <div class="tree-content">
-                    <div class="loading">请先选择项目</div>
-                  </div>
-                </div>
-              <div class="interface-table">
-                <div class="table-header">
-                  <h3>接口列表 <span id="selected-category" class="selected-category"></span> <span id="selected-count" class="selected-count">(已选中 0 个)</span></h3>
-                  <div class="smart-tip">
-                    <div class="smart-tip-content">
-                      💡 命名防冲突以菜单目录为范围，跨目录接口合并到同一文件时可能存在命名冲突风险
-                    </div>
-                  </div>
-                  <div class="table-actions">
-                    <!-- 主操作：一键生成完整代码 -->
-                    <div class="primary-action-group">
-                      <select id="template-select" class="template-select-main">
-                        <option value="">选择模板</option>
-                      </select>
-                      <button id="generate-all-btn" class="btn btn-primary btn-gradient">
-                        ⚡ 生成完整代码
-                      </button>
-                    </div>
-                    
-                    <!-- 高级选项：单独生成 -->
-                    <details class="advanced-options">
-                      <summary class="advanced-options-summary">🔧 高级选项（单独生成）</summary>
-                      <div class="advanced-options-content">
-                        <button id="generate-types-btn" class="btn btn-outline">📝 仅类型定义</button>
-                        <button id="generate-api-btn" class="btn btn-outline">🔧 仅API代码</button>
-                      </div>
-                    </details>
-                  </div>
-                </div>
-                <div class="table-content" id="table-content">
-                  <div class="loading">暂无数据</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="projects-tab" class="tab-content">
-            <div class="project-section">
-              <div class="project-header">
-                <h3>项目管理</h3>
-                <button id="add-project-btn" class="btn btn-primary">新增项目</button>
-              </div>
-              <div class="project-list" id="project-list">
-                <div class="loading">加载中...</div>
-              </div>
-            </div>
-          </div>
-
-          <div id="templates-tab" class="tab-content">
-            <div class="template-section">
-              <div class="template-header">
-                <h3>模板管理</h3>
-                <button id="add-template-btn" class="btn btn-primary">新增模板</button>
-              </div>
-              <div class="template-description">
-                <p class="description-text">
-                  自定义模板用于生成符合您项目规范的TypeScript接口调用代码。
-                  模板基于 EJS 引擎，推荐使用 EJS 语法：&lt;%- methodName %&gt; 输出变量，&lt;% if (isGet) { %&gt; 条件判断。
-                  也兼容 ES6 模板字符串语法 \${methodName}（会自动转换为 EJS）。
-                  系统将自动添加 JSDoc 注释（@description、@url、@param），其中 @param 无法被覆盖。
-                </p>
-                <div class="code-example-container">
-                  <code id="template-example" class="has-example-tag">/**
- * @JSDoc说明 如无需添加额外的JSDoc标签，可以把模板的整个JSDoc注释去掉
- */
-export const &lt;%- methodName %&gt; = (params: &lt;%- paramsTypeName %&gt;, config?: Omit&lt;AxiosRequestConfig, &lt;%- isNotGet ? '"data"' : '"params"' %&gt;&gt;): Promise&lt;&lt;%- responseTypeName %&gt;&gt; => {
-  return axios.&lt;%- lowerCaseMethod %&gt;('&lt;%- path %&gt;', &lt;%- isNotGet ? 'params, config' : '{ params, ...config }' %&gt;);
-};</code>
-                  <button class="copy-btn" title="复制示例代码">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </div>
-                <p class="description-text">
-                <p class="tip-text">
-                  💡 建议：在编辑器中编写模板代码，这样可以获得语法高亮和代码提示，复制粘贴到模板编辑器中。
-                </p>
-              </div>
-              <div class="template-list" id="template-list">
-                <div class="loading">加载中...</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <script nonce="${nonce}" src="${scriptUri}"></script>
-      </body>
-      </html>`;
+        // 从外部模板文件加载 HTML
+        return loadTemplate(this._extensionUri, 'webview.html', {
+            cspSource: webview.cspSource,
+            nonce,
+            styleResetUri: styleResetUri.toString(),
+            styleVSCodeUri: styleVSCodeUri.toString(),
+            styleMainUri: styleMainUri.toString(),
+            scriptUri: scriptUri.toString()
+        });
     }
 
     /**

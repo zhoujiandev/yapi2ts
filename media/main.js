@@ -46,6 +46,36 @@
     return statusMap[status] || { emoji: '🟡', text: '开发中' };
   }
 
+  /**
+   * 从 HTML <template> 标签创建 DOM 元素并填充数据
+   * @param {string} templateId - 模板元素的 ID
+   * @param {Object} data - 要填充的数据对象
+   * @returns {HTMLElement} 克隆并填充数据后的 DOM 元素
+   */
+  function createFromTemplate(templateId, data = {}) {
+    const template = document.getElementById(templateId);
+    if (!template) {
+      console.error(`Template not found: ${templateId}`);
+      return null;
+    }
+    
+    const clone = template.content.cloneNode(true);
+    
+    // 填充带有 data-field 属性的元素
+    Object.keys(data).forEach(key => {
+      const elements = clone.querySelectorAll(`[data-field="${key}"]`);
+      elements.forEach(el => {
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+          el.value = data[key] || '';
+        } else {
+          el.textContent = data[key] || '';
+        }
+      });
+    });
+    
+    return clone;
+  }
+
   // Initialize
   init();
 
@@ -655,106 +685,18 @@
     const isEdit = !!template;
     const title = isEdit ? '编辑模板' : '新增模板';
     
-    // Create modal dialog
+    // Create modal dialog using HTML template
     const modal = document.createElement('div');
     modal.className = 'template-modal';
-    modal.innerHTML = `
-      <div class="template-modal-content">
-        <div class="template-modal-header">
-          <h3>${title}</h3>
-          <button class="template-modal-close">&times;</button>
-        </div>
-        <div class="template-modal-body">
-          <div class="form-group">
-            <label for="template-name">模板名称:</label>
-            <input type="text" id="template-name" value="${template?.name || ''}" placeholder="请输入模板名称">
-          </div>
-          <div class="form-group">
-            <label for="template-description">模板描述:</label>
-            <input type="text" id="template-description" value="${template?.description || ''}" placeholder="请输入模板描述（可选）">
-          </div>
-          <div class="form-group">
-            <label>支持的变量 (推荐使用 EJS 语法 &lt;%- variable %&gt;):</label>
-            <div class="template-variables">
-              <div class="variable-item" data-variable="<%- methodName %>">
-                <span class="variable-name">&lt;%- methodName %&gt;</span>
-                <span class="variable-desc">方法名称 (如: getUserInfo)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- title %>">
-                <span class="variable-name">&lt;%- title %&gt;</span>
-                <span class="variable-desc">接口标题 (如: 获取用户信息)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- path %>">
-                <span class="variable-name">&lt;%- path %&gt;</span>
-                <span class="variable-desc">接口路径 (如: /api/user/info)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- method %>">
-                <span class="variable-name">&lt;%- method %&gt;</span>
-                <span class="variable-desc">HTTP方法大写 (如: GET, POST)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- lowerCaseMethod %>">
-                <span class="variable-name">&lt;%- lowerCaseMethod %&gt;</span>
-                <span class="variable-desc">HTTP方法小写 (如: get, post)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- responseTypeName %>">
-                <span class="variable-name">&lt;%- responseTypeName %&gt;</span>
-                <span class="variable-desc">响应类型名 (如: GetUserInfoResponse)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- paramsTypeName %>">
-                <span class="variable-name">&lt;%- paramsTypeName %&gt;</span>
-                <span class="variable-desc">参数类型名 (如: GetUserInfoParams)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- interfaceUrl %>">
-                <span class="variable-name">&lt;%- interfaceUrl %&gt;</span>
-                <span class="variable-desc">YAPI接口详情页URL</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- isGet %>">
-                <span class="variable-name">&lt;%- isGet %&gt;</span>
-                <span class="variable-desc">是否为GET请求 (true/false)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- isPost %>">
-                <span class="variable-name">&lt;%- isPost %&gt;</span>
-                <span class="variable-desc">是否为POST请求 (true/false)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- isNotGet %>">
-                <span class="variable-name">&lt;%- isNotGet %&gt;</span>
-                <span class="variable-desc">是否为非GET请求 (true/false)</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<%- iface %>">
-                <span class="variable-name">&lt;%- iface %&gt;</span>
-                <span class="variable-desc">完整的接口对象，包含所有YAPI接口属性</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-              <div class="variable-item" data-variable="<% if (isGet) { %> ... <% } %>">
-                <span class="variable-name">&lt;% if (isGet) { %&gt;</span>
-                <span class="variable-desc">条件判断语法</span>
-                <button class="copy-btn" title="点击复制">📋</button>
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="template-content">模板内容:</label>
-            <textarea id="template-content" rows="15" placeholder="请输入模板内容">${template?.content || (currentTemplates.length > 0 ? currentTemplates[0].content : '')}</textarea>
-          </div>
-        </div>
-        <div class="template-modal-footer">
-          <button class="btn btn-secondary template-modal-cancel">取消</button>
-          <button class="btn btn-primary template-modal-save">保存</button>
-        </div>
-      </div>
-    `;
-
+    
+    const templateContent = createFromTemplate('template-editor-modal-template', {
+      title,
+      templateName: template?.name || '',
+      templateDescription: template?.description || '',
+      templateContent: template?.content || (currentTemplates.length > 0 ? currentTemplates[0].content : '')
+    });
+    
+    modal.appendChild(templateContent);
     document.body.appendChild(modal);
 
     // Event listeners
@@ -1007,46 +949,18 @@
     const isEdit = !!project;
     const title = isEdit ? '编辑项目' : '新增项目';
     
-    // Create modal dialog
+    // Create modal dialog using HTML template
     const modal = document.createElement('div');
     modal.className = 'project-modal';
-    modal.innerHTML = `
-      <div class="project-modal-content">
-        <div class="project-modal-header">
-          <h3>${title}</h3>
-          <button class="project-modal-close">&times;</button>
-        </div>
-        <div class="project-modal-body">
-          <div class="form-group">
-            <label for="project-name-input">项目名称:</label>
-            <input type="text" id="project-name-input" class="form-control" value="${project ? project.name : ''}" placeholder="请输入项目名称">
-          </div>
-          <div class="form-group">
-            <div class="label-with-help">
-              <label for="project-yapi-url-input">YAPI地址:</label>
-              <span class="help-icon">
-                <div class="tooltip">请输入您部署的YAPI平台的完整地址，例如：http://yapi.example.com或\nhttps://yapi.example.com</div>
-              </span>
-            </div>
-            <input type="text" id="project-yapi-url-input" class="form-control" value="${project ? project.yapiUrl : ''}" placeholder="请输入YAPI地址">
-          </div>
-          <div class="form-group">
-            <div class="label-with-help">
-              <label for="project-token-input">项目Token:</label>
-              <span class="help-icon">
-                <div class="tooltip">在YAPI项目设置页面可以找到项目Token，用于API接口的身份验证</div>
-              </span>
-            </div>
-            <input type="text" id="project-token-input" class="form-control" value="${project ? project.projectToken : ''}" placeholder="请输入项目Token">
-          </div>
-        </div>
-        <div class="project-modal-footer">
-          <button class="btn btn-secondary project-modal-cancel">取消</button>
-          <button class="btn btn-primary project-modal-save">保存</button>
-        </div>
-      </div>
-    `;
-
+    
+    const projectContent = createFromTemplate('project-editor-modal-template', {
+      title,
+      projectName: project?.name || '',
+      yapiUrl: project?.yapiUrl || '',
+      projectToken: project?.projectToken || ''
+    });
+    
+    modal.appendChild(projectContent);
     document.body.appendChild(modal);
 
     // Event listeners
