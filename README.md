@@ -1,10 +1,19 @@
+<a id="top"></a>
+
 # YAPI TypeScript
 
 [![Version](https://img.shields.io/open-vsx/v/zhoujian/yapi-ts?color=FF561B)](https://open-vsx.org/extension/zhoujian/yapi-ts)
 [![Downloads](https://img.shields.io/open-vsx/dt/zhoujian/yapi-ts?color=57CF27)](https://open-vsx.org/extension/zhoujian/yapi-ts)
 ![License](https://img.shields.io/badge/license-MIT-2359F1.svg)
+[![GitHub Stars](https://img.shields.io/github/stars/zhoujiandev/yapi2ts?style=flat&color=yellow)](https://github.com/zhoujiandev/yapi2ts)
+[![GitHub Issues](https://img.shields.io/github/issues/zhoujiandev/yapi2ts)](https://github.com/zhoujiandev/yapi2ts/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/zhoujiandev/yapi2ts)](https://github.com/zhoujiandev/yapi2ts/commits)
 
-一个强大的编辑器插件，用于从 YAPI 接口文档自动生成 TypeScript 类型定义和 API 接口代码，提升前端开发效率。支持 VSCode、Cursor、VSCodium 等兼容编辑器。通过可视化界面轻松管理 YAPI 项目，浏览接口文档，并一键生成标准化的 TypeScript 代码。
+**English** | A powerful editor extension for auto-generating TypeScript type definitions and API code from YAPI documentation. Supports VSCode, Cursor, VSCodium and other compatible editors.
+
+**中文** | 一个强大的编辑器插件，用于从 YAPI 接口文档自动生成 TypeScript 类型定义和 API 接口代码，提升前端开发效率。支持 VSCode、Cursor、VSCodium 等兼容编辑器。通过可视化界面轻松管理 YAPI 项目，浏览接口文档，并一键生成标准化的 TypeScript 代码。
+
+**Keywords**: YAPI, TypeScript, Code Generator, API Documentation, Type Generation, VSCode Extension, Swagger Alternative, Interface Generator, Frontend Development, API Client
 
 > **插件名称**: yapi-ts  
 > **GitHub 仓库**: [https://github.com/zhoujiandev/yapi2ts](https://github.com/zhoujiandev/yapi2ts)  
@@ -21,6 +30,7 @@
 - [技术栈](#tech-stack)
 - [开发指南](#development-guide)
 - [贡献指南](#contributing)
+- [许可证](#license)
 
 ## <a id="features-demo"></a>🎬 功能演示
 
@@ -28,10 +38,10 @@
 
 ## <a id="features"></a>✨ 功能特性
 
-### 🔗 YAPI集成
+### 🔗 YAPI 集成
 
-- 支持多YAPI项目配置和管理
-- 实时连接YAPI服务器获取最新接口文档
+- 支持多 YAPI 项目配置和管理
+- 实时连接 YAPI 服务器获取最新接口文档
 - 自动同步接口分类和详情信息
 
 ### 🎯 智能代码生成
@@ -69,9 +79,11 @@
 ### 📋 便捷的操作体验
 
 - **一键复制** - 生成的代码自动复制到剪贴板，即生即用
-- **YAPI链接** - 快速复制YAPI接口地址，便于查看原始文档
+- **YAPI 链接** - 快速复制 YAPI 接口地址，便于查看原始文档
 - **状态提示** - 清晰的接口状态标识（已发布/开发中/已废弃）
 - **错误处理** - 友好的错误提示和异常处理机制
+
+[⬆️ 返回顶部](#top)
 
 ## <a id="quick-start"></a>🚀 快速开始
 
@@ -135,8 +147,8 @@ codium --install-extension zhoujian.yapi-ts
 
 以下是一个完整的使用流程示例：
 
-```
-1. 配置项目 → 2. 连接YAPI → 3. 浏览接口 → 4. 生成代码 → 5. 复制使用
+```text
+1. 配置项目 → 2. 连接 YAPI → 3. 浏览接口 → 4. 生成代码 → 5. 复制使用
 ```
 
 **示例场景**：为用户管理相关接口生成TypeScript代码
@@ -148,13 +160,15 @@ codium --install-extension zhoujian.yapi-ts
 5. **生成API**：选择Axios模板，点击"生成API定义"按钮
 6. **使用代码**：生成的代码已自动复制到剪贴板，直接粘贴到项目中使用
 
+[⬆️ 返回顶部](#top)
+
 ## <a id="usage-guide"></a>📖 详细使用指南
 
 ### 🏗️ 项目管理
 
-项目管理是使用插件的第一步，通过配置YAPI项目信息，建立与YAPI服务器的连接。
+项目管理是使用插件的第一步，通过配置 YAPI 项目信息，建立与 YAPI 服务器的连接。
 
-#### 添加YAPI项目
+#### 添加 YAPI 项目
 
 1. **进入项目管理页面**
     - 切换到 **"我的项目"** 标签页
@@ -195,9 +209,9 @@ codium --install-extension zhoujian.yapi-ts
 
 ### 📋 接口浏览与搜索
 
-接口浏览是插件的核心功能，提供直观的界面来查看和管理YAPI接口。
+接口浏览是插件的核心功能，提供直观的界面来查看和管理 YAPI 接口。
 
-#### 连接YAPI项目
+#### 连接 YAPI 项目
 
 1. **选择项目**
     - 切换到 **"接口列表"** 标签页
@@ -382,6 +396,8 @@ export const getUserInfo = (params: GetUserInfoRequest): Promise<GetUserInfoResp
 - 包含请求参数、响应示例、接口说明等完整文档
 - 便于开发者深入了解接口规范
 
+[⬆️ 返回顶部](#top)
+
 ## <a id="template-system"></a>🔧 模板系统
 
 模板系统基于 **EJS** 引擎。
@@ -525,9 +541,11 @@ export const createOrder = (
 };
 ```
 
-## <a id="yapi-api-support"></a>🔌 YAPI API支持
+[⬆️ 返回顶部](#top)
 
-插件使用以下YAPI开放接口获取数据：
+## <a id="yapi-api-support"></a>🔌 YAPI API 支持
+
+插件使用以下 YAPI 开放接口获取数据：
 
 | API端点                     | 功能                 | 参数                              |
 | --------------------------- | -------------------- | --------------------------------- |
@@ -535,6 +553,8 @@ export const createOrder = (
 | `/api/interface/getCatMenu` | 获取接口分类菜单     | `token`                           |
 | `/api/interface/list_cat`   | 获取分类下的接口列表 | `token`, `catid`, `page`, `limit` |
 | `/api/interface/get`        | 获取接口详情         | `token`, `id`                     |
+
+[⬆️ 返回顶部](#top)
 
 ## <a id="tech-stack"></a>🔧 技术栈
 
@@ -565,6 +585,8 @@ export const createOrder = (
 
 - **Webpack** - 代码打包和优化
 - **ts-loader** - TypeScript loader for Webpack
+
+[⬆️ 返回顶部](#top)
 
 ## <a id="development-guide"></a>🛠️ 开发指南
 
@@ -848,13 +870,9 @@ npx ovsx publish
 ```bash
 # 运行所有测试
 pnpm run test
-
-# 运行特定测试文件
-pnpm run test -- --testNamePattern="YapiService"
-
-# 生成测试覆盖率报告
-pnpm run test:coverage
 ```
+
+> 💡 测试使用 `@vscode/test-cli` 和 Mocha 框架，测试文件位于 `src/test/` 目录
 
 #### 2. 集成测试
 
@@ -901,6 +919,8 @@ pnpm run test:coverage
 - 记录详细的错误日志
 - 实现优雅的降级处理
 
+[⬆️ 返回顶部](#top)
+
 ## <a id="contributing"></a>🤝 贡献指南
 
 我们欢迎任何形式的贡献！
@@ -926,10 +946,12 @@ pnpm run test:coverage
 - 编写单元测试
 - 确保所有测试通过
 
-## 📄 许可证
+## <a id="license"></a>📄 许可证
 
 本项目采用 [MIT License](LICENSE) 许可证。
 
 ---
 
 **如果这个插件对你有帮助，请给我们一个⭐️！**
+
+[⬆️ 返回顶部](#top)
