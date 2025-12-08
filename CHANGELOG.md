@@ -4,6 +4,22 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.0.6] - 2025-12-08
+
+### Improved
+
+- **WebView 架构重构** - HTML/JS 分离，提升代码可维护性
+    - 将内联 HTML 模板抽离为独立的 `webview.html` 文件
+    - 新增 `templateLoader.ts` 模板加载工具，支持 `{{variable}}` 占位符语法
+    - 简化 `webviewProvider.ts`，降低代码复杂度
+
+### Technical
+
+- 新增 `src/utils/templateLoader.ts` - 模板加载工具模块
+- 新增 `media/webview.html` - 独立的 WebView HTML 模板
+- 优化 `media/main.js` - 精简前端逻辑
+- 完善测试覆盖 - 更新 WebView Provider 测试用例
+
 ## [1.0.5] - 2025-11-27
 
 ### Added
