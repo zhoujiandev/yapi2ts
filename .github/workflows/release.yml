@@ -139,7 +139,7 @@ jobs:
             - name: Create VSIX package
               run: |
                   echo "📦 Creating VSIX package..."
-                  npx @vscode/vsce package
+                  npx @vscode/vsce package --no-dependencies
 
                   echo "📊 VSIX package info:"
                   ls -lh *.vsix
@@ -148,13 +148,13 @@ jobs:
             - name: Publish to VSCode Marketplace
               run: |
                   echo "🚀 Publishing to VSCode Marketplace..."
-                  npx @vscode/vsce publish -p ${{ secrets.VSCE_TOKEN }}
+                  npx @vscode/vsce publish --packagePath *.vsix -p ${{ secrets.VSCE_TOKEN }}
                   echo "✅ Published to VSCode Marketplace"
 
             - name: Publish to Open VSX
               run: |
                   echo "🚀 Publishing to Open VSX..."
-                  npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
+                  npx ovsx publish *.vsix -p ${{ secrets.OVSX_TOKEN }}
                   echo "✅ Published to Open VSX"
 
             - name: Upload VSIX as release asset
