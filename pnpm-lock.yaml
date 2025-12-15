@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      ejs:
+        specifier: ^3.1.10
+        version: 3.1.10
     devDependencies:
       '@types/ejs':
         specifier: ^3.1.5
@@ -32,9 +36,6 @@ importers:
       '@vscode/test-electron':
         specifier: ^2.5.2
         version: 2.5.2
-      ejs:
-        specifier: ^3.1.10
-        version: 3.1.10
       eslint:
         specifier: ^9.34.0
         version: 9.36.0

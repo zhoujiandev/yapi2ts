@@ -95,6 +95,9 @@
         "test": "vscode-test",
         "prepare": "husky"
     },
+    "dependencies": {
+        "ejs": "^3.1.10"
+    },
     "devDependencies": {
         "@types/ejs": "^3.1.5",
         "@types/mocha": "^10.0.10",
@@ -104,7 +107,6 @@
         "@typescript-eslint/parser": "^8.42.0",
         "@vscode/test-cli": "^0.0.11",
         "@vscode/test-electron": "^2.5.2",
-        "ejs": "^3.1.10",
         "eslint": "^9.34.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.4",
