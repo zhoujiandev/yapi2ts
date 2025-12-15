@@ -4,6 +4,22 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.1.0] - 2025-12-15
+
+### Added
+
+- **协同模式** - 新增团队协作配置支持
+    - 支持通过 workspace 配置文件 (`.vscode/settings.json`) 共享 YAPI 配置
+    - 新增协同模式开关，一键切换本地/共享配置
+    - 新增配置引导页，简化团队成员接入流程
+    - 支持 `yapiUrl` 和 `projectToken` 的团队共享与同步
+
+### Fixed
+
+- **依赖类型修复** - 将 `ejs` 从 `devDependencies` 移至 `dependencies`
+    - 修复生产环境下模板渲染可能失败的问题
+    - 确保打包后的扩展能正确加载 EJS 模块
+
 ## [1.0.6] - 2025-12-08
 
 ### Improved

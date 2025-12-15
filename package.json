@@ -2,7 +2,7 @@
     "name": "yapi-ts",
     "displayName": "YAPI TypeScript",
     "description": "Generate TypeScript interfaces and API functions from YAPI. Support custom templates and automatic code generation.",
-    "version": "1.0.6",
+    "version": "1.1.0",
     "publisher": "zhoujian",
     "repository": {
         "type": "git",
