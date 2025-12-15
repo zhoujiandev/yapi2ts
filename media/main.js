@@ -8,6 +8,8 @@
   let currentTemplates = [];
   let currentProjects = [];
   let selectedInterfaces = new Set();
+  let isCollabMode = false;
+  let collabConfig = null;
   // 选中的分类与搜索关键字
   let selectedCategoryId = null;
   let interfaceSearchTerm = '';
@@ -34,6 +36,10 @@
   const interfaceSearchInput = document.getElementById('interface-search-input');
   const interfaceSearchBtn = document.getElementById('interface-search-btn');
   const interfaceClearBtn = document.getElementById('interface-clear-btn');
+  const collabModeSwitch = document.getElementById('collab-mode-switch');
+  const collabModeStatus = document.getElementById('collab-mode-status');
+  const collabConfigInfo = document.getElementById('collab-config-info');
+  const projectSection = document.querySelector('.project-section');
 
   // 状态标识映射函数
   function getStatusIndicator(status) {
@@ -118,6 +124,24 @@
       
       if (!selectedProject) {
         showMessage('请先选择一个项目，如果还没有配置项目，请切换到"我的项目"标签页进行配置', 'error');
+        return;
+      }
+
+      // 协同模式下使用协同配置
+      if (selectedProject === 'collab-project') {
+        if (!collabConfig || !collabConfig.yapiUrl || !collabConfig.projectToken) {
+          showMessage('协同模式配置不完整，请检查 .vscode/settings.json', 'error');
+          return;
+        }
+        
+        connectBtn.disabled = true;
+        connectBtn.textContent = '连接中...';
+
+        vscode.postMessage({
+          type: 'setConfig',
+          yapiUrl: collabConfig.yapiUrl,
+          projectToken: collabConfig.projectToken
+        });
         return;
       }
 
@@ -306,6 +330,51 @@
     const copyTemplateExampleBtn = document.querySelector('.copy-btn[title="复制示例代码"]');
     if (copyTemplateExampleBtn) {
       copyTemplateExampleBtn.addEventListener('click', copyTemplateExample);
+    }
+
+    // 协同模式开关事件监听
+    if (collabModeSwitch) {
+      collabModeSwitch.addEventListener('change', (e) => {
+        const enabled = e.target.checked;
+        vscode.postMessage({
+          type: 'setCollabMode',
+          enabled: enabled
+        });
+      });
+    }
+
+    // 协同模式引导卡片中的复制按钮
+    const guideCopyBtn = document.querySelector('.guide-card .copy-btn');
+    if (guideCopyBtn) {
+      guideCopyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const code = `"yapi2ts.collaboration": {
+  "yapiUrl": "http://yapi.example.com",
+  "projectToken": "your-token"
+}`;
+        
+        navigator.clipboard.writeText(code).then(() => {
+          const originalText = guideCopyBtn.textContent;
+          guideCopyBtn.textContent = '✅';
+          setTimeout(() => {
+            guideCopyBtn.textContent = originalText;
+          }, 1500);
+        }).catch(() => {
+          // 降级方案
+          const textArea = document.createElement('textarea');
+          textArea.value = code;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          
+          const originalText = guideCopyBtn.textContent;
+          guideCopyBtn.textContent = '✅';
+          setTimeout(() => {
+            guideCopyBtn.textContent = originalText;
+          }, 1500);
+        });
+      });
     }
   }
 
@@ -1037,6 +1106,138 @@
     });
   }
 
+  // 更新协同模式UI
+  function updateCollabModeUI() {
+    if (collabModeSwitch) {
+      collabModeSwitch.checked = isCollabMode;
+    }
+
+    const collabGuideContainer = document.getElementById('collab-guide-container');
+
+    if (collabModeStatus) {
+      if (isCollabMode) {
+        // 协同模式开启
+        if (collabConfig && collabConfig.yapiUrl && collabConfig.projectToken) {
+          // 有配置信息
+          collabModeStatus.style.display = 'block';
+          if (collabGuideContainer) {
+            collabGuideContainer.style.display = 'none';
+          }
+          
+          collabModeStatus.classList.remove('error');
+          collabModeStatus.querySelector('.collab-status-icon').textContent = '🔗';
+          collabModeStatus.querySelector('.collab-status-text').textContent = '协同模式已开启，配置来自 .vscode/settings.json';
+          
+          if (collabConfigInfo) {
+            collabConfigInfo.innerHTML = `
+              <div class="config-item">
+                <span class="config-label">YAPI地址:</span>
+                <span class="config-value">${collabConfig.yapiUrl}</span>
+              </div>
+              <div class="config-item">
+                <span class="config-label">Token:</span>
+                <span class="config-value">${collabConfig.projectToken.substring(0, 10)}...</span>
+              </div>
+            `;
+          }
+        } else {
+          // 无配置信息
+          collabModeStatus.style.display = 'none';
+          if (collabGuideContainer) {
+            collabGuideContainer.style.display = 'block';
+          }
+        }
+      } else {
+        // 协同模式关闭
+        collabModeStatus.style.display = 'none';
+        if (collabGuideContainer) {
+          collabGuideContainer.style.display = 'none';
+        }
+      }
+    }
+
+    // 切换项目列表显示
+    if (projectSection) {
+      if (isCollabMode) {
+        projectSection.classList.add('collab-mode-active');
+      } else {
+        projectSection.classList.remove('collab-mode-active');
+      }
+    }
+
+    // 更新项目选择下拉框
+    updateProjectSelectForCollabMode();
+  }
+
+  // 协同模式下更新项目选择
+  function updateProjectSelectForCollabMode() {
+    const collabHint = document.getElementById('collab-hint');
+    
+    if (isCollabMode) {
+      // 禁用下拉框
+      projectSelect.disabled = true;
+      projectSelect.classList.add('disabled');
+
+      if (collabConfig && collabConfig.yapiUrl && collabConfig.projectToken) {
+        // 协同模式下，添加一个虚拟的协同项目选项
+        let collabOption = projectSelect.querySelector('option[value="collab-project"]');
+        if (!collabOption) {
+          collabOption = document.createElement('option');
+          collabOption.value = 'collab-project';
+          collabOption.textContent = '📁 协同项目 (settings.json)';
+          // 插入到"选择项目"后面
+          const firstOption = projectSelect.querySelector('option[value=""]');
+          if (firstOption && firstOption.nextSibling) {
+            projectSelect.insertBefore(collabOption, firstOption.nextSibling);
+          } else {
+            projectSelect.appendChild(collabOption);
+          }
+        }
+        projectSelect.value = 'collab-project';
+        
+        // 显示成功提示
+        if (collabHint) {
+          collabHint.style.display = 'block';
+          collabHint.className = 'collab-hint success';
+          collabHint.textContent = '已开启协同模式，正在使用 .vscode/settings.json 中的配置';
+        }
+      } else {
+        projectSelect.value = "";
+        
+        // 显示配置提醒
+        if (collabHint) {
+          collabHint.style.display = 'block';
+          collabHint.className = 'collab-hint warning';
+          collabHint.textContent = '已开启协同模式，但未检测到配置。请切换到"我的项目"标签页查看';
+          
+          const link = document.createElement('a');
+          link.textContent = '配置指南';
+          link.href = '#';
+          link.style.marginLeft = '4px';
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchTab('projects');
+          });
+          collabHint.appendChild(link);
+        }
+      }
+    } else {
+      // 非协同模式，移除协同项目选项
+      projectSelect.disabled = false;
+      projectSelect.classList.remove('disabled');
+      
+      const collabOption = projectSelect.querySelector('option[value="collab-project"]');
+      if (collabOption) {
+        collabOption.remove();
+      }
+      
+      // 隐藏提示
+      if (collabHint) {
+        collabHint.style.display = 'none';
+      }
+    }
+  }
+
   // 监听窗口大小变化事件
   window.addEventListener('resize', function() {
     const interfaceTree = document.querySelector('.interface-tree');
@@ -1216,6 +1417,12 @@
       case 'projectDeleted':
         loadProjects();
         showMessage('项目删除成功', 'success');
+        break;
+
+      case 'collabModeChanged':
+        isCollabMode = message.enabled;
+        collabConfig = message.config;
+        updateCollabModeUI();
         break;
 
       case 'configRestored':

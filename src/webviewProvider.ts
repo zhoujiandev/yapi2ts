@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { CodeGenerator } from './codeGenerator';
 import { ApiError, AuthenticationError, NetworkError, TimeoutError } from './errors';
 import {
+    CollaborationConfig,
     ProjectConfig,
     TemplateConfig,
     WebviewMessage,
@@ -21,6 +22,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     private projects: ProjectConfig[] = [];
     private disposables: vscode.Disposable[] = [];
     private timers: NodeJS.Timeout[] = [];
+    private isCollabMode: boolean = false;
 
     constructor(
         private readonly _extensionUri: vscode.Uri,
@@ -112,6 +114,15 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 projects: this.projects
             });
 
+            // 恢复协同模式状态
+            this.isCollabMode = this.context.globalState.get<boolean>('yapi2ts.collabMode', false);
+            const collabConfig = this.getCollaborationConfig();
+            this._view.webview.postMessage({
+                type: 'collabModeChanged',
+                enabled: this.isCollabMode,
+                config: collabConfig
+            });
+
             // 如果有保存的配置，发送给前端
             if (yapiUrl && projectToken) {
                 this._view.webview.postMessage({
@@ -193,6 +204,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 if (message.content) {
                     await this.handleCopyTemplateExample(message.content);
                 }
+                break;
+            case 'setCollabMode':
+                await this.handleSetCollabMode(message.enabled ?? false);
                 break;
         }
     }
@@ -667,6 +681,52 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         } catch (error) {
             console.error('Failed to copy template example:', error);
             this.sendNotification('复制示例模板失败', 'error');
+        }
+    }
+
+    private async handleSetCollabMode(enabled: boolean) {
+        try {
+            this.isCollabMode = enabled;
+
+            // 保存协同模式状态到扩展状态
+            await this.context.globalState.update('yapi2ts.collabMode', enabled);
+
+            // 读取协同配置
+            const collabConfig = this.getCollaborationConfig();
+
+            // 发送状态更新给前端
+            this._view?.webview.postMessage({
+                type: 'collabModeChanged',
+                enabled: enabled,
+                config: collabConfig
+            });
+
+            if (enabled) {
+                if (collabConfig && collabConfig.yapiUrl && collabConfig.projectToken) {
+                    this.sendNotification('协同模式已开启', 'success');
+                } else {
+                    this.sendNotification(
+                        '协同模式已开启，但配置不完整，请检查 .vscode/settings.json',
+                        'info'
+                    );
+                }
+            } else {
+                this.sendNotification('协同模式已关闭', 'info');
+            }
+        } catch (error) {
+            console.error('Failed to set collab mode:', error);
+            this.sendNotification('设置协同模式失败', 'error');
+        }
+    }
+
+    private getCollaborationConfig(): CollaborationConfig | null {
+        try {
+            const config = vscode.workspace.getConfiguration('yapi2ts');
+            const collaboration = config.get<CollaborationConfig>('collaboration');
+            return collaboration || null;
+        } catch (error) {
+            console.error('Failed to get collaboration config:', error);
+            return null;
         }
     }
 

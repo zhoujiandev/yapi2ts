@@ -247,7 +247,15 @@
   border: 1px solid var(--vscode-dropdown-border);
   border-radius: 2px;
   font-size: 13px;
-  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.form-group select:disabled,
+.form-group select.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: var(--vscode-input-background); /* 使用输入框背景色，避免太突兀 */
+  color: var(--vscode-disabledForeground);
 }
 
 .form-group input::placeholder,
@@ -1586,4 +1594,296 @@
 
 .advanced-options[open] .advanced-options-summary {
   margin-bottom: 0;
+}
+
+/* Collaboration Mode Styles - 协同模式样式 */
+.collab-mode-section {
+  background: var(--vscode-panel-background);
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.collab-mode-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.collab-mode-switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.collab-mode-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vscode-foreground);
+}
+
+/* Switch Toggle Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--vscode-button-secondaryBackground);
+  border: 1px solid var(--vscode-input-border);
+  transition: 0.3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--vscode-foreground);
+  transition: 0.3s;
+}
+
+input:checked + .slider {
+  background-color: var(--vscode-button-background);
+  border-color: var(--vscode-button-background);
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
+  background-color: var(--vscode-button-foreground);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 0 2px var(--vscode-focusBorder);
+}
+
+.slider.round {
+  border-radius: 22px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Collaboration Mode Description */
+.collab-mode-description {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+  line-height: 1.5;
+}
+
+.collab-mode-description code {
+  background: var(--vscode-textCodeBlock-background);
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 11px;
+}
+
+/* Collaboration Mode Status */
+.collab-mode-status {
+  margin-top: 12px;
+  padding: 10px;
+  background: var(--vscode-editorWidget-background);
+  border: 1px solid var(--vscode-focusBorder);
+  border-radius: 4px;
+  border-left: 3px solid var(--vscode-focusBorder);
+}
+
+.collab-status-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--vscode-foreground);
+}
+
+.collab-status-icon {
+  font-size: 14px;
+}
+
+.collab-status-text {
+  flex: 1;
+}
+
+.collab-config-info {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--vscode-panel-border);
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+  font-family: monospace;
+}
+
+.collab-config-info .config-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.collab-config-info .config-label {
+  color: var(--vscode-textPreformat-foreground);
+  min-width: 80px;
+}
+
+.collab-config-info .config-value {
+  color: var(--vscode-foreground);
+  word-break: break-all;
+}
+
+/* Collaboration mode error state */
+.collab-mode-status.error {
+  border-color: var(--vscode-inputValidation-errorBorder);
+  border-left-color: var(--vscode-inputValidation-errorBorder);
+  background: var(--vscode-inputValidation-errorBackground);
+}
+
+.collab-mode-status.error .collab-status-icon {
+  color: var(--vscode-errorForeground);
+}
+
+/* Hide project list in collab mode */
+.project-section.collab-mode-active .project-list {
+  display: none;
+}
+
+.project-section.collab-mode-active .project-header .btn {
+  display: none;
+}
+
+/* Collab Guide Styles */
+.collab-guide-container {
+  margin-top: 16px;
+}
+
+.guide-card {
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.guide-card h4 {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.step-item {
+  display: flex;
+  gap: 12px;
+}
+
+.step-num {
+  width: 24px;
+  height: 24px;
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.tip-text {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+  margin-top: 4px;
+}
+
+.code-block {
+  position: relative;
+  margin-top: 8px;
+  background: var(--vscode-textCodeBlock-background);
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.code-block pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: var(--vscode-editor-font-family);
+  font-size: 12px;
+}
+
+.mini-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.mini-copy-btn:hover {
+  opacity: 1;
+  background: var(--vscode-toolbar-hoverBackground);
+  border-radius: 4px;
+}
+
+.collab-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+
+.collab-hint.success {
+  background: var(--vscode-textBlockQuote-background);
+  color: var(--vscode-descriptionForeground);
+  border-left: 3px solid var(--vscode-textBlockQuote-border);
+}
+
+.collab-hint.warning {
+  background: var(--vscode-inputValidation-warningBackground);
+  border: 1px solid var(--vscode-inputValidation-warningBorder);
+}
+
+.collab-hint a {
+  color: var(--vscode-textLink-foreground);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.collab-hint a:hover {
+  text-decoration: underline;
 }

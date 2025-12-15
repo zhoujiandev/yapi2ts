@@ -25,6 +25,7 @@
           </select>
           <button id="connect-btn" class="btn btn-primary">连接</button>
         </div>
+        <div id="collab-hint" class="collab-hint" style="display: none;"></div>
       </div>
 
       <div class="interface-search">
@@ -108,6 +109,65 @@
           <h3>项目管理</h3>
           <button id="add-project-btn" class="btn btn-primary">新增项目</button>
         </div>
+        
+        <!-- 协同模式开关 -->
+        <div class="collab-mode-section">
+          <div class="collab-mode-header">
+            <div class="collab-mode-switch-wrapper">
+              <label class="switch">
+                <input type="checkbox" id="collab-mode-switch">
+                <span class="slider round"></span>
+              </label>
+              <span class="collab-mode-label">协同模式</span>
+            </div>
+          </div>
+          <div class="collab-mode-description">
+            开启后，项目配置将从工作区的 <code>.vscode/settings.json</code> 中读取，团队成员共享同一份配置。
+          </div>
+          <div id="collab-mode-status" class="collab-mode-status" style="display: none;">
+            <div class="collab-status-content">
+              <span class="collab-status-icon">🔗</span>
+              <span class="collab-status-text">协同模式已开启，配置来自 .vscode/settings.json</span>
+            </div>
+            <div id="collab-config-info" class="collab-config-info"></div>
+          </div>
+          
+          <!-- 协同模式操作引导（未配置时显示） -->
+          <div id="collab-guide-container" class="collab-guide-container" style="display: none;">
+            <div class="guide-card">
+              <h4>🚀 如何配置协同模式？</h4>
+              <div class="guide-steps">
+                <div class="step-item">
+                  <span class="step-num">1</span>
+                  <div class="step-content">
+                    打开项目根目录下的 <code>.vscode/settings.json</code> 文件
+                    <div class="tip-text">（如果没有该文件夹，请手动创建）</div>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <span class="step-num">2</span>
+                  <div class="step-content">
+                    添加如下配置代码：
+                    <div class="code-block">
+                      <pre><code>"yapi2ts.collaboration": {
+  "yapiUrl": "http://yapi.example.com",
+  "projectToken": "your-token"
+}</code></pre>
+                      <button class="copy-btn mini-copy-btn" title="复制配置代码">📋</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <span class="step-num">3</span>
+                  <div class="step-content">
+                    保存文件，插件会自动读取配置并连接。
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div class="project-list" id="project-list">
           <div class="loading">加载中...</div>
         </div>

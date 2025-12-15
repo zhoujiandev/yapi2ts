@@ -165,4 +165,11 @@ export interface WebviewMessage {
     path?: string;
     interfaceId?: string;
     content?: string;
+    enabled?: boolean;
+}
+
+// 协同模式配置
+export interface CollaborationConfig {
+    yapiUrl?: string;
+    projectToken?: string;
 }
