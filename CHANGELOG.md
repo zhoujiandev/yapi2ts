@@ -4,6 +4,21 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.0] - 2025-12-16
+
+### Added
+
+- **代码预览** - 新增生成代码实时预览功能
+    - 支持在生成代码前预览完整的 TypeScript 类型定义和 API 函数
+    - 预览窗口支持语法高亮
+    - 方便开发者在复制前核对生成的代码内容
+
+### Technical
+
+- **代码规范** - 集成 Prettier 代码格式化工具
+    - 统一项目代码风格
+- **CI/CD** - 优化 CD 工作流配置
+
 ## [1.1.0] - 2025-12-15
 
 ### Added
