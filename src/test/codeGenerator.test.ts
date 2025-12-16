@@ -67,7 +67,7 @@ export const \${methodName} = (data: \${paramsTypeName}) => {
     }
 
     suite('Type Definition Generation', () => {
-        test('should generate basic interface type definition', () => {
+        test('should generate basic interface type definition', async () => {
             const mockInterface = createMockInterface({
                 title: 'Get User Info',
                 path: '/api/user/info',
@@ -82,18 +82,18 @@ export const \${methodName} = (data: \${paramsTypeName}) => {
                 })
             });
 
-            const result = codeGenerator.generateTypeDefinitions([mockInterface]);
+            const result = await codeGenerator.generateTypeDefinitions([mockInterface]);
 
             assert.ok(result.includes('interface'), 'Should contain interface definition');
             assert.ok(result.includes('Response'), 'Should contain response type');
         });
 
-        test('should handle empty interfaces array', () => {
-            const result = codeGenerator.generateTypeDefinitions([]);
+        test('should handle empty interfaces array', async () => {
+            const result = await codeGenerator.generateTypeDefinitions([]);
             assert.strictEqual(result, '', 'Should return empty string for empty array');
         });
 
-        test('should handle interface with query parameters', () => {
+        test('should handle interface with query parameters', async () => {
             const mockInterface = createMockInterface({
                 title: 'Search Users',
                 path: '/api/users/search',
@@ -103,14 +103,14 @@ export const \${methodName} = (data: \${paramsTypeName}) => {
                 ]
             });
 
-            const result = codeGenerator.generateTypeDefinitions([mockInterface]);
+            const result = await codeGenerator.generateTypeDefinitions([mockInterface]);
 
             assert.ok(result.length > 0, 'Should generate type definitions');
         });
     });
 
     suite('API Definition Generation', () => {
-        test('should generate API definition with template', () => {
+        test('should generate API definition with template', async () => {
             const mockInterface = createMockInterface({
                 title: 'Create User',
                 path: '/api/user',
@@ -119,7 +119,7 @@ export const \${methodName} = (data: \${paramsTypeName}) => {
 
             const template = createMockTemplate();
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -130,7 +130,7 @@ export const \${methodName} = (data: \${paramsTypeName}) => {
             assert.ok(result.includes('/api/user'), 'Should contain API path');
         });
 
-        test('should handle template with comments', () => {
+        test('should handle template with comments', async () => {
             const mockInterface = createMockInterface({
                 title: 'Delete User',
                 path: '/api/user/{id}',
@@ -153,7 +153,7 @@ export const \${methodName} = (id: number) => {
 };`
             });
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -201,7 +201,7 @@ export const \${methodName} = (id: number) => {
     });
 
     suite('Template System (EJS)', () => {
-        test('should render ES6 template syntax with variables', () => {
+        test('should render ES6 template syntax with variables', async () => {
             const mockInterface = createMockInterface({
                 title: 'Get User Info',
                 path: '/api/user/info',
@@ -212,7 +212,7 @@ export const \${methodName} = (id: number) => {
                 content: 'export const ${methodName} = () => request.${lowerCaseMethod}("${path}");'
             });
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -222,7 +222,7 @@ export const \${methodName} = (id: number) => {
             assert.ok(result.includes('/api/user/info'), 'Should render path');
         });
 
-        test('should render ternary expressions for GET requests', () => {
+        test('should render ternary expressions for GET requests', async () => {
             const mockInterface = createMockInterface({
                 title: 'Get Data',
                 path: '/api/data',
@@ -233,7 +233,7 @@ export const \${methodName} = (id: number) => {
                 content: 'const paramKey = ${isGet ? "params" : "data"};'
             });
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -242,7 +242,7 @@ export const \${methodName} = (id: number) => {
             assert.ok(result.includes('const paramKey = params'), 'Should render params for GET');
         });
 
-        test('should render ternary expressions for POST requests', () => {
+        test('should render ternary expressions for POST requests', async () => {
             const mockInterface = createMockInterface({
                 title: 'Create Data',
                 path: '/api/data',
@@ -253,7 +253,7 @@ export const \${methodName} = (id: number) => {
                 content: 'const paramKey = ${isGet ? "params" : "data"};'
             });
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -262,7 +262,7 @@ export const \${methodName} = (id: number) => {
             assert.ok(result.includes('const paramKey = data'), 'Should render data for POST');
         });
 
-        test('should render EJS conditional syntax', () => {
+        test('should render EJS conditional syntax', async () => {
             const mockInterface = createMockInterface({
                 title: 'Get Data',
                 path: '/api/data',
@@ -273,7 +273,7 @@ export const \${methodName} = (id: number) => {
                 content: `<% if (isGet) { %>GET_BLOCK<% } else { %>OTHER_BLOCK<% } %>`
             });
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -283,7 +283,7 @@ export const \${methodName} = (id: number) => {
             assert.ok(!result.includes('OTHER_BLOCK'), 'Should not render OTHER block');
         });
 
-        test('should render EJS conditional syntax for non-GET', () => {
+        test('should render EJS conditional syntax for non-GET', async () => {
             const mockInterface = createMockInterface({
                 title: 'Update Data',
                 path: '/api/data',
@@ -294,7 +294,7 @@ export const \${methodName} = (id: number) => {
                 content: `<% if (isGet) { %>GET_BLOCK<% } else { %>OTHER_BLOCK<% } %>`
             });
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -304,10 +304,10 @@ export const \${methodName} = (id: number) => {
             assert.ok(result.includes('OTHER_BLOCK'), 'Should render OTHER block');
         });
 
-        test('should provide all HTTP method boolean flags', () => {
+        test('should provide all HTTP method boolean flags', async () => {
             const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] as const;
 
-            methods.forEach(method => {
+            for (const method of methods) {
                 const mockInterface = createMockInterface({
                     title: `${method} Test`,
                     path: '/api/test',
@@ -319,17 +319,17 @@ export const \${methodName} = (id: number) => {
                     content: `\${${flagName} ? "YES" : "NO"}`
                 });
 
-                const result = codeGenerator.generateApiDefinitions(
+                const result = await codeGenerator.generateApiDefinitions(
                     [mockInterface],
                     template,
                     'https://yapi.example.com'
                 );
 
                 assert.ok(result.includes('YES'), `Should have ${flagName}=true for ${method}`);
-            });
+            }
         });
 
-        test('should provide iface object with interface properties', () => {
+        test('should provide iface object with interface properties', async () => {
             const mockInterface = createMockInterface({
                 _id: 123,
                 title: 'Test Interface',
@@ -341,7 +341,7 @@ export const \${methodName} = (id: number) => {
                 content: 'ID: ${iface._id}, Status: ${iface.status}'
             });
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -351,7 +351,7 @@ export const \${methodName} = (id: number) => {
             assert.ok(result.includes('Status: done'), 'Should render iface.status');
         });
 
-        test('should handle template rendering errors gracefully', () => {
+        test('should handle template rendering errors gracefully', async () => {
             const mockInterface = createMockInterface({
                 title: 'Error Test',
                 path: '/api/error'
@@ -363,7 +363,7 @@ export const \${methodName} = (id: number) => {
             });
 
             // 应该不抛出错误，而是回退到简单替换
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -375,7 +375,7 @@ export const \${methodName} = (id: number) => {
             );
         });
 
-        test('should render interfaceUrl correctly', () => {
+        test('should render interfaceUrl correctly', async () => {
             const mockInterface = createMockInterface({
                 _id: 456,
                 project_id: 123,
@@ -387,7 +387,7 @@ export const \${methodName} = (id: number) => {
                 content: 'URL: ${interfaceUrl}'
             });
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -401,7 +401,7 @@ export const \${methodName} = (id: number) => {
     });
 
     suite('Method Name Generation', () => {
-        test('should generate camelCase method names', () => {
+        test('should generate camelCase method names', async () => {
             const mockInterface = createMockInterface({
                 title: 'Get User Profile Info',
                 path: '/api/user/profile'
@@ -411,7 +411,7 @@ export const \${methodName} = (id: number) => {
                 content: 'export const \${methodName} = () => {};'
             });
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -420,7 +420,7 @@ export const \${methodName} = (id: number) => {
             assert.ok(result.length > 0, 'Should generate API definition');
         });
 
-        test('should handle path-based method names', () => {
+        test('should handle path-based method names', async () => {
             const mockInterface = createMockInterface({
                 title: '',
                 path: '/api/orders/list',
@@ -431,7 +431,7 @@ export const \${methodName} = (id: number) => {
                 content: 'export const {{methodName}} = () => {};'
             });
 
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 'https://yapi.example.com'
@@ -442,27 +442,27 @@ export const \${methodName} = (id: number) => {
     });
 
     suite('Error Handling', () => {
-        test('should handle invalid JSON in response body', () => {
+        test('should handle invalid JSON in response body', async () => {
             const mockInterface = createMockInterface({
                 title: 'Invalid Response',
                 path: '/api/invalid',
                 res_body: 'invalid json'
             });
 
-            const result = codeGenerator.generateTypeDefinitions([mockInterface]);
+            const result = await codeGenerator.generateTypeDefinitions([mockInterface]);
 
             // Should not throw error and should handle gracefully
             assert.ok(typeof result === 'string', 'Should return string even with invalid JSON');
         });
 
-        test('should handle missing required fields', () => {
+        test('should handle missing required fields', async () => {
             const mockInterface = createMockInterface({
                 title: 'Incomplete Interface',
                 path: '/api/incomplete'
             });
 
             // Should not throw error
-            const result = codeGenerator.generateTypeDefinitions([mockInterface]);
+            const result = await codeGenerator.generateTypeDefinitions([mockInterface]);
             assert.ok(typeof result === 'string', 'Should handle incomplete interface data');
         });
     });

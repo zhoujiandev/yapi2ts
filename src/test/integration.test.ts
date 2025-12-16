@@ -40,7 +40,7 @@ suite('Integration Test Suite', () => {
     });
 
     suite('Complete Workflow', () => {
-        test('should handle complete type generation workflow', () => {
+        test('should handle complete type generation workflow', async () => {
             // 1. 配置 YAPI 服务
             const yapiUrl = 'https://test.yapi.com';
             const projectToken = 'test-token';
@@ -79,7 +79,7 @@ suite('Integration Test Suite', () => {
             };
 
             // 3. 生成类型定义
-            const typeDefinitions = codeGenerator.generateTypeDefinitions([mockInterface]);
+            const typeDefinitions = await codeGenerator.generateTypeDefinitions([mockInterface]);
 
             assert.ok(typeDefinitions, 'Should generate type definitions');
             assert.ok(typeDefinitions.length > 0, 'Type definitions should not be empty');
@@ -106,7 +106,7 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
                 updatedAt: Date.now()
             };
 
-            const apiDefinitions = codeGenerator.generateApiDefinitions(
+            const apiDefinitions = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 template,
                 yapiUrl
@@ -117,7 +117,7 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
             assert.ok(apiDefinitions.includes('getInfo'), 'Should contain method name');
         });
 
-        test('should handle multiple interfaces workflow', () => {
+        test('should handle multiple interfaces workflow', async () => {
             // 配置服务
             yapiService.setConfig('https://test.yapi.com', 'test-token');
 
@@ -178,7 +178,7 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
             ];
 
             // 生成类型定义
-            const typeDefinitions = codeGenerator.generateTypeDefinitions(interfaces);
+            const typeDefinitions = await codeGenerator.generateTypeDefinitions(interfaces);
             assert.ok(
                 typeDefinitions.includes('GetUserResponse'),
                 'Should contain first interface type'
@@ -197,7 +197,7 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
                 updatedAt: Date.now()
             };
 
-            const apiDefinitions = codeGenerator.generateApiDefinitions(
+            const apiDefinitions = await codeGenerator.generateApiDefinitions(
                 interfaces,
                 template,
                 'https://test.yapi.com'
@@ -227,7 +227,7 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
             );
         });
 
-        test('should handle code generation errors gracefully', () => {
+        test('should handle code generation errors gracefully', async () => {
             // 测试无效接口数据（故意使用无效 method 来测试边界情况）
             const invalidInterface = {
                 _id: 1,
@@ -251,11 +251,11 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
             } as unknown as YapiInterfaceDetail;
 
             // 应该能处理无效数据而不抛出错误
-            const result = codeGenerator.generateTypeDefinitions([invalidInterface]);
+            const result = await codeGenerator.generateTypeDefinitions([invalidInterface]);
             assert.ok(typeof result === 'string', 'Should return string even with invalid data');
         });
 
-        test('should handle template errors gracefully', () => {
+        test('should handle template errors gracefully', async () => {
             const mockInterface: YapiInterfaceDetail = {
                 _id: 1,
                 title: 'Test',
@@ -287,7 +287,7 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
             };
 
             // 应该能处理无效模板
-            const result = codeGenerator.generateApiDefinitions(
+            const result = await codeGenerator.generateApiDefinitions(
                 [mockInterface],
                 invalidTemplate,
                 'https://test.yapi.com'
@@ -297,7 +297,7 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
     });
 
     suite('Component Integration', () => {
-        test('should integrate YapiService and CodeGenerator', () => {
+        test('should integrate YapiService and CodeGenerator', async () => {
             // 配置服务
             yapiService.setConfig('https://test.yapi.com', 'test-token');
 
@@ -329,14 +329,14 @@ export const \${methodName} = (params: \${paramsTypeName}) => {
             };
 
             // 使用 CodeGenerator 处理数据
-            const typeDefinitions = codeGenerator.generateTypeDefinitions([mockInterface]);
+            const typeDefinitions = await codeGenerator.generateTypeDefinitions([mockInterface]);
             const defaultTemplates = CodeGenerator.getDefaultTemplates();
 
             assert.ok(typeDefinitions, 'Should generate types from service data');
             assert.ok(defaultTemplates.length > 0, 'Should have default templates');
 
             if (defaultTemplates.length > 0) {
-                const apiDefinitions = codeGenerator.generateApiDefinitions(
+                const apiDefinitions = await codeGenerator.generateApiDefinitions(
                     [mockInterface],
                     defaultTemplates[0],
                     yapiService.getBaseUrl()

@@ -1,4 +1,5 @@
 import ejs from 'ejs';
+import * as prettier from 'prettier';
 import { FormFieldType, JsonSchema, TemplateConfig, YapiInterfaceDetail } from './types';
 
 export class CodeGenerator {
@@ -47,10 +48,10 @@ export class CodeGenerator {
     /**
      * 生成TypeScript接口类型定义
      */
-    generateTypeDefinitions(
+    async generateTypeDefinitions(
         interfaces: YapiInterfaceDetail[],
         categoryInterfacesMap?: Map<number, YapiInterfaceDetail[]>
-    ): string {
+    ): Promise<string> {
         let result = '';
 
         // 如果提供了分类接口映射，按分类处理命名冲突
@@ -98,7 +99,13 @@ export class CodeGenerator {
             });
         }
 
-        return result.trim();
+        const code = result.trim();
+        try {
+            return await prettier.format(code, { parser: 'typescript' });
+        } catch (error) {
+            console.warn('Prettier formatting failed:', error);
+            return code;
+        }
     }
 
     /**
@@ -301,12 +308,12 @@ export class CodeGenerator {
     /**
      * 生成API接口定义代码
      */
-    generateApiDefinitions(
+    async generateApiDefinitions(
         interfaces: YapiInterfaceDetail[],
         template: TemplateConfig,
         yapiBaseUrl: string,
         categoryInterfacesMap?: Map<number, YapiInterfaceDetail[]>
-    ): string {
+    ): Promise<string> {
         const apiDefinitions = interfaces.map(iface => {
             // 如果是全局搜索，为每个接口找到其所属分类的所有接口用于命名冲突计算
             let allCategoryInterfaces: YapiInterfaceDetail[] | undefined;
@@ -328,7 +335,13 @@ export class CodeGenerator {
             );
         });
 
-        return apiDefinitions.join('\n\n');
+        const code = apiDefinitions.join('\n\n');
+        try {
+            return await prettier.format(code, { parser: 'typescript' });
+        } catch (error) {
+            console.warn('Prettier formatting failed:', error);
+            return code;
+        }
     }
 
     /**

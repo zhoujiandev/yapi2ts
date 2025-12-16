@@ -337,7 +337,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             }
 
             // 生成类型定义，传入分类接口映射
-            const typeDefinitions = this.codeGenerator.generateTypeDefinitions(
+            const typeDefinitions = await this.codeGenerator.generateTypeDefinitions(
                 interfaces,
                 categoryInterfacesMap
             );
@@ -411,7 +411,7 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 }
             }
 
-            const apiDefinitions = this.codeGenerator.generateApiDefinitions(
+            const apiDefinitions = await this.codeGenerator.generateApiDefinitions(
                 interfaces,
                 template,
                 this.yapiService.getBaseUrl(),
@@ -487,13 +487,13 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             }
 
             // 生成类型定义
-            const typeDefinitions = this.codeGenerator.generateTypeDefinitions(
+            const typeDefinitions = await this.codeGenerator.generateTypeDefinitions(
                 interfaces,
                 categoryInterfacesMap
             );
 
             // 生成API定义
-            const apiDefinitions = this.codeGenerator.generateApiDefinitions(
+            const apiDefinitions = await this.codeGenerator.generateApiDefinitions(
                 interfaces,
                 template,
                 this.yapiService.getBaseUrl(),
@@ -572,13 +572,13 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             }
 
             // 生成类型定义
-            const typeDefinitions = this.codeGenerator.generateTypeDefinitions(
+            const typeDefinitions = await this.codeGenerator.generateTypeDefinitions(
                 interfaces,
                 categoryInterfacesMap
             );
 
             // 生成API定义
-            const apiDefinitions = this.codeGenerator.generateApiDefinitions(
+            const apiDefinitions = await this.codeGenerator.generateApiDefinitions(
                 interfaces,
                 template,
                 this.yapiService.getBaseUrl(),
