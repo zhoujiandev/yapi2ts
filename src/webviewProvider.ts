@@ -208,6 +208,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             case 'setCollabMode':
                 await this.handleSetCollabMode(message.enabled ?? false);
                 break;
+            case 'previewCode':
+                if (message.interfaceIds && message.templateId) {
+                    await this.handlePreviewCode(message.interfaceIds, message.templateId);
+                }
+                break;
         }
     }
 
@@ -518,6 +523,87 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             });
 
             this.sendNotification(`生成完整代码失败: ${error}`, 'error');
+        }
+    }
+
+    private async handlePreviewCode(interfaceIds: number[], templateId: string) {
+        try {
+            // 获取接口详情
+            const interfaces = await this.yapiService.getInterfaceDetails(interfaceIds);
+            const template = this.templates.find(t => t.id === templateId);
+
+            if (!template) {
+                this._view?.webview.postMessage({
+                    type: 'codePreviewResult',
+                    success: false,
+                    message: '未找到指定的模板'
+                });
+                return;
+            }
+
+            // 按分类分组接口
+            const interfacesByCategory = new Map<number, YapiInterfaceDetail[]>();
+            interfaces.forEach(iface => {
+                if (!interfacesByCategory.has(iface.catid)) {
+                    interfacesByCategory.set(iface.catid, []);
+                }
+                interfacesByCategory.get(iface.catid)!.push(iface);
+            });
+
+            // 为每个分类获取完整的接口列表用于命名冲突计算
+            const categoryInterfacesMap = new Map<number, YapiInterfaceDetail[]>();
+            for (const catId of interfacesByCategory.keys()) {
+                try {
+                    const categoryInterfaceList = await this.yapiService.getInterfaceList(
+                        catId,
+                        1,
+                        1000
+                    );
+                    const allCategoryInterfaceIds = categoryInterfaceList.list.map(
+                        iface => iface._id
+                    );
+                    const categoryInterfaces =
+                        await this.yapiService.getInterfaceDetails(allCategoryInterfaceIds);
+                    categoryInterfacesMap.set(catId, categoryInterfaces);
+                } catch (error) {
+                    console.warn(`Failed to get interfaces for category ${catId}:`, error);
+                    categoryInterfacesMap.set(catId, interfacesByCategory.get(catId) || []);
+                }
+            }
+
+            // 生成类型定义
+            const typeDefinitions = this.codeGenerator.generateTypeDefinitions(
+                interfaces,
+                categoryInterfacesMap
+            );
+
+            // 生成API定义
+            const apiDefinitions = this.codeGenerator.generateApiDefinitions(
+                interfaces,
+                template,
+                this.yapiService.getBaseUrl(),
+                categoryInterfacesMap
+            );
+
+            // 合并输出：类型定义 + 空行 + API定义
+            const completeCode = `${typeDefinitions}\n\n${apiDefinitions}`;
+
+            // 发送预览结果给前端
+            this._view?.webview.postMessage({
+                type: 'codePreviewResult',
+                success: true,
+                code: completeCode,
+                codeType: 'complete'
+            });
+        } catch (error) {
+            console.error('Preview code error:', error);
+
+            // 发送失败消息给前端
+            this._view?.webview.postMessage({
+                type: 'codePreviewResult',
+                success: false,
+                message: `预览代码失败: ${error}`
+            });
         }
     }
 

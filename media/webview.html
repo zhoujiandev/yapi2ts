@@ -348,6 +348,31 @@ https://yapi.example.com</div>
     </div>
   </template>
 
+  <template id="code-preview-modal-template">
+    <div class="code-preview-modal-content">
+      <div class="code-preview-modal-header">
+        <h3>代码预览</h3>
+        <button class="code-preview-modal-close">&times;</button>
+      </div>
+      <div class="code-preview-modal-body">
+        <div class="preview-tabs">
+          <button class="preview-tab-btn active" data-tab="view">预览</button>
+          <button class="preview-tab-btn" data-tab="edit">编辑</button>
+        </div>
+        <div class="preview-tab-content" id="preview-view-tab">
+          <pre><code id="preview-code-display" class="code-display"></code></pre>
+        </div>
+        <div class="preview-tab-content" id="preview-edit-tab" style="display: none;">
+          <textarea id="preview-code-editor" class="code-editor" rows="20"></textarea>
+        </div>
+      </div>
+      <div class="code-preview-modal-footer">
+        <button class="btn btn-secondary code-preview-modal-cancel">关闭</button>
+        <button class="btn btn-primary code-preview-copy-btn">复制代码</button>
+      </div>
+    </div>
+  </template>
+
   <script nonce="{{nonce}}" src="{{scriptUri}}"></script>
 </body>
 </html>

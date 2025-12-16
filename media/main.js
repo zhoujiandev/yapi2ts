@@ -535,6 +535,12 @@
           <span class="interface-title">${iface.title}</span>
           <div class="interface-path-container">
             <span class="interface-path">${iface.path}</span>
+            <button class="preview-code-btn" data-interface-id="${iface._id}" title="预览代码">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+              </svg>
+            </button>
             <button class="copy-path-btn" data-path="${iface.path}" title="复制路径">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
@@ -631,6 +637,29 @@
         vscode.postMessage({
           type: 'copyYapiUrl',
           interfaceId: interfaceId
+        });
+      });
+    });
+
+    // Add preview code button listeners
+    tableContent.querySelectorAll('.preview-code-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const interfaceId = parseInt(e.currentTarget.dataset.interfaceId);
+        const templateId = templateSelect.value;
+        
+        if (!templateId) {
+          showMessage('请先选择模板', 'error');
+          return;
+        }
+        
+        // 发送消息给VSCode扩展处理代码预览
+        vscode.postMessage({
+          type: 'previewCode',
+          interfaceIds: [interfaceId],
+          templateId: templateId
         });
       });
     });
@@ -1238,6 +1267,102 @@
     }
   }
 
+  // Code Preview Modal Functions
+  function showCodePreview(code, type = 'api') {
+    const modal = document.createElement('div');
+    modal.className = 'code-preview-modal';
+    
+    const previewContent = createFromTemplate('code-preview-modal-template', {});
+    modal.appendChild(previewContent);
+    document.body.appendChild(modal);
+
+    const codeDisplay = modal.querySelector('#preview-code-display');
+    const codeEditor = modal.querySelector('#preview-code-editor');
+    const closeBtn = modal.querySelector('.code-preview-modal-close');
+    const cancelBtn = modal.querySelector('.code-preview-modal-cancel');
+    const copyBtn = modal.querySelector('.code-preview-copy-btn');
+    const previewTabBtns = modal.querySelectorAll('.preview-tab-btn');
+    const viewTab = modal.querySelector('#preview-view-tab');
+    const editTab = modal.querySelector('#preview-edit-tab');
+
+    // 设置初始代码
+    codeDisplay.textContent = code;
+    codeEditor.value = code;
+
+    const closeModal = () => {
+      document.body.removeChild(modal);
+    };
+
+    // 标签页切换
+    previewTabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabType = btn.dataset.tab;
+        
+        previewTabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (tabType === 'view') {
+          viewTab.style.display = 'block';
+          editTab.style.display = 'none';
+          // 同步编辑器的内容到预览
+          codeDisplay.textContent = codeEditor.value;
+        } else {
+          viewTab.style.display = 'none';
+          editTab.style.display = 'block';
+        }
+      });
+    });
+
+    // 关闭按钮
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    // 复制按钮
+    copyBtn.addEventListener('click', () => {
+      const currentCode = codeEditor.value;
+      
+      navigator.clipboard.writeText(currentCode).then(() => {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '✅ 已复制';
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+        }, 2000);
+        showMessage('代码已复制到剪贴板', 'success');
+      }).catch(() => {
+        // 降级方案
+        const textArea = document.createElement('textarea');
+        textArea.value = currentCode;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '✅ 已复制';
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+        }, 2000);
+        showMessage('代码已复制到剪贴板', 'success');
+      });
+    });
+
+    // 点击遮罩层关闭
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // ESC键关闭
+    const handleKeydown = (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        document.removeEventListener('keydown', handleKeydown);
+      }
+    };
+    document.addEventListener('keydown', handleKeydown);
+  }
+
   // 监听窗口大小变化事件
   window.addEventListener('resize', function() {
     const interfaceTree = document.querySelector('.interface-tree');
@@ -1478,6 +1603,15 @@
       case 'notification':
         // 处理来自后端的通知消息
         showMessage(message.message, message.notificationType);
+        break;
+
+      case 'codePreviewResult':
+        // 显示代码预览模态框
+        if (message.success && message.code) {
+          showCodePreview(message.code, message.codeType);
+        } else {
+          showMessage(message.message || '生成代码失败', 'error');
+        }
         break;
     }
   });
