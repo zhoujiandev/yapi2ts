@@ -667,13 +667,27 @@
     updateGenerateButtons();
   }
 
-  // 根据搜索关键字对接口路径进行模糊匹配过滤
+  // 根据搜索关键字对接口ID或路径进行模糊匹配过滤
   function filterInterfacesByPath(interfaces, term) {
     if (!term) {return interfaces;}
-    const tokens = term.toLowerCase().split(/\s+/).filter(Boolean);
+    const trimmedTerm = term.trim();
+    
+    // 如果是纯数字，优先按接口ID精确匹配
+    if (/^\d+$/.test(trimmedTerm)) {
+      const targetId = parseInt(trimmedTerm, 10);
+      const idMatch = interfaces.filter(iface => iface._id === targetId);
+      if (idMatch.length > 0) {
+        return idMatch;
+      }
+    }
+    
+    // 按路径进行模糊匹配
+    const tokens = trimmedTerm.toLowerCase().split(/\s+/).filter(Boolean);
     return interfaces.filter(iface => {
       const path = String(iface.path || '').toLowerCase();
-      return tokens.every(t => path.includes(t));
+      const id = String(iface._id || '');
+      // 匹配路径或ID包含搜索词
+      return tokens.every(t => path.includes(t) || id.includes(t));
     });
   }
 
