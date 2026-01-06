@@ -4,6 +4,13 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.1] - 2026-01-06
+
+### Added
+
+- **接口 ID 搜索** - 增强搜索功能
+    - 支持通过接口 ID 进行精确搜索
+
 ## [1.2.0] - 2025-12-16
 
 ### Added
