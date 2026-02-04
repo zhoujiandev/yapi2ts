@@ -4,6 +4,13 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.2] - 2026-02-04
+
+### Improved
+
+- **路径优化** - 优化 YAPI URL 处理逻辑
+    - 自动移除 `yapiUrl` 结尾的多余斜杠，确保路径拼接正确
+
 ## [1.2.1] - 2026-01-06
 
 ### Added
