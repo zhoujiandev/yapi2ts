@@ -218,6 +218,9 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
 
     private async handleSetConfig(yapiUrl: string, projectToken: string) {
         try {
+            if (yapiUrl.endsWith('/')) {
+                yapiUrl = yapiUrl.slice(0, -1);
+            }
             this.yapiService.setConfig(yapiUrl, projectToken);
 
             // 保存配置到扩展状态
