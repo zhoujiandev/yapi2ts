@@ -854,6 +854,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+  min-height: 30px; /* 防止协同模式切换时按钮隐藏导致的布局偏移 */
 }
 
 .template-header h3,.project-header h3 {
