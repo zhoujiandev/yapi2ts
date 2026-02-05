@@ -207,37 +207,7 @@
   box-sizing: border-box;
 }
 
-/* 确保在浅色主题下输入框背景可见 */
-.form-control {
-  background: var(--vscode-input-background, #f8f8f8);
-  border: 1px solid var(--vscode-input-border, #d0d0d0);
-  color: var(--vscode-input-foreground, #333333);
-  /* 添加轻微的内阴影和外阴影，增强视觉层次 */
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
-}
-
-/* 针对浅色主题的特殊处理 */
-.form-control:focus {
-  outline: none;
-  border-color: var(--vscode-focusBorder, #007acc);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 2px var(--vscode-focusBorder, #007acc);
-  background: var(--vscode-input-background, #ffffff);
-}
-
-/* 增强普通输入框的边界可见性 */
-.form-group input {
-  background: var(--vscode-input-background, #f8f8f8);
-  border: 1px solid var(--vscode-input-border, #d0d0d0);
-  color: var(--vscode-input-foreground, #333333);
-  /* 添加轻微的外阴影，增强边界 */
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: var(--vscode-focusBorder, #007acc);
-  box-shadow: 0 0 0 2px var(--vscode-focusBorder, #007acc), inset 0 1px 2px rgba(0, 0, 0, 0.05);
-}
+/* Default input styles are defined above in .form-group input */
 
 .form-group select {
   width: 100%;
@@ -1235,22 +1205,20 @@
 .template-modal-body textarea {
   width: 100%;
   padding: 8px;
-  background: var(--vscode-input-background, #f8f8f8);
-  border: 1px solid var(--vscode-input-border, #d0d0d0);
+  background: var(--vscode-input-background);
+  border: 1px solid var(--vscode-input-border);
   border-radius: 2px;
-  color: var(--vscode-input-foreground, #333333);
+  color: var(--vscode-input-foreground);
   font-size: 12px;
   font-family: var(--vscode-editor-font-family);
   resize: vertical;
   box-sizing: border-box;
-  /* 添加轻微的外阴影，增强边界可见性 */
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .template-modal-body textarea:focus {
   outline: none;
-  border-color: var(--vscode-focusBorder, #007acc);
-  box-shadow: 0 0 0 2px var(--vscode-focusBorder, #007acc), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  border-color: var(--vscode-focusBorder);
+  box-shadow: 0 0 0 1px var(--vscode-focusBorder);
 }
 
 .template-modal-body textarea::placeholder {
@@ -1408,6 +1376,7 @@
 
 .toast-info {
   background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
   border: 1px solid var(--vscode-button-border);
 }
 
@@ -2112,4 +2081,143 @@ input:focus + .slider {
 .preview-code-btn svg {
   width: 12px;
   height: 12px;
+}
+
+/* ==================================================================================
+   LIGHT THEME ADAPTATIONS
+   Overrides for "body.vscode-light" to ensure visibility and contrast
+   ================================================================================== */
+
+/* 1. Enhanced Container & Section Contrast */
+body.vscode-light .project-item,
+body.vscode-light .template-item,
+body.vscode-light .interface-tree,
+body.vscode-light .interface-table,
+body.vscode-light .config-section,
+body.vscode-light .collab-mode-section,
+body.vscode-light .guide-card,
+body.vscode-light .project-modal-content,
+body.vscode-light .template-modal-content,
+body.vscode-light .code-preview-modal-content,
+body.vscode-light .confirm-dialog {
+  border-color: #d1d1d1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Soft shadow for depth */
+}
+
+/* 2. Form Inputs & Selects - Ensure visible borders */
+body.vscode-light input,
+body.vscode-light select,
+body.vscode-light textarea,
+body.vscode-light .form-control {
+  border: 1px solid #cecece !important; /* Force visible border */
+  background-color: #ffffff;      /* Ensure white background */
+  color: #333333;
+}
+
+body.vscode-light input:focus,
+body.vscode-light select:focus,
+body.vscode-light textarea:focus,
+body.vscode-light .form-control:focus {
+  border-color: var(--vscode-focusBorder) !important;
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2) !important;
+}
+
+/* 3. Buttons & Controls */
+/* Secondary/Outline buttons need to stand out from white bg */
+body.vscode-light .btn-secondary,
+body.vscode-light .btn-outline,
+body.vscode-light .tree-toggle-btn {
+  background-color: #ffffff;
+  border: 1px solid #c0c0c0;
+  color: #424242;
+}
+
+body.vscode-light .btn-secondary:hover,
+body.vscode-light .btn-outline:hover,
+body.vscode-light .tree-toggle-btn:hover {
+  background-color: #f2f2f2;
+  border-color: #a0a0a0;
+  color: #000;
+}
+
+/* 4. Tabs */
+/* Inactive tabs need differentiation */
+body.vscode-light .tab-button:not(.active) {
+  background-color: #e6e6e6;
+  color: #666666;
+  border-bottom: 2px solid #ccc;
+}
+body.vscode-light .tab-button.active {
+  background-color: #fff;
+  font-weight: 600;
+  color: #000;
+}
+
+/* 5. Headers */
+body.vscode-light .table-header,
+body.vscode-light .tree-header,
+body.vscode-light .project-modal-header,
+body.vscode-light .template-modal-header,
+body.vscode-light .code-preview-modal-header {
+  background-color: #f8f8f8;
+  border-bottom-color: #e0e0e0;
+}
+
+/* 6. List Separators */
+body.vscode-light .interface-item,
+body.vscode-light .tree-item, 
+body.vscode-light .variable-item,
+body.vscode-light .template-item-header,
+body.vscode-light .project-item-header {
+  border-bottom-color: #eeeeee;
+}
+
+body.vscode-light .interface-tree {
+  border-right-color: #d1d1d1;
+}
+
+/* 7. Switch Component */
+body.vscode-light .slider {
+  background-color: #dcdcdc; /* Darker gray for inactive state */
+  border: 1px solid #bbbbbb;
+}
+body.vscode-light input:checked + .slider {
+  background-color: var(--vscode-button-background);
+  border-color: var(--vscode-button-background);
+}
+
+/* 8. Scrollbars */
+body.vscode-light ::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+}
+body.vscode-light ::-webkit-scrollbar-thumb:hover {
+  background-color: #a8a8a8;
+}
+
+/* 9. Help Icons & Code Blocks */
+body.vscode-light .help-icon {
+  background-color: #e0e0e0;
+  color: #444;
+  border: 1px solid #ccc;
+}
+
+body.vscode-light code,
+body.vscode-light .variable-name,
+body.vscode-light .collab-config-info {
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  color: #333;
+}
+
+/* 10. Toast Notifications - Improve visibility */
+body.vscode-light .toast {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Stronger shadow for separation */
+  border-width: 1px;
+}
+
+body.vscode-light .toast-info {
+  /* Use high contrast colors for info toast in light mode if needed, 
+     but standard button colors should work with the text color fix.
+     Ensuring border is visible. */
+  border-color: rgba(0, 0, 0, 0.1);
 }
