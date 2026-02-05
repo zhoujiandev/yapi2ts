@@ -247,6 +247,8 @@
   margin-bottom: 6px; */
 }
 
+
+
 .btn-primary {
   background: var(--vscode-button-background);
   color: var(--vscode-button-foreground);
@@ -1526,44 +1528,59 @@
 
 /* Advanced Options - 高级选项折叠区域 */
 .advanced-options {
-  width: 100%;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed var(--vscode-panel-border);
+  margin-top: 6px;
+  border: 1px solid var(--vscode-widget-border, var(--vscode-panel-border));
+  border-radius: 4px;
+  background-color: var(--vscode-editor-background);
+  overflow: hidden;
 }
 
 .advanced-options-summary {
   cursor: pointer;
-  font-size: 12px;
-  color: var(--vscode-descriptionForeground);
-  padding: 4px 8px;
-  border-radius: 2px;
+  font-size: 13px;
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-sideBar-background);
+  padding: 8px 12px;
   list-style: none;
   user-select: none;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
 }
 
 .advanced-options-summary:hover {
-  background: var(--vscode-list-hoverBackground);
-  color: var(--vscode-foreground);
+  background-color: var(--vscode-list-hoverBackground);
 }
 
 .advanced-options-summary::-webkit-details-marker {
   display: none;
 }
 
-.advanced-options-content {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  padding: 8px;
-  background: var(--vscode-editor-background);
-  border: 1px solid var(--vscode-panel-border);
-  border-radius: 4px;
+.advanced-options-summary svg:first-child {
+  margin-right: 6px;
+  color: var(--vscode-textLink-foreground);
+}
+
+.advanced-options-summary .chevron-icon {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  opacity: 0.7;
 }
 
 .advanced-options[open] .advanced-options-summary {
-  margin-bottom: 0;
+  border-bottom: 1px solid var(--vscode-widget-border, var(--vscode-panel-border));
+}
+
+.advanced-options[open] .advanced-options-summary .chevron-icon {
+  transform: rotate(180deg);
+}
+
+.advanced-options-content {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background-color: var(--vscode-editor-background);
 }
 
 /* Collaboration Mode Styles - 协同模式样式 */
