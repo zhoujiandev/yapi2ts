@@ -4,6 +4,17 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.3] - 2026-02-05
+
+### Improved
+
+- **UI 视觉升级** - 图标与主题优化
+    - 使用 SVG 图标全面替换 Emoji，提升界面精致度
+    - 深度优化 Light 主题适配，解决按钮、输入框等元素在浅色主题下不可见的问题
+    - 优化 Toast 通知样式，提升消息可读性和对比度
+- **交互体验** - 细节优化
+    - 修复切换协同模式时的布局抖动问题，提升操作流畅度
+
 ## [1.2.2] - 2026-02-04
 
 ### Improved
