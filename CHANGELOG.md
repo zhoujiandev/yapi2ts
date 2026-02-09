@@ -4,6 +4,13 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.4] - 2026-02-09
+
+### Improved
+
+- **文档体验升级** - 文档结构重构与视觉优化
+    - 重新梳理项目文档，将详细说明迁移至 `docs/` 目录，保持 README 简洁
+
 ## [1.2.3] - 2026-02-05
 
 ### Improved
