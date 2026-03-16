@@ -1,8 +1,8 @@
 # 快速开始
 
-## <a id="quick-start"></a>🚀 快速开始
+## <a id="quick-start"></a> 快速开始
 
-### 📦 安装插件
+### 安装插件
 
 #### 方式一：扩展市场安装（推荐）
 
@@ -21,7 +21,7 @@ code --install-extension zhoujian.yapi-ts
 codium --install-extension zhoujian.yapi-ts
 ```
 
-### 🎯 首次使用
+### 首次使用
 
 安装完成后，您会在编辑器左侧活动栏看到 **YAPI TypeScript** 图标 📋
 
@@ -29,9 +29,9 @@ codium --install-extension zhoujian.yapi-ts
 
 - 点击左侧活动栏的 YAPI TypeScript 图标
 - 插件界面包含三个主要标签页：
-    - **📋 接口列表** - 浏览接口文档，生成代码
-    - **🏗️ 我的项目** - 管理 YAPI 项目配置
-    - **📝 我的模板** - 管理代码生成模板
+    - **接口列表** - 浏览接口文档，生成代码
+    - **我的项目** - 管理 YAPI 项目配置
+    - **我的模板** - 管理代码生成模板
 
 #### 2. 配置YAPI项目
 
@@ -43,7 +43,7 @@ codium --install-extension zhoujian.yapi-ts
     - **项目Token**：YAPI项目的访问令牌
 4. 点击 **"保存"** 完成配置
 
-> 💡 **获取项目Token的方法**：
+> **获取项目Token的方法**：
 >
 > 1. 登录您的YAPI系统
 > 2. 进入目标项目
@@ -58,7 +58,7 @@ codium --install-extension zhoujian.yapi-ts
 4. 左侧显示接口分类树，右侧显示接口列表
 5. 勾选需要的接口，选择模板，开始生成代码！
 
-### ⚡ 快速体验
+### 快速体验
 
 以下是一个完整的使用流程示例：
 

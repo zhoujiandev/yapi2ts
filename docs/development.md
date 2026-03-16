@@ -1,6 +1,6 @@
 # 开发指南 & 技术栈
 
-## <a id="tech-stack"></a>🔧 技术栈
+## <a id="tech-stack"></a> 技术栈
 
 本项目采用现代化的前端开发技术栈：
 
@@ -30,9 +30,9 @@
 - **Webpack** - 代码打包和优化
 - **ts-loader** - TypeScript loader for Webpack
 
-## <a id="development-guide"></a>🛠️ 开发指南
+## <a id="development-guide"></a> 开发指南
 
-### 📋 环境要求
+### 环境要求
 
 **基础环境**：
 
@@ -47,7 +47,7 @@
 - **调试工具**：编辑器内置调试器
 - **测试工具**：Mocha + @vscode/test-electron（已集成）
 
-### 🔌 YAPI API 依赖
+### YAPI API 依赖
 
 插件依赖以下 YAPI 开放接口进行数据同步，开发时请注意这些接口的兼容性：
 
@@ -58,7 +58,7 @@
 | `/api/interface/list_cat`   | 获取分类下的接口列表 | `token`, `catid`, `page`, `limit` |
 | `/api/interface/get`        | 获取接口详情         | `token`, `id`                     |
 
-### 🏗️ 项目结构
+### 项目结构
 
 ```
 yapi2ts/
@@ -92,7 +92,7 @@ yapi2ts/
 └── README.md                   # 项目文档
 ```
 
-### 📚 核心组件说明
+### 核心组件说明
 
 #### 1. extension.ts - 插件入口
 
@@ -140,7 +140,7 @@ yapi2ts/
 - `TemplateConfig` - 模板配置
 - `ProjectConfig` - 项目配置
 
-### 🚀 本地开发
+### 本地开发
 
 #### 1. 克隆和初始化
 
@@ -221,7 +221,7 @@ pnpm run watch-tests
     - 测试各项功能
     - 查看控制台输出和错误信息
 
-### 🐛 调试指南
+### 调试指南
 
 #### 1. 插件调试
 
@@ -266,7 +266,7 @@ pnpm run watch-tests
 - 代码生成错误：查看接口数据格式和模板配置
 - 插件加载失败：检查 TypeScript 编译错误
 
-### 📦 打包和发布
+### 打包和发布
 
 #### 1. 本地打包
 
@@ -316,7 +316,7 @@ npx ovsx publish
 - [ ] 创建 Git 标签
 - [ ] 发布到市场
 
-### 🧪 测试指南
+### 测试指南
 
 #### 1. 单元测试
 
@@ -325,7 +325,7 @@ npx ovsx publish
 pnpm run test
 ```
 
-> 💡 测试使用 `@vscode/test-cli` 和 Mocha 框架，测试文件位于 `src/test/` 目录
+> 测试使用 `@vscode/test-cli` 和 Mocha 框架，测试文件位于 `src/test/` 目录
 
 #### 2. 集成测试
 
@@ -347,7 +347,7 @@ pnpm run test
 - 代码生成响应时间
 - 内存使用情况
 
-### 🔧 开发技巧
+### 开发技巧
 
 #### 1. 代码规范
 

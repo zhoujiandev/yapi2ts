@@ -1,6 +1,6 @@
 # 模板系统
 
-## <a id="template-system"></a>🔧 模板系统
+## <a id="template-system"></a>模板系统
 
 模板系统基于 **EJS** 引擎。
 
@@ -12,7 +12,7 @@
 | `<% code %>`      | 执行 JS 代码       | `<% if (isGet) { %>`               |
 | `<%- expr %>`     | 输出表达式结果     | `<%- isGet ? 'params' : 'data' %>` |
 
-> 💡 也支持 ES6 模板字符串语法 `${variable}`（会自动转换为 EJS，兼容旧模板）
+> 也支持 ES6 模板字符串语法 `${variable}`（会自动转换为 EJS，兼容旧模板）
 
 ### 可用变量
 

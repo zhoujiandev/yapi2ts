@@ -1,6 +1,6 @@
 # 贡献指南
 
-## <a id="contributing"></a>🤝 贡献指南
+## <a id="contributing"></a> 贡献指南
 
 我们欢迎任何形式的贡献！
 
