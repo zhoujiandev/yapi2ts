@@ -2056,12 +2056,13 @@ input:focus + .slider {
 .code-preview-copy-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
 }
 
-.code-preview-copy-btn::before {
-  content: "📋";
-  font-size: 14px;
+.code-preview-copy-btn svg {
+  width: 12px;
+  height: 12px;
 }
 
 /* Preview button in interface table */
