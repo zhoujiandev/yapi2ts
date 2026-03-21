@@ -4,6 +4,15 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.5] - 2026-03-21
+
+### Improved
+
+- **UI 视觉统一** - 完善界面图标细节
+    - 将代码预览页面的“复制”按钮图标由 Emoji 替换为 SVG，保持整体视觉风格一致
+- **文档完善** - 开发者文档更新
+    - 完善 `docs/` 目录下的使用文档、快速开始等指引
+
 ## [1.2.4] - 2026-02-09
 
 ### Improved
