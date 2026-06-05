@@ -4,6 +4,16 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.6] - 2026-06-05
+
+### Improved
+
+- **UI 视觉升级** - Webview 界面图标与状态样式优化
+    - 使用现代化 SVG Lucide 图标替换所有 Emoji 图标（如文件夹、复制、链接、状态指示器等），提升整体视觉一致性与现代感
+    - 优化接口开发状态的视觉呈现（使用状态圆点 status-dot），并改进复制成功时的勾选反馈交互
+- **CI/CD 构建** - 优化持续集成工作流
+    - 将 GitHub Actions 中的 pnpm 版本锁定为 `9`，确保与运行环境的 Node.js 兼容性，提升自动化构建与发布的稳定性
+
 ## [1.2.5] - 2026-03-21
 
 ### Improved
