@@ -71,8 +71,9 @@
           <div class="table-header">
             <h3>接口列表 <span id="selected-category" class="selected-category"></span> <span id="selected-count" class="selected-count">(已选中 0 个)</span></h3>
             <div class="smart-tip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lightbulb tip-icon"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1 .4 2.5 1.5 3.5.7.8 1.3 1.5 1.5 2.5"></path><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line></svg>
               <div class="smart-tip-content">
-                💡 命名防冲突以菜单目录为范围，跨目录接口合并到同一文件时可能存在命名冲突风险
+                命名防冲突以菜单目录为范围，跨目录接口合并到同一文件时可能存在命名冲突风险
               </div>
             </div>
             <div class="table-actions">
@@ -82,7 +83,7 @@
                   <option value="">选择模板</option>
                 </select>
                 <button id="generate-all-btn" class="btn btn-primary btn-gradient">
-                  ⚡ 生成完整代码
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code-2 btn-icon"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>生成完整代码
                 </button>
               </div>
               
@@ -130,7 +131,7 @@
           </div>
           <div id="collab-mode-status" class="collab-mode-status" style="display: none;">
             <div class="collab-status-content">
-              <span class="collab-status-icon">🔗</span>
+              <span class="collab-status-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span>
               <span class="collab-status-text">协同模式已开启，配置来自 .vscode/settings.json</span>
             </div>
             <div id="collab-config-info" class="collab-config-info"></div>
@@ -139,7 +140,7 @@
           <!-- 协同模式操作引导（未配置时显示） -->
           <div id="collab-guide-container" class="collab-guide-container" style="display: none;">
             <div class="guide-card">
-              <h4>🚀 如何配置协同模式？</h4>
+              <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-help-circle title-icon"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>如何配置协同模式？</h4>
               <div class="guide-steps">
                 <div class="step-item">
                   <span class="step-num">1</span>
@@ -157,7 +158,9 @@
   "yapiUrl": "http://yapi.example.com",
   "projectToken": "your-token"
 }</code></pre>
-                      <button class="copy-btn mini-copy-btn" title="复制配置代码">📋</button>
+                      <button class="copy-btn mini-copy-btn" title="复制配置代码">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -206,7 +209,7 @@ return axios.&lt;%- lowerCaseMethod %&gt;('&lt;%- path %&gt;', &lt;%- isNotGet ?
             </button>
           </div>
           <p class="tip-text">
-            💡 建议：在编辑器中编写模板代码，这样可以获得语法高亮和代码提示，复制粘贴到模板编辑器中。
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lightbulb title-icon" style="margin-right: 4px; display: inline-block; vertical-align: middle;"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1 .4 2.5 1.5 3.5.7.8 1.3 1.5 1.5 2.5"></path><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line></svg> 建议：在编辑器中编写模板代码，这样可以获得语法高亮和代码提示，复制粘贴到模板编辑器中。
           </p>
         </div>
         <div class="template-list" id="template-list">
@@ -238,67 +241,67 @@ return axios.&lt;%- lowerCaseMethod %&gt;('&lt;%- path %&gt;', &lt;%- isNotGet ?
             <div class="variable-item" data-variable="<%- methodName %>">
               <span class="variable-name">&lt;%- methodName %&gt;</span>
               <span class="variable-desc">方法名称 (如: getUserInfo)</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- title %>">
               <span class="variable-name">&lt;%- title %&gt;</span>
               <span class="variable-desc">接口标题 (如: 获取用户信息)</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- path %>">
               <span class="variable-name">&lt;%- path %&gt;</span>
               <span class="variable-desc">接口路径 (如: /api/user/info)</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- method %>">
               <span class="variable-name">&lt;%- method %&gt;</span>
               <span class="variable-desc">HTTP方法大写 (如: GET, POST)</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- lowerCaseMethod %>">
               <span class="variable-name">&lt;%- lowerCaseMethod %&gt;</span>
               <span class="variable-desc">HTTP方法小写 (如: get, post)</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- responseTypeName %>">
               <span class="variable-name">&lt;%- responseTypeName %&gt;</span>
               <span class="variable-desc">响应类型名 (如: GetUserInfoResponse)</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- paramsTypeName %>">
               <span class="variable-name">&lt;%- paramsTypeName %&gt;</span>
               <span class="variable-desc">参数类型名 (如: GetUserInfoParams)</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- interfaceUrl %>">
               <span class="variable-name">&lt;%- interfaceUrl %&gt;</span>
               <span class="variable-desc">YAPI接口详情页URL</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- isGet %>">
               <span class="variable-name">&lt;%- isGet %&gt;</span>
               <span class="variable-desc">是否为GET请求 (true/false)</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- isPost %>">
               <span class="variable-name">&lt;%- isPost %&gt;</span>
               <span class="variable-desc">是否为POST请求 (true/false)</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- isNotGet %>">
               <span class="variable-name">&lt;%- isNotGet %&gt;</span>
               <span class="variable-desc">是否为非GET请求 (true/false)</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<%- iface %>">
               <span class="variable-name">&lt;%- iface %&gt;</span>
               <span class="variable-desc">完整的接口对象，包含所有YAPI接口属性</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="variable-item" data-variable="<% if (isGet) { %> ... <% } %>">
               <span class="variable-name">&lt;% if (isGet) { %&gt;</span>
               <span class="variable-desc">条件判断语法</span>
-              <button class="copy-btn" title="点击复制">📋</button>
+              <button class="copy-btn" title="点击复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
           </div>
         </div>

@@ -44,12 +44,12 @@
   // 状态标识映射函数
   function getStatusIndicator(status) {
     const statusMap = {
-      'done': { emoji: '🟢', text: '已发布' },
-      'undone': { emoji: '🟡', text: '开发中' },
-      'deprecated': { emoji: '🔴', text: '已废弃' }
+      'done': { html: '<span class="status-dot status-done" title="已发布"></span>', text: '已发布' },
+      'undone': { html: '<span class="status-dot status-undone" title="开发中"></span>', text: '开发中' },
+      'deprecated': { html: '<span class="status-dot status-deprecated" title="已废弃"></span>', text: '已废弃' }
     };
     
-    return statusMap[status] || { emoji: '🟡', text: '开发中' };
+    return statusMap[status] || { html: '<span class="status-dot status-undone" title="开发中"></span>', text: '开发中' };
   }
 
   /**
@@ -354,10 +354,10 @@
 }`;
         
         navigator.clipboard.writeText(code).then(() => {
-          const originalText = guideCopyBtn.textContent;
-          guideCopyBtn.textContent = '✅';
+          const originalHTML = guideCopyBtn.innerHTML;
+          guideCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
           setTimeout(() => {
-            guideCopyBtn.textContent = originalText;
+            guideCopyBtn.innerHTML = originalHTML;
           }, 1500);
         }).catch(() => {
           // 降级方案
@@ -368,10 +368,10 @@
           document.execCommand('copy');
           document.body.removeChild(textArea);
           
-          const originalText = guideCopyBtn.textContent;
-          guideCopyBtn.textContent = '✅';
+          const originalHTML = guideCopyBtn.innerHTML;
+          guideCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
           setTimeout(() => {
-            guideCopyBtn.textContent = originalText;
+            guideCopyBtn.innerHTML = originalHTML;
           }, 1500);
         });
       });
@@ -453,7 +453,7 @@
       const isSelected = Number(selectedCategoryId) === Number(category._id);
       return `
         <div class="tree-item category ${isSelected ? 'selected' : ''}" data-category-id="${category._id}">
-          📁 ${category.name} (${count})
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder tree-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> ${category.name}
         </div>
       `;
     }).join('');
@@ -531,7 +531,7 @@
                  data-interface-id="${iface._id}" 
                  ${isSelected ? 'checked' : ''}>
           <span class="interface-method ${methodClass}">${iface.method.toUpperCase()}</span>
-          <span class="interface-status" title="${statusIndicator.text}">${statusIndicator.emoji}</span>
+          <span class="interface-status" title="${statusIndicator.text}">${statusIndicator.html}</span>
           <span class="interface-title">${iface.title}</span>
           <div class="interface-path-container">
             <span class="interface-path">${iface.path}</span>
@@ -837,11 +837,9 @@
         // 复制到剪贴板
         navigator.clipboard.writeText(variable).then(() => {
           // 显示复制成功提示
-          btn.textContent = '✅';
-          btn.style.color = '#28a745';
+          btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
           setTimeout(() => {
-            btn.textContent = '📋';
-            btn.style.color = '';
+            btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
           }, 1000);
         }).catch(() => {
           // 降级方案：使用传统方法复制
@@ -853,11 +851,9 @@
           document.body.removeChild(textArea);
           
           // 显示复制成功提示
-          btn.textContent = '✅';
-          btn.style.color = '#28a745';
+          btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
           setTimeout(() => {
-            btn.textContent = '📋';
-            btn.style.color = '';
+            btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
           }, 1000);
         });
       });
@@ -1168,7 +1164,7 @@
           }
           
           collabModeStatus.classList.remove('error');
-          collabModeStatus.querySelector('.collab-status-icon').textContent = '🔗';
+          collabModeStatus.querySelector('.collab-status-icon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>';
           collabModeStatus.querySelector('.collab-status-text').textContent = '协同模式已开启，配置来自 .vscode/settings.json';
           
           if (collabConfigInfo) {
@@ -1346,10 +1342,10 @@
       const currentCode = codeEditor.value;
       
       navigator.clipboard.writeText(currentCode).then(() => {
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = '✅ 已复制';
+        const originalHTML = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="margin-right: 4px; display: inline-block; vertical-align: middle;"><polyline points="20 6 9 17 4 12"></polyline></svg>已复制';
         setTimeout(() => {
-          copyBtn.textContent = originalText;
+          copyBtn.innerHTML = originalHTML;
         }, 2000);
         showMessage('代码已复制到剪贴板', 'success');
       }).catch(() => {
@@ -1361,10 +1357,10 @@
         document.execCommand('copy');
         document.body.removeChild(textArea);
         
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = '✅ 已复制';
+        const originalHTML = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="margin-right: 4px; display: inline-block; vertical-align: middle;"><polyline points="20 6 9 17 4 12"></polyline></svg>已复制';
         setTimeout(() => {
-          copyBtn.textContent = originalText;
+          copyBtn.innerHTML = originalHTML;
         }, 2000);
         showMessage('代码已复制到剪贴板', 'success');
       });
@@ -1615,7 +1611,7 @@
       case 'generateAllResult':
         // 恢复按钮状态
         generateAllBtn.disabled = false;
-        generateAllBtn.textContent = '⚡ 生成完整代码';
+        generateAllBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code-2 btn-icon"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>生成完整代码';
         
         if (message.success) {
           showMessage(message.message, 'success');

@@ -2239,3 +2239,72 @@ body.vscode-light .toast-info {
      Ensuring border is visible. */
   border-color: rgba(0, 0, 0, 0.1);
 }
+
+/* 11. SVG Icons & Status Dots Style Upgrades */
+.btn svg.btn-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.smart-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.smart-tip svg.tip-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--vscode-focusBorder);
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tree-item svg.tree-icon {
+  flex-shrink: 0;
+  color: var(--vscode-icon-foreground, var(--vscode-foreground));
+  opacity: 0.8;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.status-done {
+  background-color: var(--vscode-testing-iconPassed, #238636);
+  box-shadow: 0 0 4px var(--vscode-testing-iconPassed, #238636);
+}
+
+.status-undone {
+  background-color: var(--vscode-problemsWarningIcon-foreground, #d29922);
+}
+
+.status-deprecated {
+  background-color: var(--vscode-testing-iconFailed, #f85149);
+}
+
+.collab-status-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+  color: var(--vscode-textLink-foreground);
+}
+
+.title-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
