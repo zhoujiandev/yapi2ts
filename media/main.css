@@ -421,6 +421,10 @@
   display: none !important;
 }
 
+.interface-tree.user-collapsed .tree-search-wrapper {
+  display: none !important;
+}
+
 /* 响应式布局 - 当容器宽度小于630px时自动收缩，但不影响用户手动操作 */
 @media (max-width: 558px) {
   .interface-tree:not(.user-expanded):not(.user-collapsed) {
@@ -444,6 +448,10 @@
   .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-update-time {
     display: none;
   }
+
+  .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-search-wrapper {
+    display: none !important;
+  }
 }
 
 .interface-table {
@@ -457,25 +465,31 @@
   min-width:320px;
 }
 
+.tree-search-wrapper {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--vscode-panel-border);
+  flex-shrink: 0;
+}
+
 .interface-search {
   display: flex;
   align-items: center;
-  padding: 0 0 8px 2px;
 }
 
 .interface-search input {
   flex-grow: 1;
-  padding: 8px 12px;
+  padding: 4px 6px;
   background-color: var(--vscode-input-background);
   color: var(--vscode-input-foreground);
   border: 1px solid var(--vscode-input-border);
-  border-radius: 4px;
-  font-size: 13px;
-  line-height: 1.4;
+  border-radius: 2px;
+  font-size: 12px;
+  line-height: 1.2;
   outline: none;
   transition: all 0.15s ease-in-out;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  min-height: 28px;
+  height: 24px;
+  min-height: 24px;
   box-sizing: border-box;
 }
 
@@ -511,7 +525,12 @@
 
 /* 搜索框内按钮间距 */
 .interface-search .btn-icon {
-  margin-left: 6px;
+  margin-left: 4px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 3px;
+  flex-shrink: 0;
 }
 
 .table-header {

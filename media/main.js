@@ -36,6 +36,7 @@
   const interfaceSearchInput = document.getElementById('interface-search-input');
   const interfaceSearchBtn = document.getElementById('interface-search-btn');
   const interfaceClearBtn = document.getElementById('interface-clear-btn');
+  const treeSearchWrapper = document.getElementById('tree-search-wrapper');
   const collabModeSwitch = document.getElementById('collab-mode-switch');
   const collabModeStatus = document.getElementById('collab-mode-status');
   const collabConfigInfo = document.getElementById('collab-config-info');
@@ -1407,6 +1408,15 @@
         break;
 
       case 'interfacesLoading':
+        // 清除搜索关键字与输入框内容
+        interfaceSearchTerm = '';
+        if (interfaceSearchInput) {
+          interfaceSearchInput.value = '';
+        }
+        // 隐藏搜索框
+        if (treeSearchWrapper) {
+          treeSearchWrapper.style.display = 'none';
+        }
         // 展示加载中状态
         tableContent.innerHTML = '<div class="loading">暂无数据</div>';
         selectedCategoryId = null;
@@ -1495,6 +1505,10 @@
         }
         
         renderInterfaceTree();
+        // 显示搜索框
+        if (treeSearchWrapper) {
+          treeSearchWrapper.style.display = 'block';
+        }
         // 恢复刷新按钮状态
         if (isRefreshing) {
           isRefreshing = false;
@@ -1519,6 +1533,10 @@
         }
         if (message.error) {
           showMessage(`加载接口失败: ${message.error}`, 'error');
+        }
+        // 隐藏搜索框
+        if (treeSearchWrapper) {
+          treeSearchWrapper.style.display = 'none';
         }
         // 恢复刷新按钮状态
         if (isRefreshing) {
