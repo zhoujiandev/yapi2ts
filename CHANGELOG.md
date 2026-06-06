@@ -4,6 +4,17 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.7] - 2026-06-06
+
+### Improved
+
+- **UI 视觉与布局优化** - 接口筛选/搜索体验提升
+    - 将接口筛选输入框移至左侧接口树导航栏内，保持界面层级清晰
+    - 优化搜索栏的响应式布局，在接口加载中/加载失败、或面板折叠状态下自动隐藏搜索栏
+    - 微调输入框高度、内边距和字体大小，以及按钮间距，使整体视觉更加精致紧凑
+- **AI 辅助编码规范** - 新增 AI 规则定义
+    - 新增 `.CLAUDE.md` 文件，规范 AI Agent 的构建、测试、代码风格及工程模式，提升协同开发效率
+
 ## [1.2.6] - 2026-06-05
 
 ### Improved
