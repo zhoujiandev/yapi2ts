@@ -186,17 +186,12 @@ export const \${methodName} = (id: number) => {
             assert.strictEqual(ids.length, uniqueIds.size, 'All template IDs should be unique');
         });
 
-        test('should have three built-in templates', () => {
+        test('should have only Axios built-in template', () => {
             const templates = CodeGenerator.getDefaultTemplates();
-            assert.strictEqual(templates.length, 3, 'Should have 3 built-in templates');
+            assert.strictEqual(templates.length, 1, 'Should have 1 built-in template');
 
             const templateIds = templates.map(t => t.id);
             assert.ok(templateIds.includes('axios'), 'Should have axios template');
-            assert.ok(templateIds.includes('fetch'), 'Should have fetch template');
-            assert.ok(
-                templateIds.includes('request-simple'),
-                'Should have simple request template'
-            );
         });
     });
 

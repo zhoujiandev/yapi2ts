@@ -962,40 +962,6 @@ export class CodeGenerator {
 };`,
                 createdAt: Date.now(),
                 updatedAt: Date.now()
-            },
-            {
-                id: 'fetch',
-                name: 'Fetch Template',
-                description: '基于原生 Fetch API 的请求模板，使用 EJS 条件语法',
-                content: `export async function <%- methodName %>(params: <%- paramsTypeName %>): Promise<<%- responseTypeName %>> {
-<% if (isGet) { %>
-  const query = new URLSearchParams(params as Record<string, string>).toString();
-  const response = await fetch(\`<%- path %>?\${query}\`);
-<% } else { %>
-  const response = await fetch('<%- path %>', {
-    method: '<%- method %>',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(params)
-  });
-<% } %>
-  return response.json();
-}`,
-                createdAt: Date.now(),
-                updatedAt: Date.now()
-            },
-            {
-                id: 'request-simple',
-                name: 'Simple Request',
-                description: '简洁的请求模板，适用于自定义 request 封装',
-                content: `export const <%- methodName %> = (params: <%- paramsTypeName %>) => {
-  return request<<%- responseTypeName %>>({
-    url: '<%- path %>',
-    method: '<%- lowerCaseMethod %>',
-    <%- isGet ? 'params' : 'data' %>: params
-  });
-};`,
-                createdAt: Date.now(),
-                updatedAt: Date.now()
             }
         ];
     }
