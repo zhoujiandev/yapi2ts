@@ -4,6 +4,16 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.8] - 2026-06-08
+
+### Improved
+
+- **UI 布局优化** - 接口代码生成操作平铺与响应式适配
+    - 将原有的折叠“高级选项”平铺展开为“生成完整代码”、“仅类型定义”和“仅 API 代码”三个并排按钮，提升交互效率
+    - 引入 CSS 容器查询，支持在窄屏或面板折叠状态下自适应为垂直堆叠布局
+- **内置模板精简** - 默认只保留 Axios 模板
+    - 精简内置模板，移除 Fetch 和 Simple Request 模板，专注于最常用的 Axios 实现，降低用户选择心智负担
+
 ## [1.2.7] - 2026-06-06
 
 ### Improved
