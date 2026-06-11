@@ -43,6 +43,36 @@ export function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(resetTemplatesCommand);
 
+    // 注册清除Token的命令
+    const clearTokensCommand = vscode.commands.registerCommand('yapi2ts.clearTokens', async () => {
+        try {
+            const config = vscode.workspace.getConfiguration('yapi2ts');
+            const projects = config.get<any[]>('projects') || [];
+
+            let count = 0;
+            for (const p of projects) {
+                if (p.id) {
+                    const secretKey = `yapi2ts_token_${p.id}`;
+                    await context.secrets.delete(secretKey);
+                    count++;
+                }
+            }
+
+            // 清理可能缓存的上一次连接的项目 ID 的 Token
+            const lastId = context.globalState.get<string>('yapi2ts.lastConnectedProjectId');
+            if (lastId) {
+                await context.secrets.delete(`yapi2ts_token_${lastId}`);
+            }
+
+            vscode.window.showInformationMessage(
+                `YAPI TypeScript: 已成功清除本地安全存储中的项目 Token (共清理 ${count} 个项目)`
+            );
+        } catch (error) {
+            vscode.window.showErrorMessage(`清除 Token 失败: ${error}`);
+        }
+    });
+    context.subscriptions.push(clearTokensCommand);
+
     // 强制显示视图容器
     vscode.commands.executeCommand('workbench.view.extension.yapi2ts');
 }

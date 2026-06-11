@@ -247,12 +247,17 @@ export class YapiService {
     /**
      * 测试连接并获取项目信息
      */
-    async testConnection(): Promise<{ success: boolean; project?: YapiProject }> {
+    async testConnection(): Promise<{
+        success: boolean;
+        project?: YapiProject;
+        isAuthError?: boolean;
+    }> {
         try {
             const project = await this.getProject();
             return { success: true, project };
         } catch (error) {
-            return { success: false };
+            const isAuthError = error instanceof AuthenticationError;
+            return { success: false, isAuthError };
         }
     }
 

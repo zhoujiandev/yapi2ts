@@ -74,6 +74,11 @@
                 "command": "yapi2ts.resetTemplates",
                 "title": "YAPI TypeScript: Reset Templates",
                 "category": "YAPI TypeScript"
+            },
+            {
+                "command": "yapi2ts.clearTokens",
+                "title": "YAPI TypeScript: Clear Stored Project Tokens (清除已保存的项目 Token)",
+                "category": "YAPI TypeScript"
             }
         ],
         "configuration": {

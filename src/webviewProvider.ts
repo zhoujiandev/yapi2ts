@@ -271,6 +271,12 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 message: connectionResult.success ? '连接成功' : '连接失败，请检查项目配置和网络'
             });
 
+            if (!connectionResult.success && connectionResult.isAuthError && projectId) {
+                // 如果是认证失败（Token无效/过期），自动从安全密钥存储中清除该 Token
+                const secretKey = `yapi2ts_token_${projectId}`;
+                await this.context.secrets.delete(secretKey);
+            }
+
             if (connectionResult.success && connectionResult.project) {
                 // 保存项目信息到 globalState
                 await this.context.globalState.update(
