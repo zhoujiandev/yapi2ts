@@ -13,20 +13,63 @@
   <div class="container">
     <div class="tabs">
       <button class="tab-button active" data-tab="interfaces">接口列表</button>
-      <button class="tab-button" data-tab="projects">我的项目</button>
       <button class="tab-button" data-tab="templates">我的模板</button>
     </div>
 
     <div id="interfaces-tab" class="tab-content active">
-      <div class="config-section">
-        <div class="form-group inline-form">
-          <select id="project-select">
-            <option value="">选择项目</option>
-          </select>
-          <button id="connect-btn" class="btn btn-primary">连接</button>
+      <!-- 引导配置卡片（未配置项目时显示） -->
+      <div id="no-config-guide" class="collab-guide-container" style="display: none; padding: 12px 0;">
+        <div class="guide-card">
+          <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-help-circle title-icon"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>如何配置 YAPI 项目？</h4>
+          <div class="guide-steps">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div class="step-content">
+                打开项目根目录下的 <code>.vscode/settings.json</code> 文件
+                <button id="open-settings-btn" class="btn btn-secondary btn-mini" style="margin-left: 8px; font-size: 11px; padding: 2px 6px;">一键打开/创建</button>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div class="step-content">
+                在设置中配置项目信息。推荐省略 <code>projectToken</code> 以防提交到 Git 仓库，连接时插件会安全地提示您在本地输入：
+                <div class="code-block">
+                  <pre><code>"yapi2ts.projects": [
+  {
+    "id": "my-project",
+    "name": "我的项目",
+    "yapiUrl": "http://yapi.example.com"
+  }
+]</code></pre>
+                  <button class="copy-btn mini-copy-btn" id="copy-config-template-btn" title="复制配置代码">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                  </button>
+                </div>
+                <div class="tip-text" style="color: var(--vscode-descriptionForeground); margin-top: 6px; font-size: 11px; line-height: 1.4;">
+                  💡 提示：如果在私有仓库，也可以直接加上 <code>"projectToken": "your-token"</code>。<br/>
+                  可在 YAPI 网站的 <strong>“项目设置 -> token配置”</strong> 页面获取 Token。
+                </div>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div class="step-content">
+                保存文件后，插件会自动读取配置，您可以在接口列表中看到配置的项目。
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="collab-hint" class="collab-hint" style="display: none;"></div>
       </div>
+
+        <div class="config-section">
+          <div class="form-group inline-form">
+            <select id="project-select">
+              <option value="">选择项目</option>
+            </select>
+            <button id="connect-btn" class="btn btn-primary">连接</button>
+          </div>
+          <div id="collab-hint" class="collab-hint" style="display: none;"></div>
+        </div>
 
       <div class="interface-section">
         <div class="interface-tree collapsible" id="interface-tree">
@@ -102,79 +145,6 @@
           <div class="table-content" id="table-content">
             <div class="loading">暂无数据</div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="projects-tab" class="tab-content">
-      <div class="project-section">
-        <div class="project-header">
-          <h3>项目管理</h3>
-          <button id="add-project-btn" class="btn btn-primary">新增项目</button>
-        </div>
-        
-        <!-- 协同模式开关 -->
-        <div class="collab-mode-section">
-          <div class="collab-mode-header">
-            <div class="collab-mode-switch-wrapper">
-              <label class="switch">
-                <input type="checkbox" id="collab-mode-switch">
-                <span class="slider round"></span>
-              </label>
-              <span class="collab-mode-label">协同模式</span>
-            </div>
-          </div>
-          <div class="collab-mode-description">
-            开启后，项目配置将从工作区的 <code>.vscode/settings.json</code> 中读取，团队成员共享同一份配置。
-          </div>
-          <div id="collab-mode-status" class="collab-mode-status" style="display: none;">
-            <div class="collab-status-content">
-              <span class="collab-status-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span>
-              <span class="collab-status-text">协同模式已开启，配置来自 .vscode/settings.json</span>
-            </div>
-            <div id="collab-config-info" class="collab-config-info"></div>
-          </div>
-          
-          <!-- 协同模式操作引导（未配置时显示） -->
-          <div id="collab-guide-container" class="collab-guide-container" style="display: none;">
-            <div class="guide-card">
-              <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-help-circle title-icon"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>如何配置协同模式？</h4>
-              <div class="guide-steps">
-                <div class="step-item">
-                  <span class="step-num">1</span>
-                  <div class="step-content">
-                    打开项目根目录下的 <code>.vscode/settings.json</code> 文件
-                    <div class="tip-text">（如果没有该文件夹，请手动创建）</div>
-                  </div>
-                </div>
-                <div class="step-item">
-                  <span class="step-num">2</span>
-                  <div class="step-content">
-                    添加如下配置代码：
-                    <div class="code-block">
-                      <pre><code>"yapi2ts.collaboration": {
-  "yapiUrl": "http://yapi.example.com",
-  "projectToken": "your-token"
-}</code></pre>
-                      <button class="copy-btn mini-copy-btn" title="复制配置代码">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="step-item">
-                  <span class="step-num">3</span>
-                  <div class="step-content">
-                    保存文件，插件会自动读取配置并连接。
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="project-list" id="project-list">
-          <div class="loading">加载中...</div>
         </div>
       </div>
     </div>
@@ -315,43 +285,7 @@ return axios.&lt;%- lowerCaseMethod %&gt;('&lt;%- path %&gt;', &lt;%- isNotGet ?
     </div>
   </template>
 
-  <template id="project-editor-modal-template">
-    <div class="project-modal-content">
-      <div class="project-modal-header">
-        <h3 data-field="title"></h3>
-        <button class="project-modal-close">&times;</button>
-      </div>
-      <div class="project-modal-body">
-        <div class="form-group">
-          <label for="project-name-input">项目名称:</label>
-          <input type="text" id="project-name-input" class="form-control" data-field="projectName" placeholder="请输入项目名称">
-        </div>
-        <div class="form-group">
-          <div class="label-with-help">
-            <label for="project-yapi-url-input">YAPI地址:</label>
-            <span class="help-icon">
-              <div class="tooltip">请输入您部署的YAPI平台的完整地址，例如：http://yapi.example.com或
-https://yapi.example.com</div>
-            </span>
-          </div>
-          <input type="text" id="project-yapi-url-input" class="form-control" data-field="yapiUrl" placeholder="请输入YAPI地址">
-        </div>
-        <div class="form-group">
-          <div class="label-with-help">
-            <label for="project-token-input">项目Token:</label>
-            <span class="help-icon">
-              <div class="tooltip">在YAPI项目设置页面可以找到项目Token，用于API接口的身份验证</div>
-            </span>
-          </div>
-          <input type="text" id="project-token-input" class="form-control" data-field="projectToken" placeholder="请输入项目Token">
-        </div>
-      </div>
-      <div class="project-modal-footer">
-        <button class="btn btn-secondary project-modal-cancel">取消</button>
-        <button class="btn btn-primary project-modal-save">保存</button>
-      </div>
-    </div>
-  </template>
+
 
   <template id="code-preview-modal-template">
     <div class="code-preview-modal-content">

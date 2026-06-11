@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { CodeGenerator } from './codeGenerator';
 import { ApiError, AuthenticationError, NetworkError, TimeoutError } from './errors';
 import {
-    CollaborationConfig,
     ProjectConfig,
     TemplateConfig,
     WebviewMessage,
@@ -22,7 +21,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     private projects: ProjectConfig[] = [];
     private disposables: vscode.Disposable[] = [];
     private timers: NodeJS.Timeout[] = [];
-    private isCollabMode: boolean = false;
 
     constructor(
         private readonly _extensionUri: vscode.Uri,
@@ -59,10 +57,22 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             this.disposables
         );
 
+        // 监听工作区配置变化
+        const configDisposable = vscode.workspace.onDidChangeConfiguration(async e => {
+            if (e.affectsConfiguration('yapi2ts.projects')) {
+                await this.loadProjects();
+                webviewView.webview.postMessage({
+                    type: 'collabConfigChanged',
+                    projects: this.projects
+                });
+            }
+        });
+        this.disposables.push(configDisposable);
+
         // 恢复状态并发送初始数据
         const timer = setTimeout(async () => {
             console.log('WebView ready, starting initialization...');
-            this.restoreState();
+            await this.restoreState();
             await this.sendInitialData();
         }, 500); // 增加延迟时间，确保webview完全加载
         this.timers.push(timer);
@@ -77,19 +87,33 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         );
     }
 
-    private restoreState() {
-        // 从扩展上下文恢复配置
+    private async restoreState() {
         const yapiUrl = this.context.globalState.get<string>('yapi2ts.yapiUrl', '');
-        const projectToken = this.context.globalState.get<string>('yapi2ts.projectToken', '');
+        const lastConnectedProjectId = this.context.globalState.get<string>(
+            'yapi2ts.lastConnectedProjectId',
+            ''
+        );
 
-        if (yapiUrl && projectToken) {
-            this.yapiService.setConfig(yapiUrl, projectToken);
+        if (yapiUrl) {
+            let token = '';
+            await this.loadProjects();
+            const project = this.projects.find(p => p.id === lastConnectedProjectId);
+            if (project && project.projectToken) {
+                token = project.projectToken;
+            } else if (lastConnectedProjectId) {
+                token =
+                    (await this.context.secrets.get(`yapi2ts_token_${lastConnectedProjectId}`)) ||
+                    '';
+            }
+
+            if (token) {
+                this.yapiService.setConfig(yapiUrl, token);
+            }
         }
     }
 
     private async sendInitialData() {
         if (this._view) {
-            // 确保模板和项目数据已加载
             await this.loadTemplates();
             await this.loadProjects();
 
@@ -100,10 +124,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 this.projects.length
             );
 
-            // 发送模板数据和状态
-            const yapiUrl = this.context.globalState.get<string>('yapi2ts.yapiUrl', '');
-            const projectToken = this.context.globalState.get<string>('yapi2ts.projectToken', '');
-
             this._view.webview.postMessage({
                 type: 'templatesLoaded',
                 templates: this.templates
@@ -113,32 +133,19 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 type: 'projectsLoaded',
                 projects: this.projects
             });
-
-            // 恢复协同模式状态
-            this.isCollabMode = this.context.globalState.get<boolean>('yapi2ts.collabMode', false);
-            const collabConfig = this.getCollaborationConfig();
-            this._view.webview.postMessage({
-                type: 'collabModeChanged',
-                enabled: this.isCollabMode,
-                config: collabConfig
-            });
-
-            // 如果有保存的配置，发送给前端
-            if (yapiUrl && projectToken) {
-                this._view.webview.postMessage({
-                    type: 'configRestored',
-                    yapiUrl: yapiUrl,
-                    projectToken: projectToken
-                });
-            }
         }
     }
 
     private async handleMessage(message: WebviewMessage) {
         switch (message.type) {
             case 'setConfig':
-                if (message.yapiUrl && message.projectToken) {
-                    await this.handleSetConfig(message.yapiUrl, message.projectToken);
+                if (message.yapiUrl) {
+                    await this.handleSetConfig(
+                        message.yapiUrl,
+                        message.projectToken || '',
+                        message.projectId,
+                        message.projectName
+                    );
                 }
                 break;
             case 'loadInterfaces':
@@ -172,16 +179,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             case 'loadTemplates':
                 await this.handleLoadTemplates();
                 break;
-            case 'saveProject':
-                if (message.project) {
-                    await this.handleSaveProject(message.project);
-                }
-                break;
-            case 'deleteProject':
-                if (message.projectId) {
-                    await this.handleDeleteProject(message.projectId);
-                }
-                break;
             case 'loadProjects':
                 await this.handleLoadProjects();
                 break;
@@ -205,27 +202,66 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                     await this.handleCopyTemplateExample(message.content);
                 }
                 break;
-            case 'setCollabMode':
-                await this.handleSetCollabMode(message.enabled ?? false);
-                break;
             case 'previewCode':
                 if (message.interfaceIds && message.templateId) {
                     await this.handlePreviewCode(message.interfaceIds, message.templateId);
                 }
                 break;
+            case 'openSettings':
+                await this.handleOpenSettings();
+                break;
         }
     }
 
-    private async handleSetConfig(yapiUrl: string, projectToken: string) {
+    private async handleSetConfig(
+        yapiUrl: string,
+        projectToken: string,
+        projectId?: string,
+        projectName?: string
+    ) {
         try {
             if (yapiUrl.endsWith('/')) {
                 yapiUrl = yapiUrl.slice(0, -1);
             }
-            this.yapiService.setConfig(yapiUrl, projectToken);
 
-            // 保存配置到扩展状态
+            let token = projectToken;
+
+            // If projectToken is not provided in config, resolve it from vscode.secrets
+            if (!token && projectId) {
+                const secretKey = `yapi2ts_token_${projectId}`;
+                const storedToken = await this.context.secrets.get(secretKey);
+                if (storedToken) {
+                    token = storedToken;
+                } else {
+                    // Prompt user to enter token securely
+                    const inputToken = await vscode.window.showInputBox({
+                        prompt: `请输入项目【${projectName || projectId}】的 YAPI Token (可前往 YAPI 平台的 “项目设置 -> token配置” 页面复制)`,
+                        password: true,
+                        ignoreFocusOut: true,
+                        placeHolder: '在此粘贴 YAPI Project Token'
+                    });
+
+                    if (!inputToken) {
+                        this._view?.webview.postMessage({
+                            type: 'configResult',
+                            success: false,
+                            message: '连接已取消：未输入有效的 YAPI Token'
+                        });
+                        return;
+                    }
+
+                    await this.context.secrets.store(secretKey, inputToken);
+                    token = inputToken;
+                }
+            }
+
+            this.yapiService.setConfig(yapiUrl, token);
+
+            // 保存连接状态
             await this.context.globalState.update('yapi2ts.yapiUrl', yapiUrl);
-            await this.context.globalState.update('yapi2ts.projectToken', projectToken);
+            if (projectId) {
+                await this.context.globalState.update('yapi2ts.lastConnectedProjectId', projectId);
+            }
 
             const connectionResult = await this.yapiService.testConnection();
 
@@ -260,6 +296,22 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 success: false,
                 message: `连接失败: ${errorMessage}`
             });
+        }
+    }
+
+    private async handleOpenSettings() {
+        await vscode.commands.executeCommand('workbench.action.openWorkspaceSettingsFile');
+    }
+
+    private async handleLoadProjects() {
+        try {
+            await this.loadProjects();
+            this._view?.webview.postMessage({
+                type: 'projectsLoaded',
+                projects: this.projects
+            });
+        } catch (error) {
+            console.error('Failed to load projects:', error);
         }
     }
 
@@ -677,50 +729,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         await this.context.globalState.update('yapi2ts.templates', this.templates);
     }
 
-    private async handleSaveProject(project: ProjectConfig) {
-        try {
-            const existingIndex = this.projects.findIndex(p => p.id === project.id);
-            if (existingIndex >= 0) {
-                this.projects[existingIndex] = { ...project, updatedAt: Date.now() };
-            } else {
-                this.projects.push({ ...project, createdAt: Date.now(), updatedAt: Date.now() });
-            }
-            await this.saveProjects();
-            this._view?.webview.postMessage({
-                type: 'projectsLoaded',
-                projects: this.projects
-            });
-            this.sendNotification('项目保存成功', 'success');
-        } catch (error) {
-            this.sendNotification(`保存项目失败: ${error}`, 'error');
-        }
-    }
-
-    private async handleDeleteProject(projectId: string) {
-        try {
-            this.projects = this.projects.filter(p => p.id !== projectId);
-            await this.saveProjects();
-            this._view?.webview.postMessage({
-                type: 'projectsLoaded',
-                projects: this.projects
-            });
-            this.sendNotification('项目删除成功', 'success');
-        } catch (error) {
-            this.sendNotification(`删除项目失败: ${error}`, 'error');
-        }
-    }
-
-    private async handleLoadProjects() {
-        try {
-            this._view?.webview.postMessage({
-                type: 'projectsLoaded',
-                projects: this.projects
-            });
-        } catch (error) {
-            console.error('Failed to load projects:', error);
-        }
-    }
-
     private async handleCopyPath(path: string) {
         try {
             await vscode.env.clipboard.writeText(path);
@@ -773,52 +781,6 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    private async handleSetCollabMode(enabled: boolean) {
-        try {
-            this.isCollabMode = enabled;
-
-            // 保存协同模式状态到扩展状态
-            await this.context.globalState.update('yapi2ts.collabMode', enabled);
-
-            // 读取协同配置
-            const collabConfig = this.getCollaborationConfig();
-
-            // 发送状态更新给前端
-            this._view?.webview.postMessage({
-                type: 'collabModeChanged',
-                enabled: enabled,
-                config: collabConfig
-            });
-
-            if (enabled) {
-                if (collabConfig && collabConfig.yapiUrl && collabConfig.projectToken) {
-                    this.sendNotification('协同模式已开启', 'success');
-                } else {
-                    this.sendNotification(
-                        '协同模式已开启，但配置不完整，请检查 .vscode/settings.json',
-                        'info'
-                    );
-                }
-            } else {
-                this.sendNotification('协同模式已关闭', 'info');
-            }
-        } catch (error) {
-            console.error('Failed to set collab mode:', error);
-            this.sendNotification('设置协同模式失败', 'error');
-        }
-    }
-
-    private getCollaborationConfig(): CollaborationConfig | null {
-        try {
-            const config = vscode.workspace.getConfiguration('yapi2ts');
-            const collaboration = config.get<CollaborationConfig>('collaboration');
-            return collaboration || null;
-        } catch (error) {
-            console.error('Failed to get collaboration config:', error);
-            return null;
-        }
-    }
-
     private sendNotification(message: string, type: 'success' | 'error' | 'info' = 'info') {
         if (this._view) {
             this._view.webview.postMessage({
@@ -828,21 +790,22 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             });
         }
     }
-
     private async loadProjects() {
         try {
-            const stored = this.context.globalState.get<ProjectConfig[]>('yapi2ts.projects');
-            if (stored && stored.length > 0) {
-                this.projects = stored;
-            }
+            const config = vscode.workspace.getConfiguration('yapi2ts');
+            const projects = config.get<WorkspaceProjectConfig[]>('projects') || [];
+            this.projects = projects.map(p => ({
+                id: p.id || '',
+                name: p.name || '',
+                yapiUrl: p.yapiUrl || '',
+                projectToken: p.projectToken || '',
+                createdAt: 0,
+                updatedAt: 0
+            }));
         } catch (error) {
-            console.error('Failed to load projects:', error);
+            console.error('Failed to load projects from settings:', error);
             this.projects = [];
         }
-    }
-
-    private async saveProjects() {
-        await this.context.globalState.update('yapi2ts.projects', this.projects);
     }
 
     private _getHtmlForWebview(webview: vscode.Webview): string {
@@ -954,4 +917,11 @@ function getNonce() {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
+}
+
+interface WorkspaceProjectConfig {
+    id?: string;
+    name?: string;
+    yapiUrl?: string;
+    projectToken?: string;
 }

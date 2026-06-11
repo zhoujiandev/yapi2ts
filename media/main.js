@@ -8,8 +8,7 @@
   let currentTemplates = [];
   let currentProjects = [];
   let selectedInterfaces = new Set();
-  let isCollabMode = false;
-  let collabConfig = null;
+  let selectedProjectId = null;
   // 选中的分类与搜索关键字
   let selectedCategoryId = null;
   let interfaceSearchTerm = '';
@@ -31,16 +30,10 @@
   const templateSelect = document.getElementById('template-select');
   const addTemplateBtn = document.getElementById('add-template-btn');
   const templateList = document.getElementById('template-list');
-  const addProjectBtn = document.getElementById('add-project-btn');
-  const projectList = document.getElementById('project-list');
   const interfaceSearchInput = document.getElementById('interface-search-input');
   const interfaceSearchBtn = document.getElementById('interface-search-btn');
   const interfaceClearBtn = document.getElementById('interface-clear-btn');
   const treeSearchWrapper = document.getElementById('tree-search-wrapper');
-  const collabModeSwitch = document.getElementById('collab-mode-switch');
-  const collabModeStatus = document.getElementById('collab-mode-status');
-  const collabConfigInfo = document.getElementById('collab-config-info');
-  const projectSection = document.querySelector('.project-section');
 
   // 状态标识映射函数
   function getStatusIndicator(status) {
@@ -124,43 +117,20 @@
       const selectedProject = projectSelect.value;
       
       if (!selectedProject) {
-        showMessage('请先选择一个项目，如果还没有配置项目，请切换到"我的项目"标签页进行配置', 'error');
+        showMessage('请先选择一个项目', 'error');
         return;
       }
 
-      // 协同模式下使用协同配置
-      if (selectedProject === 'collab-project') {
-        if (!collabConfig || !collabConfig.yapiUrl || !collabConfig.projectToken) {
-          showMessage('协同模式配置不完整，请检查 .vscode/settings.json', 'error');
-          return;
-        }
-        
-        connectBtn.disabled = true;
-        connectBtn.textContent = '连接中...';
+      connectProject(selectedProject);
+    });
 
-        vscode.postMessage({
-          type: 'setConfig',
-          yapiUrl: collabConfig.yapiUrl,
-          projectToken: collabConfig.projectToken
-        });
-        return;
+    // Dropdown change listener to auto-connect and save config
+    projectSelect.addEventListener('change', () => {
+      const selectedProject = projectSelect.value;
+      if (selectedProject) {
+        saveConfig();
+        connectProject(selectedProject);
       }
-
-      // 从项目列表中找到选中的项目
-      const project = currentProjects.find(p => p.id === selectedProject);
-      if (!project) {
-        showMessage('未找到选中的项目', 'error');
-        return;
-      }
-
-      connectBtn.disabled = true;
-      connectBtn.textContent = '连接中...';
-
-      vscode.postMessage({
-        type: 'setConfig',
-        yapiUrl: project.yapiUrl,
-        projectToken: project.projectToken
-      });
     });
 
     // Refresh button
@@ -249,10 +219,45 @@
       showTemplateEditor();
     });
 
-    // Add project button
-    addProjectBtn.addEventListener('click', () => {
-      showProjectEditor();
-    });
+    // Open settings button
+    const openSettingsBtn = document.getElementById('open-settings-btn');
+    if (openSettingsBtn) {
+      openSettingsBtn.addEventListener('click', () => {
+        vscode.postMessage({
+          type: 'openSettings'
+        });
+      });
+    }
+
+    // Copy config template button
+    const copyConfigTemplateBtn = document.getElementById('copy-config-template-btn');
+    if (copyConfigTemplateBtn) {
+      copyConfigTemplateBtn.addEventListener('click', async () => {
+        const code = `"yapi2ts.projects": [
+  {
+    "id": "my-project",
+    "name": "我的项目",
+    "yapiUrl": "http://yapi.example.com"
+  }
+]`;
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHTML = copyConfigTemplateBtn.innerHTML;
+          copyConfigTemplateBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+          setTimeout(() => {
+            copyConfigTemplateBtn.innerHTML = originalHTML;
+          }, 1500);
+        } catch (err) {
+          const textArea = document.createElement('textarea');
+          textArea.value = code;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          showMessage('复制成功', 'success');
+        }
+      });
+    }
 
     // 搜索功能
     const performSearch = () => {
@@ -333,50 +338,7 @@
       copyTemplateExampleBtn.addEventListener('click', copyTemplateExample);
     }
 
-    // 协同模式开关事件监听
-    if (collabModeSwitch) {
-      collabModeSwitch.addEventListener('change', (e) => {
-        const enabled = e.target.checked;
-        vscode.postMessage({
-          type: 'setCollabMode',
-          enabled: enabled
-        });
-      });
-    }
-
-    // 协同模式引导卡片中的复制按钮
-    const guideCopyBtn = document.querySelector('.guide-card .copy-btn');
-    if (guideCopyBtn) {
-      guideCopyBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const code = `"yapi2ts.collaboration": {
-  "yapiUrl": "http://yapi.example.com",
-  "projectToken": "your-token"
-}`;
-        
-        navigator.clipboard.writeText(code).then(() => {
-          const originalHTML = guideCopyBtn.innerHTML;
-          guideCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-          setTimeout(() => {
-            guideCopyBtn.innerHTML = originalHTML;
-          }, 1500);
-        }).catch(() => {
-          // 降级方案
-          const textArea = document.createElement('textarea');
-          textArea.value = code;
-          document.body.appendChild(textArea);
-          textArea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textArea);
-          
-          const originalHTML = guideCopyBtn.innerHTML;
-          guideCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-          setTimeout(() => {
-            guideCopyBtn.innerHTML = originalHTML;
-          }, 1500);
-        });
-      });
-    }
+    // Removed unused collab mode switch listeners
   }
 
   // 复制模板示例函数
@@ -407,11 +369,6 @@
       // 请求加载模板
       vscode.postMessage({
         type: 'loadTemplates'
-      });
-    } else if (tabId === 'projects') {
-      // 请求加载项目
-      vscode.postMessage({
-        type: 'loadProjects'
       });
     }
   }
@@ -1004,277 +961,56 @@
   }
 
   // Project management functions
+  function connectProject(projectId) {
+    if (!projectId) {return;}
+    const project = currentProjects.find(p => p.id === projectId);
+    if (!project) {
+      showMessage('未找到选中的项目', 'error');
+      return;
+    }
+
+    connectBtn.disabled = true;
+    connectBtn.textContent = '连接中...';
+
+    vscode.postMessage({
+      type: 'setConfig',
+      yapiUrl: project.yapiUrl,
+      projectToken: project.projectToken || '',
+      projectId: project.id,
+      projectName: project.name
+    });
+  }
+
   function renderProjectSelect() {
+    const noConfigGuide = document.getElementById('no-config-guide');
+    const configSection = document.querySelector('.config-section');
+    const interfaceSection = document.querySelector('.interface-section');
+    
+    if (!currentProjects || currentProjects.length === 0) {
+      if (noConfigGuide) {noConfigGuide.style.display = 'block';}
+      if (configSection) {configSection.style.display = 'none';}
+      if (interfaceSection) {interfaceSection.style.display = 'none';}
+      return;
+    }
+    
+    if (noConfigGuide) {noConfigGuide.style.display = 'none';}
+    if (configSection) {configSection.style.display = 'block';}
+    if (interfaceSection) {interfaceSection.style.display = 'flex';}
+
     const defaultOption = '<option value="">选择项目</option>';
     const options = currentProjects.map(project => 
       `<option value="${project.id}">${project.name}</option>`
     ).join('');
     
     projectSelect.innerHTML = defaultOption + options;
-  }
-
-  function renderProjectList() {
-    if (currentProjects.length === 0) {
-      projectList.innerHTML = '<div class="loading">暂无项目</div>';
-      return;
-    }
-
-    const html = currentProjects.map(project => `
-      <div class="project-item">
-        <div class="project-item-header">
-          <span class="project-name">${project.name}</span>
-          <div class="project-actions">
-            <button class="btn btn-secondary edit-project-btn" data-project-id="${project.id}">编辑</button>
-            <button class="btn btn-secondary delete-project-btn" data-project-id="${project.id}">删除</button>
-          </div>
-        </div>
-        <div class="project-info">
-          <div class="project-url">YAPI地址: ${project.yapiUrl}</div>
-          <div class="project-token">项目Token: ${project.projectToken.substring(0, 10)}...</div>
-          <div class="project-time">创建时间: ${new Date(project.createdAt).toLocaleString()}</div>
-        </div>
-      </div>
-    `).join('');
-
-    projectList.innerHTML = html;
-
-    // 添加事件监听器
-    projectList.querySelectorAll('.edit-project-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const projectId = e.target.dataset.projectId;
-        editProject(projectId);
-      });
-    });
-
-    projectList.querySelectorAll('.delete-project-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const projectId = e.target.dataset.projectId;
-        deleteProject(projectId);
-      });
-    });
-  }
-
-  function showProjectEditor(project = null) {
-    const isEdit = !!project;
-    const title = isEdit ? '编辑项目' : '新增项目';
     
-    // Create modal dialog using HTML template
-    const modal = document.createElement('div');
-    modal.className = 'project-modal';
-    
-    const projectContent = createFromTemplate('project-editor-modal-template', {
-      title,
-      projectName: project?.name || '',
-      yapiUrl: project?.yapiUrl || '',
-      projectToken: project?.projectToken || ''
-    });
-    
-    modal.appendChild(projectContent);
-    document.body.appendChild(modal);
-
-    // Event listeners
-    const closeBtn = modal.querySelector('.project-modal-close');
-    const cancelBtn = modal.querySelector('.project-modal-cancel');
-    const saveBtn = modal.querySelector('.project-modal-save');
-    const nameInput = modal.querySelector('#project-name-input');
-    const yapiUrlInput = modal.querySelector('#project-yapi-url-input');
-    const tokenInput = modal.querySelector('#project-token-input');
-
-    const closeModal = () => {
-      document.body.removeChild(modal);
-    };
-
-    closeBtn.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('click', closeModal);
-
-    saveBtn.addEventListener('click', () => {
-      const name = nameInput.value.trim();
-      const yapiUrl = yapiUrlInput.value.trim();
-      const projectToken = tokenInput.value.trim();
-
-      if (!name || !yapiUrl || !projectToken) {
-        showMessage('请填写完整的项目信息', 'error');
-        return;
-      }
-
-      const projectData = {
-        id: project ? project.id : generateId(),
-        name,
-        yapiUrl,
-        projectToken,
-        createdAt: project ? project.createdAt : new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      vscode.postMessage({
-        type: 'saveProject',
-        project: projectData
-      });
-
-      closeModal();
-    });
-
-    // Handle escape key
-    const handleKeydown = (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
-        document.removeEventListener('keydown', handleKeydown);
-      }
-    };
-    document.addEventListener('keydown', handleKeydown);
-  }
-
-  function editProject(projectId) {
-    const project = currentProjects.find(p => p.id === projectId);
-    if (project) {
-      showProjectEditor(project);
-    }
-  }
-
-  function deleteProject(projectId) {
-    showConfirmDialog('确定要删除这个项目吗？', () => {
-      vscode.postMessage({
-        type: 'deleteProject',
-        projectId
-      });
-    });
-  }
-
-  function loadProjects() {
-    vscode.postMessage({
-      type: 'loadProjects'
-    });
-  }
-
-  // 更新协同模式UI
-  function updateCollabModeUI() {
-    if (collabModeSwitch) {
-      collabModeSwitch.checked = isCollabMode;
-    }
-
-    const collabGuideContainer = document.getElementById('collab-guide-container');
-
-    if (collabModeStatus) {
-      if (isCollabMode) {
-        // 协同模式开启
-        if (collabConfig && collabConfig.yapiUrl && collabConfig.projectToken) {
-          // 有配置信息
-          collabModeStatus.style.display = 'block';
-          if (collabGuideContainer) {
-            collabGuideContainer.style.display = 'none';
-          }
-          
-          collabModeStatus.classList.remove('error');
-          collabModeStatus.querySelector('.collab-status-icon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>';
-          collabModeStatus.querySelector('.collab-status-text').textContent = '协同模式已开启，配置来自 .vscode/settings.json';
-          
-          if (collabConfigInfo) {
-            collabConfigInfo.innerHTML = `
-              <div class="config-item">
-                <span class="config-label">YAPI地址:</span>
-                <span class="config-value">${collabConfig.yapiUrl}</span>
-              </div>
-              <div class="config-item">
-                <span class="config-label">Token:</span>
-                <span class="config-value">${collabConfig.projectToken.substring(0, 10)}...</span>
-              </div>
-            `;
-          }
-        } else {
-          // 无配置信息
-          collabModeStatus.style.display = 'none';
-          if (collabGuideContainer) {
-            collabGuideContainer.style.display = 'block';
-          }
-        }
-      } else {
-        // 协同模式关闭
-        collabModeStatus.style.display = 'none';
-        if (collabGuideContainer) {
-          collabGuideContainer.style.display = 'none';
-        }
-      }
-    }
-
-    // 切换项目列表显示
-    if (projectSection) {
-      if (isCollabMode) {
-        projectSection.classList.add('collab-mode-active');
-      } else {
-        projectSection.classList.remove('collab-mode-active');
-      }
-    }
-
-    // 更新项目选择下拉框
-    updateProjectSelectForCollabMode();
-  }
-
-  // 协同模式下更新项目选择
-  function updateProjectSelectForCollabMode() {
-    const collabHint = document.getElementById('collab-hint');
-    
-    if (isCollabMode) {
-      // 禁用下拉框
-      projectSelect.disabled = true;
-      projectSelect.classList.add('disabled');
-
-      if (collabConfig && collabConfig.yapiUrl && collabConfig.projectToken) {
-        // 协同模式下，添加一个虚拟的协同项目选项
-        let collabOption = projectSelect.querySelector('option[value="collab-project"]');
-        if (!collabOption) {
-          collabOption = document.createElement('option');
-          collabOption.value = 'collab-project';
-          collabOption.textContent = '📁 协同项目 (settings.json)';
-          // 插入到"选择项目"后面
-          const firstOption = projectSelect.querySelector('option[value=""]');
-          if (firstOption && firstOption.nextSibling) {
-            projectSelect.insertBefore(collabOption, firstOption.nextSibling);
-          } else {
-            projectSelect.appendChild(collabOption);
-          }
-        }
-        projectSelect.value = 'collab-project';
-        
-        // 显示成功提示
-        if (collabHint) {
-          collabHint.style.display = 'block';
-          collabHint.className = 'collab-hint success';
-          collabHint.textContent = '已开启协同模式，正在使用 .vscode/settings.json 中的配置';
-        }
-      } else {
-        projectSelect.value = "";
-        
-        // 显示配置提醒
-        if (collabHint) {
-          collabHint.style.display = 'block';
-          collabHint.className = 'collab-hint warning';
-          collabHint.textContent = '已开启协同模式，但未检测到配置。请切换到"我的项目"标签页查看';
-          
-          const link = document.createElement('a');
-          link.textContent = '配置指南';
-          link.href = '#';
-          link.style.marginLeft = '4px';
-          link.addEventListener('click', (e) => {
-            e.preventDefault();
-            switchTab('projects');
-          });
-          collabHint.appendChild(link);
-        }
-      }
-    } else {
-      // 非协同模式，移除协同项目选项
-      projectSelect.disabled = false;
-      projectSelect.classList.remove('disabled');
-      
-      const collabOption = projectSelect.querySelector('option[value="collab-project"]');
-      if (collabOption) {
-        collabOption.remove();
-      }
-      
-      // 隐藏提示
-      if (collabHint) {
-        collabHint.style.display = 'none';
-      }
+    // Auto restore last selected project, or auto select if there is only one
+    if (selectedProjectId && currentProjects.some(p => p.id === selectedProjectId)) {
+      projectSelect.value = selectedProjectId;
+      connectProject(selectedProjectId);
+    } else if (currentProjects.length === 1) {
+      projectSelect.value = currentProjects[0].id;
+      connectProject(currentProjects[0].id);
     }
   }
 
@@ -1520,6 +1256,17 @@
         }
         break;
 
+      case 'projectsLoaded':
+      case 'collabConfigChanged':
+        currentProjects = message.projects || [];
+        renderProjectSelect();
+        break;
+
+      case 'collabConfigInvalid':
+        currentProjects = [];
+        renderProjectSelect();
+        break;
+
       case 'interfacesLoadFailed':
         // 加载失败，显示错误并清理加载状态
         if (interfaceTree) {
@@ -1556,11 +1303,6 @@
         renderTemplateList();
         break;
 
-      case 'projectsLoaded':
-        currentProjects = message.projects;
-        renderProjectSelect();
-        renderProjectList();
-        break;
 
       case 'templateSaved':
         loadTemplates();

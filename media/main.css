@@ -1,8 +1,16 @@
 /* Main Styles */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 .container {
   box-sizing: border-box;
   padding: 10px;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   min-width: 360px; /* 设置最小宽度确保内容不会过于拥挤 */
@@ -56,6 +64,8 @@
 .tab-content.active {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  overflow: hidden;
 }
 
 /* Help Icon and Tooltip Styles */

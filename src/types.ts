@@ -162,6 +162,7 @@ export interface WebviewMessage {
     template?: TemplateConfig;
     project?: ProjectConfig;
     projectId?: string;
+    projectName?: string;
     path?: string;
     interfaceId?: string;
     content?: string;
