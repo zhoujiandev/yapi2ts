@@ -4,6 +4,39 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.3.0] - 2026-06-11
+
+### Added
+
+- **手动清除已保存 Token 的命令** - 支持通过命令面板清除本地安全存储中的 Token
+    - 新增 `yapi2ts.clearTokens` 命令，供开发者在需要时手动清理 Keychain 中已保存的项目安全 Token。
+
+### Improved
+
+- **团队协作与项目配置重构** - 全面切换为以 `.vscode/settings.json` 为主的团队协作配置模式
+    - 彻底移除了本地的“我的项目”增删改查面板，转为从工作区配置中读取 `yapi2ts.projects`。
+    - 针对 `projectToken` 提供了详细友好的描述，并移除了 `projectId` 字段。
+    - 当项目配置未设置时，自动在“接口列表”中展示“如何配置 YAPI 项目”的操作指引卡片，并支持一键定位打开配置和复制配置模板。
+- **Token 敏感数据安全隔离** - 基于 Keychain 彻底避免明文 Token 提交泄露
+    - 引入 `vscode.secrets` 加密存储敏感的 YAPI Project Token，以项目唯一 `id` 标识并将其妥善保管在系统钥匙串中。
+    - 完善连接逻辑，当连接测试发现授权失败（Token 无效/过期）时，会自动在本地 Keychain 中清理掉失效的密钥，以便下次提示重新输入。
+- **UI 视觉与布局高度自适应** - 修复底部大面积留白问题
+    - 调整全局样式，显示声明 `html` 和 `body` 元素 `height: 100%` 限制溢出。
+    - 调整 `.container` 与 `.tab-content.active` 布局属性，确保树节点与表格内容区域能顺畅拉伸并充满整个视图剩余高度。
+    - 在 `.CLAUDE.md` 规范指南中追加图标规范，强制要求全部采用 Lucide 或自定义精美 SVG 图标，全面禁止在 Webview 界面中使用系统 Emoji 符号。
+
+### Fixed
+
+- **项目初始化加载与事件丢失修复** - 解决无配置卡片无法加载问题
+    - 修复后端缺少对 `loadProjects` 消息处理器导致 Webview 启动时请求被忽略、数据推送发生竞态的 Bug。
+    - 清理了前端 `main.js` 中 `projectsLoaded` 冗余重复的侦听器，提升消息交互稳定性。
+
+## [1.2.9] - 2026-06-08
+
+### Technical
+
+- **版本发布** - 提升版本号至 1.2.9。
+
 ## [1.2.8] - 2026-06-08
 
 ### Improved
