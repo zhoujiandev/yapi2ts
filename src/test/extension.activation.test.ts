@@ -12,7 +12,7 @@ suite('Extension Activation Test Suite', () => {
             assert.ok(packageJson.version, 'Package should have a version');
             assert.strictEqual(
                 packageJson.engines.vscode,
-                '^1.50.0',
+                '^1.53.0',
                 'Should target correct VS Code version'
             );
         });
@@ -106,6 +106,11 @@ suite('Extension Activation Test Suite', () => {
                     get: () => undefined,
                     update: () => Promise.resolve(),
                     keys: () => []
+                },
+                secrets: {
+                    get: () => Promise.resolve(undefined),
+                    store: () => Promise.resolve(),
+                    delete: () => Promise.resolve()
                 },
                 extensionPath: '/mock/path',
                 storagePath: '/mock/storage',

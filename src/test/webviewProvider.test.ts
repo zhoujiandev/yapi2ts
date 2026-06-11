@@ -20,6 +20,11 @@ suite('YapiWebviewProvider Test Suite', () => {
                 update: () => Promise.resolve(),
                 keys: () => []
             },
+            secrets: {
+                get: () => Promise.resolve(undefined),
+                store: () => Promise.resolve(),
+                delete: () => Promise.resolve()
+            },
             extensionUri: vscode.Uri.file('/test'),
             extensionPath: '/test',
             asAbsolutePath: (path: string) => `/test/${path}`,
