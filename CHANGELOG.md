@@ -4,6 +4,13 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.3.1] - 2026-06-22
+
+### Improved
+
+- **代码生成按钮 Loading 状态优化** - 优化了代码生成三个 CTA 按钮在“生成中”切换时的布局稳定性
+    - 引入 `.btn-loading-content` 绝对定位占位，配合 `.btn-content` 的可见性隐藏，确保按钮在 Loading 状态下保持原有物理尺寸，彻底解决由于文字长度差异导致的按钮宽度收缩和界面布局回流抖动问题。
+
 ## [1.3.0] - 2026-06-11
 
 ### Added
