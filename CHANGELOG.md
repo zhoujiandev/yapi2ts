@@ -4,6 +4,14 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.3.2] - 2026-06-22
+
+### Added
+
+- **发布准备脚本** - 新增发布流程自动化脚本以规范发布校验
+    - 在 `scripts` 目录中新增 `release-prepare.js` 脚本，在 master 分支、工作区干净且与远程同步时，列出最近 5 个 tag 并提示输入新 tag，打 tag 并推送到远程仓库。
+    - 在 `package.json` 中注册 `release:prepare` 脚本命令，简化发版准备流程。
+
 ## [1.3.1] - 2026-06-22
 
 ### Improved
