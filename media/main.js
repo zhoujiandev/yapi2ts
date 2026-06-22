@@ -158,7 +158,7 @@
 
       // 设置loading状态
       generateTypesBtn.disabled = true;
-      generateTypesBtn.textContent = '生成中...';
+      generateTypesBtn.classList.add('loading');
 
       vscode.postMessage({
         type: 'generateTypes',
@@ -180,7 +180,7 @@
 
       // 设置loading状态
       generateApiBtn.disabled = true;
-      generateApiBtn.textContent = '生成中...';
+      generateApiBtn.classList.add('loading');
 
       vscode.postMessage({
         type: 'generateApi',
@@ -204,8 +204,7 @@
 
       // 设置loading状态
       generateAllBtn.disabled = true;
-      const originalText = generateAllBtn.textContent;
-      generateAllBtn.textContent = '生成中...';
+      generateAllBtn.classList.add('loading');
 
       vscode.postMessage({
         type: 'generateAll',
@@ -651,8 +650,12 @@
 
   function updateGenerateButtons() {
     const hasSelection = selectedInterfaces.size > 0;
-    generateTypesBtn.disabled = !hasSelection;
-    generateApiBtn.disabled = !hasSelection || !templateSelect.value;
+    if (!generateTypesBtn.classList.contains('loading')) {
+      generateTypesBtn.disabled = !hasSelection;
+    }
+    if (!generateApiBtn.classList.contains('loading')) {
+      generateApiBtn.disabled = !hasSelection || !templateSelect.value;
+    }
     
     // 更新选中数量显示
     const selectedCountElement = document.getElementById('selected-count');
@@ -1347,7 +1350,7 @@
       case 'generateTypesResult':
         // 恢复按钮状态
         generateTypesBtn.disabled = false;
-        generateTypesBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> 仅类型定义`;
+        generateTypesBtn.classList.remove('loading');
         
         if (message.success) {
           showMessage(message.message, 'success');
@@ -1359,7 +1362,7 @@
       case 'generateApiResult':
         // 恢复按钮状态
         generateApiBtn.disabled = false;
-        generateApiBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> 仅API代码`;
+        generateApiBtn.classList.remove('loading');
         
         if (message.success) {
           showMessage(message.message, 'success');
@@ -1371,7 +1374,7 @@
       case 'generateAllResult':
         // 恢复按钮状态
         generateAllBtn.disabled = false;
-        generateAllBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code-2 btn-icon"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>生成完整代码';
+        generateAllBtn.classList.remove('loading');
         
         if (message.success) {
           showMessage(message.message, 'success');

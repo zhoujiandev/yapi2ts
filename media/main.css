@@ -245,6 +245,7 @@ body {
 
 /* Buttons */
 .btn {
+  position: relative;
   padding: 6px 12px;
   border: none;
   border-radius: 2px;
@@ -301,6 +302,37 @@ body {
 
 .btn-icon:disabled:hover {
   background-color: transparent !important;
+}
+
+/* Button Loading States */
+.btn-content {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.btn-loading-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: inherit;
+}
+
+.btn.loading .btn-content {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.btn.loading .btn-loading-content {
+  display: flex;
 }
 
 /* Interface Section */
