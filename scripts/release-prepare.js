@@ -1,15 +1,43 @@
 const { execSync } = require('child_process');
 const readline = require('readline');
 
+// ANSI Escape Codes for formatting console output
+const styles = {
+    reset: '\x1b[0m',
+    bold: '\x1b[1m',
+    dim: '\x1b[2m',
+    red: '\x1b[31m',
+    green: '\x1b[32m',
+    yellow: '\x1b[33m',
+    blue: '\x1b[34m',
+    cyan: '\x1b[36m'
+};
+
+const logger = {
+    error: msg =>
+        console.error(
+            `${styles.red}${styles.bold}Error:${styles.reset} ${styles.red}${msg}${styles.reset}`
+        ),
+    warn: msg =>
+        console.warn(
+            `${styles.yellow}${styles.bold}Warning:${styles.reset} ${styles.yellow}${msg}${styles.reset}`
+        ),
+    info: msg => console.log(`${styles.cyan}${msg}${styles.reset}`),
+    success: msg => console.log(`${styles.green}${styles.bold}${msg}${styles.reset}`),
+    header: msg => console.log(`\n${styles.blue}${styles.bold}--- ${msg} ---${styles.reset}`),
+    prompt: msg => `${styles.cyan}${styles.bold}${msg}${styles.reset}`,
+    dim: msg => `${styles.dim}${msg}${styles.reset}`
+};
+
 // 1. 校验当前是否在 master 分支
 try {
     const currentBranch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
     if (currentBranch !== 'master') {
-        console.error('❌ 错误：此脚本只能在 master 分支上运行！当前分支为：' + currentBranch);
+        logger.error(`此脚本只能在 master 分支上运行！当前分支为：${currentBranch}`);
         process.exit(1);
     }
 } catch (e) {
-    console.error('❌ 无法获取当前 Git 分支名，请确保在 Git 仓库下运行此脚本。');
+    logger.error('无法获取当前 Git 分支名，请确保在 Git 仓库下运行此脚本。');
     process.exit(1);
 }
 
@@ -17,52 +45,54 @@ try {
 try {
     const status = execSync('git status --porcelain').toString().trim();
     if (status) {
-        console.error('❌ 错误：当前工作区有未提交的修改，请先提交并推送到远程！');
-        console.error(status);
+        logger.error('当前工作区有未提交的修改，请先提交（特别是 CHANGELOG.md）并推送到远程！');
+        console.error(logger.dim(status));
         process.exit(1);
     }
 } catch (e) {
-    console.error('❌ 无法获取 Git 工作区状态，请确保在 Git 仓库下运行此脚本。');
+    logger.error('无法获取 Git 工作区状态，请确保在 Git 仓库下运行此脚本。');
     process.exit(1);
 }
 
 // 3. 校验本地 master 是否与远程 master 保持一致
-console.log('🔄 正在从远程仓库获取最新状态 (git fetch origin master)...');
+console.log(`${styles.cyan}正在从远程仓库获取最新状态 (git fetch origin master)...${styles.reset}`);
 try {
     execSync('git fetch origin master', { stdio: 'ignore' });
 } catch (e) {
-    console.warn('⚠️  警告：无法连接到远程仓库或获取远程分支失败，将跳过远程分支校验。');
+    logger.warn('无法连接到远程仓库或获取远程分支失败，将跳过远程分支校验。');
 }
 
 try {
     const localCommit = execSync('git rev-parse HEAD').toString().trim();
     const remoteCommit = execSync('git rev-parse origin/master').toString().trim();
     if (localCommit !== remoteCommit) {
-        console.error('❌ 错误：本地 master 分支与远程 origin/master 不一致！');
-        console.error(`  本地提交: ${localCommit}`);
-        console.error(`  远程提交: ${remoteCommit}`);
-        console.error('👉 请先执行 git push 或 git pull，确保分支一致后再进行发布。');
+        logger.error('本地 master 分支与远程 origin/master 不一致！');
+        console.error(`  本地提交: ${styles.dim}${localCommit}${styles.reset}`);
+        console.error(`  远程提交: ${styles.dim}${remoteCommit}${styles.reset}`);
+        console.error(
+            `  提示: 请先执行 ${styles.bold}git push${styles.reset} 或 ${styles.bold}git pull${styles.reset}，确保分支一致后再进行发布。`
+        );
         process.exit(1);
     }
 } catch (e) {
-    console.warn('⚠️  警告：校验本地与远程分支一致性失败，可能是因为不存在 origin/master。');
+    logger.warn('校验本地与远程分支一致性失败，可能是因为不存在 origin/master。');
 }
 
 // 4. 列出最近的 5 个 Tag
 try {
     const recentTags = execSync('git tag --sort=creatordate | tail -n 5').toString().trim();
-    console.log('\n📌 最近的 5 个 Tag：');
+    logger.header('最近的 5 个 Tag');
     if (recentTags) {
         console.log(
             recentTags
                 .split('\n')
-                .map(t => `  - ${t}`)
+                .map(t => `  - ${styles.cyan}${t}${styles.reset}`)
                 .join('\n')
         );
     } else {
-        console.log('  （暂无历史 Tag）');
+        console.log(`  ${styles.dim}（暂无历史 Tag）${styles.reset}`);
     }
-    console.log('------------------------\n');
+    console.log(`${styles.dim}------------------------${styles.reset}\n`);
 } catch (e) {
     // 容错：如果读取 Tag 失败，继续后续逻辑而不崩溃
 }
@@ -73,10 +103,10 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-rl.question('🏷️  请输入要发布的最新 Tag 号: ', input => {
+rl.question(logger.prompt('请输入要发布的最新 Tag 号: '), input => {
     const tagVersion = input.trim();
     if (!tagVersion) {
-        console.error('❌ 错误：Tag 号不能为空！');
+        logger.error('Tag 号不能为空！');
         rl.close();
         process.exit(1);
     }
@@ -86,15 +116,19 @@ rl.question('🏷️  请输入要发布的最新 Tag 号: ', input => {
 
 function startRelease(tagVersion) {
     try {
-        console.log(`🏷️  正在打版本 Tag: ${tagVersion}...`);
+        console.log(
+            `\n${styles.cyan}正在打版本 Tag: ${styles.bold}${tagVersion}${styles.reset}${styles.cyan}...${styles.reset}`
+        );
         execSync(`git tag ${tagVersion}`, { stdio: 'inherit' });
 
-        console.log(`🚀 正在将 Tag: [${tagVersion}] 推送到远程仓库...`);
+        console.log(
+            `${styles.cyan}正在将 Tag: [${styles.bold}${tagVersion}${styles.reset}${styles.cyan}] 推送到远程仓库...${styles.reset}`
+        );
         execSync(`git push origin ${tagVersion}`, { stdio: 'inherit' });
 
-        console.log(`\n🎉 发布和推送已全部完成！Tag: ${tagVersion}`);
+        logger.success(`\n发布和推送已全部完成！Tag: ${tagVersion}`);
     } catch (error) {
-        console.error('❌ 执行失败，已终止操作。');
+        logger.error('执行失败，已终止操作。');
         process.exit(1);
     }
 }
