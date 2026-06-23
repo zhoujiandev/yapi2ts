@@ -2,19 +2,35 @@
 
 ## <a id="faq"></a> 常见问题
 
-### Token 配置问题
+### 项目配置与 Token 问题
+
+**Q: 插件的配置页面在哪里？如何配置项目？**
+
+A: 自 v1.3.0 起，插件已移除“我的项目”图形配置面板，全面改为代码协作配置模式。您需要直接打开工作区根目录下的 `.vscode/settings.json` 文件，并添加 `yapi2ts.projects` 项进行配置。
 
 **Q: 如何获取 YAPI 项目 Token？**
 
 A: 登录 YAPI 系统 → 进入目标项目 → 点击右上角「设置」 → 找到「token 配置」 → 复制 Token。
 
+**Q: Token 应该写在哪里？直接写在配置文件中会被提交到 Git 仓库吗？**
+
+A: 插件提供了两种配置 Token 的方式：
+
+1. **明文配置（不推荐）**：直接在 `settings.json` 中对应的项目对象里填写 `projectToken` 属性。这种方式下，如果配置文件被提交至公共仓库，会造成 Token 泄露。
+2. **Keychain 托管（推荐）**：在 `settings.json` 中配置项目时**省略** `projectToken` 字段。在首次点击“连接”时，插件会弹出输入框提示您在本地输入 Token。该 Token 将会被加密保存到操作系统的安全密钥串（Keychain）中，不会被写入设置文件或提交至 Git 仓库。
+
 **Q: 提示 "Token 无效" 或 "认证失败"？**
 
 A: 请检查：
 
-1. Token 是否复制完整，没有多余空格
-2. Token 是否已过期或被重置
-3. YAPI 地址是否正确（包含 `http://` 或 `https://`）
+1. 输入或配置的 Token 是否复制完整，有无多余的前后空格。
+2. 该 Token 在 YAPI 平台中是否已被项目管理员重置。
+3. `yapiUrl` 配置是否正确（应包含 `http://` 或 `https://`）。
+4. 连接失败时，Keychain 中保存的旧 Token 会被自动清除，您只需在下次连接时重新输入最新有效的 Token。
+
+**Q: 如何清除本地已保存的 Keychain Token？**
+
+A: 按下 `Cmd+Shift+P` (Mac) 或 `Ctrl+Shift+P` (Windows) 打开命令面板，输入并执行命令：`YAPI TypeScript: Clear Stored Project Tokens (清除已保存的项目 Token)` 即可一键清除。
 
 ### 网络连接问题
 

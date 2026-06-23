@@ -58,13 +58,13 @@ export const <%- methodName %> = () => {};
 <%- iface._id %>     // 接口ID
 ```
 
-### 内置模板
+### 内置与推荐模板
 
-插件内置了三个常用模板：
+为了降低开发者的心智负担，自 v1.2.8 起，插件默认仅内置最常用的 **Axios 模板**。如果您需要使用 **Fetch** 或 **自定义请求 (Simple Request)**，可以点击“我的模板”页签，新建自定义模板并参考以下提供的 EJS 代码。
 
-#### 1. Axios Template
+#### 1. 默认内置：Axios 模板
 
-基于 Axios 的请求模板，自动区分 GET/非GET 请求参数：
+基于 Axios 库的请求模板，能自动区分 GET/非 GET 请求参数并匹配 AxiosRequestConfig：
 
 ```typescript
 export const <%- methodName %> = (params: <%- paramsTypeName %>, config?: Omit<AxiosRequestConfig, <%- isNotGet ? '"data"' : '"params"' %>>): Promise<<%- responseTypeName %>> => {
@@ -72,9 +72,9 @@ export const <%- methodName %> = (params: <%- paramsTypeName %>, config?: Omit<A
 };
 ```
 
-#### 2. Fetch Template
+#### 2. 自定义推荐：Fetch 模板
 
-基于原生 Fetch API 的请求模板，使用 EJS 条件语法：
+基于浏览器原生 Fetch API 的请求模板，使用 EJS 条件控制语句实现：
 
 ```typescript
 export async function <%- methodName %>(params: <%- paramsTypeName %>): Promise<<%- responseTypeName %>> {
@@ -92,9 +92,9 @@ export async function <%- methodName %>(params: <%- paramsTypeName %>): Promise<
 }
 ```
 
-#### 3. Simple Request
+#### 3. 自定义推荐：简洁请求模板 (Simple Request)
 
-简洁的请求模板，适用于自定义 request 封装：
+最通用的自定义 Axios 或 Fetch 统一包装函数的调用模板：
 
 ```typescript
 export const <%- methodName %> = (params: <%- paramsTypeName %>) => {

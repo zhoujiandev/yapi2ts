@@ -191,6 +191,9 @@ pnpm run compile-tests
 
 # 监听测试文件变化
 pnpm run watch-tests
+
+# 运行版本发布准备脚本（校验 master 分支、检查工作区干净度、打本地 Tag 并推送到远程）
+pnpm run release:prepare
 ```
 
 #### 3. 开发工作流
