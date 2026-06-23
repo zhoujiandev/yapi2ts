@@ -4,6 +4,14 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.3.3] - 2026-06-23
+
+### Improved
+
+- **文档更新与体验优化** - 全面重构并同步了插件官方文档
+    - 更新了 `README.md` 与 `docs/` 下的快速入门、使用指南、常见问题及模板配置等文档。
+    - 确保文档内容与 1.3.x 版本引入的 `.vscode/settings.json` 协同配置模式、Keychain 安全隔离机制以及精简模板等最新特性保持完全一致。
+
 ## [1.3.2] - 2026-06-22
 
 ### Added
