@@ -136,6 +136,15 @@
         "prepare": "husky",
         "release:prepare": "node scripts/release-prepare.js"
     },
+    "lint-staged": {
+        "*.{ts,js}": [
+            "eslint --fix",
+            "prettier --write"
+        ],
+        "*.{json,md,yml,yaml}": [
+            "prettier --write"
+        ]
+    },
     "dependencies": {
         "ejs": "^3.1.10",
         "prettier": "^3.6.2"
@@ -158,14 +167,5 @@
         "typescript": "^5.9.2",
         "webpack": "^5.101.3",
         "webpack-cli": "^6.0.1"
-    },
-    "lint-staged": {
-        "*.{ts,js}": [
-            "eslint --fix",
-            "prettier --write"
-        ],
-        "*.{json,md,yml,yaml}": [
-            "prettier --write"
-        ]
     }
 }
