@@ -1017,6 +1017,293 @@
     }
   }
 
+  // Helper to find foldable ranges in code (braces and block comments)
+  function findFoldRanges(code) {
+    const lines = code.split(/\r?\n/);
+    const ranges = [];
+    
+    let inString = null;
+    let inLineComment = false;
+    let inBlockComment = false;
+    let blockCommentStartLine = -1;
+    const braceStack = [];
+    
+    let lineIdx = 0;
+    let i = 0;
+    while (i < code.length) {
+      const char = code[i];
+      const nextChar = code[i + 1];
+      
+      if (char === '\n') {
+        lineIdx++;
+        inLineComment = false;
+        i++;
+        continue;
+      }
+      if (char === '\r') {
+        if (nextChar === '\n') {
+          lineIdx++;
+          inLineComment = false;
+          i += 2;
+        } else {
+          lineIdx++;
+          inLineComment = false;
+          i++;
+        }
+        continue;
+      }
+      
+      if (inString === null) {
+        if (inLineComment) {
+          i++;
+          continue;
+        }
+        if (inBlockComment) {
+          if (char === '*' && nextChar === '/') {
+            inBlockComment = false;
+            if (lineIdx > blockCommentStartLine) {
+              ranges.push({ start: blockCommentStartLine, end: lineIdx, type: 'comment' });
+            }
+            i += 2;
+          } else {
+            i++;
+          }
+          continue;
+        }
+        
+        if (char === '/' && nextChar === '/') {
+          inLineComment = true;
+          i += 2;
+          continue;
+        }
+        if (char === '/' && nextChar === '*') {
+          inBlockComment = true;
+          blockCommentStartLine = lineIdx;
+          i += 2;
+          continue;
+        }
+      }
+      
+      if (inString !== null) {
+        if (char === '\\') {
+          i += 2;
+        } else if (char === inString) {
+          inString = null;
+          i++;
+        } else {
+          i++;
+        }
+        continue;
+      }
+      
+      if (char === '"' || char === "'" || char === '`') {
+        inString = char;
+        i++;
+        continue;
+      }
+      
+      if (char === '{') {
+        braceStack.push(lineIdx);
+      } else if (char === '}') {
+        if (braceStack.length > 0) {
+          const startLine = braceStack.pop();
+          if (lineIdx > startLine) {
+            ranges.push({ start: startLine, end: lineIdx, type: 'brace' });
+          }
+        }
+      }
+      
+      i++;
+    }
+    
+    return ranges;
+  }
+
+  // Helper to render code with editor-like features (line numbers, inline indent guides, toggle chevrons)
+  function renderFoldableCode(container, code) {
+    container.innerHTML = '';
+    
+    const lines = code.split(/\r?\n/);
+    const ranges = findFoldRanges(code);
+    
+    // Detect indent size
+    let indentSize = 2; // Default to 2
+    let minIndent = Infinity;
+    lines.forEach(line => {
+      const leadingSpaces = line.match(/^ */)[0].length;
+      if (leadingSpaces > 0 && leadingSpaces < minIndent) {
+        minIndent = leadingSpaces;
+      }
+    });
+    if (minIndent !== Infinity && minIndent > 0) {
+      indentSize = minIndent;
+    }
+    
+    // Pre-calculate indentation level of each line
+    const lineIndents = lines.map(line => {
+      const leadingSpaces = line.match(/^ */)[0].length;
+      return Math.floor(leadingSpaces / indentSize);
+    });
+    
+    // Map start line -> end line for folding
+    const rangeMap = new Map();
+    ranges.forEach(r => {
+      const currentEnd = rangeMap.get(r.start);
+      if (currentEnd === undefined || r.end > currentEnd) {
+        rangeMap.set(r.start, r.end);
+      }
+    });
+    
+    const foldedLines = new Set();
+    const rowElements = [];
+    
+    lines.forEach((lineText, idx) => {
+      const row = document.createElement('div');
+      row.className = 'editor-row';
+      row.dataset.line = idx;
+      
+      const gutter = document.createElement('div');
+      gutter.className = 'gutter-cell';
+      
+      const lineNum = document.createElement('div');
+      lineNum.className = 'line-number-gutter';
+      lineNum.textContent = idx + 1;
+      gutter.appendChild(lineNum);
+      
+      const foldToggleGutter = document.createElement('div');
+      foldToggleGutter.className = 'fold-toggle-gutter';
+      
+      if (rangeMap.has(idx)) {
+        const toggle = document.createElement('span');
+        toggle.className = 'fold-toggle';
+        toggle.innerHTML = `
+          <svg viewBox="0 0 16 16" fill="currentColor">
+            <path d="M7.9 10.07a.5.5 0 0 1-.35-.15L3.65 6.02a.5.5 0 1 1 .7-.71L8 8.97l3.65-3.66a.5.5 0 1 1 .7.71l-3.9 3.9a.5.5 0 0 1-.55.15z"/>
+          </svg>
+        `;
+        toggle.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleFold(idx);
+        });
+        foldToggleGutter.appendChild(toggle);
+      } else {
+        const placeholder = document.createElement('span');
+        placeholder.style.width = '22px';
+        placeholder.style.height = '22px';
+        foldToggleGutter.appendChild(placeholder);
+      }
+      
+      gutter.appendChild(foldToggleGutter);
+      row.appendChild(gutter);
+      
+      const lineCell = document.createElement('div');
+      lineCell.className = 'line-cell';
+      
+      // Render inline indentation cells and guidelines
+      const indentCount = lineIndents[idx];
+      const leadingSpaces = indentCount * indentSize;
+      
+      for (let col = 0; col < indentCount; col++) {
+        const indentCell = document.createElement('div');
+        indentCell.className = 'indent-cell';
+        
+        // Is there an active range spanning line `idx` (r.start < idx <= r.end)
+        // whose start line has indentation level `col`?
+        const activeRange = ranges.find(r => {
+          return r.start < idx && idx <= r.end && lineIndents[r.start] === col;
+        });
+        
+        if (activeRange) {
+          const guideLine = document.createElement('div');
+          guideLine.className = 'indent-guide-line';
+          if (activeRange.end === idx) {
+            guideLine.classList.add('guideline-end');
+          }
+          indentCell.appendChild(guideLine);
+        }
+        
+        lineCell.appendChild(indentCell);
+      }
+      
+      const lineSpan = document.createElement('span');
+      lineSpan.className = 'line-text';
+      // Strip leading spaces since they are rendered via indent cells
+      lineSpan.textContent = lineText.substring(leadingSpaces) || ' ';
+      lineCell.appendChild(lineSpan);
+      
+      if (rangeMap.has(idx)) {
+        const indicator = document.createElement('span');
+        indicator.className = 'fold-indicator';
+        indicator.textContent = '...';
+        indicator.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleFold(idx);
+        });
+        lineCell.appendChild(indicator);
+      }
+      
+      row.appendChild(lineCell);
+      container.appendChild(row);
+      rowElements.push(row);
+    });
+    
+    function toggleFold(startLine) {
+      if (foldedLines.has(startLine)) {
+        foldedLines.delete(startLine);
+      } else {
+        foldedLines.add(startLine);
+      }
+      updateVisibility();
+    }
+    
+    function updateVisibility() {
+      rowElements.forEach((row, idx) => {
+        let isLineVisible = true;
+        for (const start of foldedLines) {
+          const end = rangeMap.get(start);
+          if (idx > start && idx <= end) {
+            isLineVisible = false;
+            break;
+          }
+        }
+        
+        if (isLineVisible) {
+          row.style.display = 'flex';
+        } else {
+          row.style.display = 'none';
+        }
+        
+        if (rangeMap.has(idx)) {
+          const toggleElements = row.querySelectorAll('.fold-toggle');
+          if (foldedLines.has(idx)) {
+            row.classList.add('folded-line');
+            toggleElements.forEach(el => {
+              el.classList.add('collapsed');
+            });
+          } else {
+            row.classList.remove('folded-line');
+            toggleElements.forEach(el => {
+              el.classList.remove('collapsed');
+            });
+          }
+        }
+      });
+    }
+
+    container.addEventListener('mouseover', (e) => {
+      const gutterCell = e.target.closest('.gutter-cell');
+      if (gutterCell) {
+        container.classList.add('gutter-hovered');
+      } else {
+        container.classList.remove('gutter-hovered');
+      }
+    });
+    
+    container.addEventListener('mouseleave', () => {
+      container.classList.remove('gutter-hovered');
+    });
+  }
+
   // Code Preview Modal Functions
   function showCodePreview(code, type = 'api') {
     const modal = document.createElement('div');
@@ -1026,7 +1313,7 @@
     modal.appendChild(previewContent);
     document.body.appendChild(modal);
 
-    const codeDisplay = modal.querySelector('#preview-code-display');
+    const codeContainer = modal.querySelector('#preview-code-container');
     const codeEditor = modal.querySelector('#preview-code-editor');
     const closeBtn = modal.querySelector('.code-preview-modal-close');
     const cancelBtn = modal.querySelector('.code-preview-modal-cancel');
@@ -1046,7 +1333,7 @@
     const editTab = modal.querySelector('#preview-edit-tab');
 
     // 设置初始代码
-    codeDisplay.textContent = code;
+    renderFoldableCode(codeContainer, code);
     codeEditor.value = code;
 
     const closeModal = () => {
@@ -1065,7 +1352,7 @@
           viewTab.style.display = 'block';
           editTab.style.display = 'none';
           // 同步编辑器的内容到预览
-          codeDisplay.textContent = codeEditor.value;
+          renderFoldableCode(codeContainer, codeEditor.value);
         } else {
           viewTab.style.display = 'none';
           editTab.style.display = 'block';

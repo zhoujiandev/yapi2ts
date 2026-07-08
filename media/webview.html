@@ -306,7 +306,11 @@ return axios.&lt;%- lowerCaseMethod %&gt;('&lt;%- path %&gt;', &lt;%- isNotGet ?
     <div class="code-preview-modal-content">
       <div class="code-preview-modal-header">
         <h3>代码预览</h3>
-        <button class="code-preview-modal-close">&times;</button>
+        <button class="code-preview-modal-close" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+          </svg>
+        </button>
       </div>
       <div class="code-preview-modal-body">
         <div class="preview-tabs">
@@ -314,7 +318,7 @@ return axios.&lt;%- lowerCaseMethod %&gt;('&lt;%- path %&gt;', &lt;%- isNotGet ?
           <button class="preview-tab-btn" data-tab="edit">编辑</button>
         </div>
         <div class="preview-tab-content" id="preview-view-tab">
-          <pre><code id="preview-code-display" class="code-display"></code></pre>
+          <div id="preview-code-container" class="code-editor-container"></div>
         </div>
         <div class="preview-tab-content" id="preview-edit-tab" style="display: none;">
           <textarea id="preview-code-editor" class="code-editor" rows="20"></textarea>

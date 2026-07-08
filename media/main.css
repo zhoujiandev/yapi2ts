@@ -1972,19 +1972,19 @@ input:focus + .slider {
 .code-preview-modal-content {
   background: var(--vscode-panel-background);
   border: 1px solid var(--vscode-panel-border);
-  border-radius: 6px;
+  border-radius: 8px;
   width: 90%;
   max-width: 900px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  animation: slideUp 0.3s ease-out;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes slideUp {
   from {
-    transform: translateY(20px);
+    transform: translateY(12px);
     opacity: 0;
   }
   to {
@@ -1997,16 +1997,17 @@ input:focus + .slider {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--vscode-panel-border);
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.12);
   background: var(--vscode-editor-background);
-  border-radius: 6px 6px 0 0;
+  border-radius: 8px 8px 0 0;
 }
 
 .code-preview-modal-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
+  letter-spacing: 0.2px;
   color: var(--vscode-foreground);
 }
 
@@ -2014,21 +2015,25 @@ input:focus + .slider {
   background: none;
   border: none;
   color: var(--vscode-foreground);
-  font-size: 24px;
   cursor: pointer;
   padding: 0;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  border-radius: 50%;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .code-preview-modal-close:hover {
-  background: var(--vscode-list-hoverBackground);
-  color: var(--vscode-errorForeground);
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--vscode-errorForeground, #ff5e56);
+}
+
+.code-preview-modal-close svg {
+  width: 14px;
+  height: 14px;
 }
 
 .code-preview-modal-body {
@@ -2041,32 +2046,41 @@ input:focus + .slider {
 
 .preview-tabs {
   display: flex;
-  border-bottom: 1px solid var(--vscode-panel-border);
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.1);
   background: var(--vscode-editor-background);
-  padding: 0 20px;
+  padding: 8px 24px;
 }
 
 .preview-tab-btn {
   background: transparent;
   border: none;
-  padding: 12px 20px;
+  padding: 6px 14px;
   cursor: pointer;
-  font-size: 13px;
-  color: var(--vscode-tab-inactiveForeground);
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s ease;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--vscode-tab-inactiveForeground, #858585);
+  border-radius: 4px;
+  border-bottom: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
   position: relative;
 }
 
 .preview-tab-btn:hover {
-  color: var(--vscode-tab-activeForeground);
-  background: var(--vscode-list-hoverBackground);
+  color: var(--vscode-tab-activeForeground, #ffffff);
+  background: rgba(128, 128, 128, 0.1);
 }
 
 .preview-tab-btn.active {
-  color: var(--vscode-tab-activeForeground);
-  border-bottom-color: var(--vscode-textLink-foreground);
-  font-weight: 600;
+  color: var(--vscode-tab-activeForeground, #ffffff);
+  background: var(--vscode-button-secondaryBackground, rgba(128, 128, 128, 0.18));
+  font-weight: 500;
+}
+
+body.vscode-light .preview-tab-btn.active {
+  color: var(--vscode-foreground, #333333);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .preview-tab-content {
@@ -2116,11 +2130,55 @@ input:focus + .slider {
 .code-preview-modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding: 16px 20px;
-  border-top: 1px solid var(--vscode-panel-border);
+  gap: 12px;
+  padding: 18px 24px;
+  border-top: 1px solid rgba(128, 128, 128, 0.1);
   background: var(--vscode-editor-background);
-  border-radius: 0 0 6px 6px;
+  border-radius: 0 0 8px 8px;
+}
+
+.code-preview-modal-footer .btn {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 6px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  outline: none;
+}
+
+.code-preview-modal-footer .btn-primary {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: 1px solid transparent;
+}
+
+.code-preview-modal-footer .btn-primary:hover:not(:disabled) {
+  background: var(--vscode-button-hoverBackground);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
+}
+
+.code-preview-modal-footer .btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.code-preview-modal-footer .btn-secondary {
+  background: var(--vscode-button-secondaryBackground, rgba(128, 128, 128, 0.1));
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+  border: 1px solid var(--vscode-button-border, rgba(128, 128, 128, 0.18));
+}
+
+.code-preview-modal-footer .btn-secondary:hover:not(:disabled) {
+  background: var(--vscode-button-secondaryHoverBackground, rgba(128, 128, 128, 0.18));
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+}
+
+.code-preview-modal-footer .btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .code-preview-copy-btn {
@@ -2131,8 +2189,8 @@ input:focus + .slider {
 }
 
 .code-preview-copy-btn svg {
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
 }
 
 /* Preview button in interface table */
@@ -2377,4 +2435,188 @@ body.vscode-light .toast-info {
   display: inline-block;
   vertical-align: middle;
   margin-right: 6px;
+}
+
+/* ==================================================================================
+   CODE EDITOR PREVIEW & NESTED FOLDING GUIDELINES
+   ================================================================================== */
+.code-editor-container {
+  position: relative;
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 4px;
+  background: var(--vscode-editor-background);
+  font-family: var(--vscode-editor-font-family, 'Consolas', 'Monaco', 'Courier New', monospace);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 400px;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 10px 0;
+  box-sizing: border-box;
+}
+
+.editor-row {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  height: 22px; /* Fixed height to match line-height alignment */
+  align-items: stretch;
+}
+
+.editor-row:hover {
+  background: var(--vscode-editor-lineHighlightBackground, rgba(255, 255, 255, 0.05));
+}
+
+body.vscode-light .editor-row:hover {
+  background: var(--vscode-editor-lineHighlightBackground, rgba(0, 0, 0, 0.03));
+}
+
+.gutter-cell {
+  user-select: none;
+  background: var(--vscode-editor-background);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.line-number-gutter {
+  width: 32px;
+  text-align: right;
+  padding-right: 8px;
+  color: var(--vscode-editorLineNumber-foreground, #858585);
+  font-size: 11px;
+  font-family: var(--vscode-editor-font-family, monospace);
+  flex-shrink: 0;
+}
+
+.fold-toggle-gutter {
+  width: 28px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fold-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  z-index: 2;
+  color: var(--vscode-editorLineNumber-foreground, #858585);
+  opacity: 0; /* Hidden by default */
+  transition: opacity 0.1s ease, color 0.1s ease;
+}
+
+.fold-toggle.collapsed {
+  opacity: 1; /* Always show when collapsed */
+  color: var(--vscode-editor-foreground, #cccccc);
+}
+
+/* Show all chevrons when the gutter column is hovered */
+.code-editor-container.gutter-hovered .fold-toggle {
+  opacity: 0.4;
+}
+
+/* Show chevron on row hover, or make hovered chevron in gutter fully bright */
+.editor-row:hover .fold-toggle,
+.code-editor-container.gutter-hovered .fold-toggle:hover {
+  opacity: 1 !important;
+}
+
+.fold-toggle:hover {
+  color: var(--vscode-editor-foreground, #ffffff) !important;
+}
+
+body.vscode-light .fold-toggle:hover {
+  color: #333333 !important;
+}
+
+.fold-toggle svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.1s ease;
+  transform: rotate(0deg);
+}
+
+.fold-toggle.collapsed svg {
+  transform: rotate(-90deg); /* Point right */
+}
+
+.line-cell {
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+  height: 100%;
+  white-space: pre;
+  color: var(--vscode-editor-foreground, #d4d4d4);
+  flex-grow: 1;
+}
+
+body.vscode-light .line-cell {
+  color: #333333;
+}
+
+/* Indent guideline cells inside code line-cell */
+.indent-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; /* Spacing width for indentation guide lines */
+  height: 100%;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.indent-guide-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0; /* Align left to match VS Code indent guides */
+  width: 1px;
+  background: var(--vscode-editorIndentGuide-background, rgba(128, 128, 128, 0.22));
+}
+
+.indent-guide-line.guideline-end {
+  bottom: 50%; /* Stop guide line at the center of the ending row */
+}
+
+/* Hover guideline highlighting */
+.editor-row:hover .indent-guide-line {
+  background: var(--vscode-editorIndentGuide-activeBackground, rgba(128, 128, 128, 0.55));
+}
+
+body.vscode-light .editor-row:hover .indent-guide-line {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.fold-indicator {
+  display: none;
+  background: var(--vscode-badge-background, rgba(128, 128, 128, 0.25));
+  color: var(--vscode-editor-foreground, #ffffff);
+  border-radius: 3px;
+  padding: 0 4px;
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  line-height: 14px;
+}
+
+body.vscode-light .fold-indicator {
+  background: rgba(0, 0, 0, 0.08);
+  color: #333333;
+}
+
+.editor-row.folded-line .fold-indicator {
+  display: inline-block;
 }
