@@ -112,6 +112,7 @@ export interface YapiInterface {
     req_params?: ReqParamItem[];
     res_body?: string;
     res_body_type: ResponseBodyType;
+    add_time?: number;
 }
 
 export interface YapiInterfaceDetail extends YapiInterface {

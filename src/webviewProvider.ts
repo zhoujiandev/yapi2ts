@@ -210,6 +210,11 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
             case 'openSettings':
                 await this.handleOpenSettings();
                 break;
+            case 'fetchInterfaceDetails':
+                if (message.interfaceIds) {
+                    await this.handleFetchInterfaceDetails(message.interfaceIds);
+                }
+                break;
         }
     }
 
@@ -307,6 +312,18 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
 
     private async handleOpenSettings() {
         await vscode.commands.executeCommand('workbench.action.openWorkspaceSettingsFile');
+    }
+
+    private async handleFetchInterfaceDetails(interfaceIds: number[]) {
+        try {
+            const details = await this.yapiService.getInterfaceDetails(interfaceIds);
+            this._view?.webview.postMessage({
+                type: 'interfaceDetailsLoaded',
+                details
+            });
+        } catch (error) {
+            console.error('Failed to fetch interface details:', error);
+        }
     }
 
     private async handleLoadProjects() {

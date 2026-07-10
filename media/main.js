@@ -14,6 +14,7 @@
   let interfaceSearchTerm = '';
   // 刷新按钮状态管理
   let isRefreshing = false;
+  let fetchingInterfaceIds = new Set();
 
   // DOM Elements
   const tabButtons = document.querySelectorAll('.tab-button');
@@ -34,6 +35,81 @@
   const interfaceSearchBtn = document.getElementById('interface-search-btn');
   const interfaceClearBtn = document.getElementById('interface-clear-btn');
   const treeSearchWrapper = document.getElementById('tree-search-wrapper');
+
+  /**
+   * 格式化时间戳为相对时间或简短日期格式
+   * @param {number} timestamp - 秒级时间戳
+   * @returns {string} 格式化后的时间描述
+   */
+  function getFriendlyTime(timestamp) {
+    if (!timestamp) {
+      return '-';
+    }
+    const ms = timestamp * 1000;
+    const now = Date.now();
+    const diff = now - ms;
+
+    if (diff < 0) {
+      return formatShortDate(ms);
+    }
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) {
+      return '刚刚';
+    } else if (minutes < 60) {
+      return `${minutes}分钟前`;
+    } else if (hours < 24) {
+      return `${hours}小时前`;
+    } else if (days < 3) {
+      if (days === 1) {
+        return '昨天';
+      }
+      return '前天';
+    } else {
+      return formatShortDate(ms);
+    }
+  }
+
+  /**
+   * 格式化日期为简短格式 (例如: 07-10)
+   * @param {number} ms - 毫秒级时间戳
+   * @returns {string}
+   */
+  function formatShortDate(ms) {
+    const date = new Date(ms);
+    const now = new Date();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    if (date.getFullYear() === now.getFullYear()) {
+      return `${month}-${day}`;
+    } else {
+      return `${date.getFullYear()}-${month}-${day}`;
+    }
+  }
+
+  /**
+   * 格式化日期为完整格式 (例如: 2026-07-10 17:59:35)
+   * @param {number} timestamp - 秒级时间戳
+   * @returns {string}
+   */
+  function getFullDateTime(timestamp) {
+    if (!timestamp) {
+      return '-';
+    }
+    const date = new Date(timestamp * 1000);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
 
   // 状态标识映射函数
   function getStatusIndicator(status) {
@@ -481,6 +557,8 @@
       const methodClass = `method-${iface.method.toLowerCase()}`;
       const isSelected = selectedInterfaces.has(iface._id);
       const statusIndicator = getStatusIndicator(iface.status);
+      const friendlyTime = getFriendlyTime(iface.up_time || iface.add_time);
+      const fullTime = getFullDateTime(iface.up_time || iface.add_time);
       
       return `
         <div class="interface-item">
@@ -489,7 +567,10 @@
                  ${isSelected ? 'checked' : ''}>
           <span class="interface-method ${methodClass}">${iface.method.toUpperCase()}</span>
           <span class="interface-status" title="${statusIndicator.text}">${statusIndicator.html}</span>
-          <span class="interface-title">${iface.title}</span>
+          <div class="interface-title">
+            <span class="interface-title-text">${iface.title}</span>
+            <span class="interface-time-tag" title="最后修改时间：${fullTime}">${friendlyTime}</span>
+          </div>
           <div class="interface-path-container">
             <span class="interface-path">${iface.path}</span>
             <button class="preview-code-btn" data-interface-id="${iface._id}" title="预览代码">
@@ -515,6 +596,19 @@
     }).join('');
 
     tableContent.innerHTML = tableHeader + interfaceRows;
+
+    // 触发缺失更新时间的接口详情异步加载
+    const missingDetailIds = interfaces
+      .filter(iface => iface.up_time === undefined && !fetchingInterfaceIds.has(iface._id))
+      .map(iface => iface._id);
+
+    if (missingDetailIds.length > 0) {
+      missingDetailIds.forEach(id => fetchingInterfaceIds.add(id));
+      vscode.postMessage({
+        type: 'fetchInterfaceDetails',
+        interfaceIds: missingDetailIds
+      });
+    }
 
     // 设置半选状态
     const selectAllCheckbox = tableContent.querySelector('.select-all-checkbox');
@@ -1425,6 +1519,31 @@
     const message = event.data;
 
     switch (message.type) {
+      case 'interfaceDetailsLoaded': {
+        const details = message.details || [];
+        details.forEach(detail => {
+          fetchingInterfaceIds.delete(detail._id);
+          for (const catId in currentInterfaces) {
+            const list = currentInterfaces[catId];
+            const found = list.find(i => i._id === detail._id);
+            if (found) {
+              found.up_time = detail.up_time;
+              found.add_time = detail.add_time;
+              break;
+            }
+          }
+        });
+        if (selectedCategoryId) {
+          const interfaces = currentInterfaces[selectedCategoryId] || [];
+          renderInterfaceTable(interfaces);
+        } else if (interfaceSearchTerm) {
+          const allInterfaces = Object.values(currentInterfaces).flat();
+          const filteredInterfaces = filterInterfacesByPath(allInterfaces, interfaceSearchTerm);
+          renderInterfaceTable(filteredInterfaces);
+        }
+        break;
+      }
+
       case 'expandTree':
         // 连接成功后展开树目录
         if (interfaceTree) {

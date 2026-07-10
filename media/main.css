@@ -708,7 +708,7 @@ body {
   min-width: 0; /* 允许完全收缩 */
 }
 
-.header-title{
+.header-title {
   min-width: 0; /* 允许完全收缩 */
 }
 
@@ -776,14 +776,44 @@ body {
 }
 
 .interface-title {
-  flex: 0 1 auto; /* 根据内容自适应宽度，但允许收缩 */
-  margin-right: 8px;
+  flex: 1;
+  max-width: 260px;
+  margin-right: 12px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.interface-title-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: right;
-  min-width: 0; /* 允许完全收缩 */
-  max-width: 200px; /* 设置最大宽度，防止标题过长占用过多空间 */
+  flex: 1;
+  text-align: left;
+}
+
+.interface-time-tag {
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 8px;
+  flex-shrink: 0;
+  padding: 1.5px 5px;
+  border-radius: 3px;
+  background: var(--vscode-badge-background, rgba(128, 128, 128, 0.25));
+  color: var(--vscode-badge-foreground, var(--vscode-foreground));
+}
+
+/* 适配深色主题：使用柔和的高可读性浅色半透明背景和白字 */
+.vscode-dark .interface-time-tag {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 适配浅色主题：使用柔和的高可读性深色半透明背景和黑字 */
+.vscode-light .interface-time-tag {
+  background: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .interface-path {
