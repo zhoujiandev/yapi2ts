@@ -113,6 +113,7 @@ export interface YapiInterface {
     res_body?: string;
     res_body_type: ResponseBodyType;
     add_time?: number;
+    up_time?: number;
 }
 
 export interface YapiInterfaceDetail extends YapiInterface {

@@ -1408,7 +1408,6 @@
     document.body.appendChild(modal);
 
     const codeContainer = modal.querySelector('#preview-code-container');
-    const codeEditor = modal.querySelector('#preview-code-editor');
     const closeBtn = modal.querySelector('.code-preview-modal-close');
     const cancelBtn = modal.querySelector('.code-preview-modal-cancel');
     const copyBtn = modal.querySelector('.code-preview-copy-btn');
@@ -1422,37 +1421,13 @@
         复制代码
       `;
     }
-    const previewTabBtns = modal.querySelectorAll('.preview-tab-btn');
-    const viewTab = modal.querySelector('#preview-view-tab');
-    const editTab = modal.querySelector('#preview-edit-tab');
 
     // 设置初始代码
     renderFoldableCode(codeContainer, code);
-    codeEditor.value = code;
 
     const closeModal = () => {
       document.body.removeChild(modal);
     };
-
-    // 标签页切换
-    previewTabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tabType = btn.dataset.tab;
-        
-        previewTabBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        if (tabType === 'view') {
-          viewTab.style.display = 'block';
-          editTab.style.display = 'none';
-          // 同步编辑器的内容到预览
-          renderFoldableCode(codeContainer, codeEditor.value);
-        } else {
-          viewTab.style.display = 'none';
-          editTab.style.display = 'block';
-        }
-      });
-    });
 
     // 关闭按钮
     closeBtn.addEventListener('click', closeModal);
@@ -1460,7 +1435,7 @@
 
     // 复制按钮
     copyBtn.addEventListener('click', () => {
-      const currentCode = codeEditor.value;
+      const currentCode = code;
       
       navigator.clipboard.writeText(currentCode).then(() => {
         const originalHTML = copyBtn.innerHTML;
