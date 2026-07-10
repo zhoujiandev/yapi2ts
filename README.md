@@ -35,11 +35,7 @@
 
 ### 安装
 
-在 VSCode / Cursor 扩展市场搜索 `yapi-ts` 安装，或使用命令：
-
-```bash
-code --install-extension zhoujian.yapi-ts
-```
+在编辑器扩展市场搜索 `yapi-ts` 即可一键安装（支持所有基于 VS Code 内核的编辑器，如 VS Code、Cursor 等）。
 
 ### 使用流程
 
