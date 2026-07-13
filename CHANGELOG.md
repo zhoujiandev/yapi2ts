@@ -4,6 +4,21 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.5.0] - 2026-07-13
+
+### Added
+
+- **展示接口最后修改时间** - 在接口列表标题右侧新增最后修改时间栏，支持在悬停时展示完整时间格式。
+- **按需异步拉取接口更新时间** - 针对 YAPI 列表接口无 `up_time` 的局限，自动通过批量异步详情接口 (`/api/interface/get`) 懒加载数据，并采用前端 flight 请求控制和后端 Concurrency Limiter (并发限制为 5) 机制，既能保证启动时极速加载体验，又能有效防御对 YAPI 服务造成的过载频控风险。
+
+### Removed
+
+- **移除代码预览弹框的编辑功能** - 简化预览流程，移除顶部的编辑标签页与可编辑文本域，将“复制代码”直接绑定到生成的只读静态代码源上，使预览窗口更加简洁专注。
+
+### Fixed
+
+- **修复 Command + R 重载触发双重连接 Toast 的缺陷** - 移除了后端 resolveWebviewView 中主动触发数据推送的定时器，仅保留 `restoreState` 配置还原；数据的初始化流程完全由 Webview 实例发起的主动请求进行单次闭环交互，完美解决了右上角连接成功提示渲染两次的瑕疵。
+
 ## [1.4.0] - 2026-07-08
 
 ### Added
