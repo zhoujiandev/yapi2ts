@@ -724,11 +724,15 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
     }
 
     private async handleLoadTemplates() {
-        console.log('handleLoadTemplates', this.templates, this._view?.webview);
-        this._view?.webview.postMessage({
-            type: 'templatesLoaded',
-            templates: this.templates
-        });
+        try {
+            await this.loadTemplates();
+            this._view?.webview.postMessage({
+                type: 'templatesLoaded',
+                templates: this.templates
+            });
+        } catch (error) {
+            console.error('Failed to load templates:', error);
+        }
     }
 
     private async loadTemplates() {
