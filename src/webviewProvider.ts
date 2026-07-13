@@ -69,11 +69,10 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
         });
         this.disposables.push(configDisposable);
 
-        // 恢复状态并发送初始数据
+        // 恢复状态
         const timer = setTimeout(async () => {
             console.log('WebView ready, starting initialization...');
             await this.restoreState();
-            await this.sendInitialData();
         }, 500); // 增加延迟时间，确保webview完全加载
         this.timers.push(timer);
 

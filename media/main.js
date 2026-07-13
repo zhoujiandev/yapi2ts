@@ -453,6 +453,7 @@
     const config = vscode.getState() || {};
     if (config.selectedProjectId) {
       // 设置选中的项目
+      selectedProjectId = config.selectedProjectId;
       projectSelect.value = config.selectedProjectId;
     }
   }
@@ -1065,6 +1066,8 @@
       showMessage('未找到选中的项目', 'error');
       return;
     }
+
+    selectedProjectId = projectId;
 
     connectBtn.disabled = true;
     connectBtn.textContent = '连接中...';
