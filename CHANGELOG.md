@@ -4,6 +4,12 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.5.1] - 2026-07-15
+
+### Fixed
+
+- **优化打包体积并排除 `.map` 调试文件** - 修复了 `.vscodeignore` 中 `!dist/**` 规则导致 `.map` 调试文件被打包的缺陷，大幅缩减插件发布包的体积（`.vsix` 压缩包大小从约 4.3MB 降至 1.1MB，安装体积从约 16MB 降至 3.4MB）。
+
 ## [1.5.0] - 2026-07-13
 
 ### Added
