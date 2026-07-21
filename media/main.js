@@ -2,7 +2,7 @@
 (function() {
   console.log('main.js loaded successfully!');
   const vscode = acquireVsCodeApi();
-  
+
   let currentCategories = [];
   let currentInterfaces = {};
   let currentTemplates = [];
@@ -84,7 +84,7 @@
     const now = new Date();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    
+
     if (date.getFullYear() === now.getFullYear()) {
       return `${month}-${day}`;
     } else {
@@ -118,7 +118,7 @@
       'undone': { html: '<span class="status-dot status-undone" title="开发中"></span>', text: '开发中' },
       'deprecated': { html: '<span class="status-dot status-deprecated" title="已废弃"></span>', text: '已废弃' }
     };
-    
+
     return statusMap[status] || { html: '<span class="status-dot status-undone" title="开发中"></span>', text: '开发中' };
   }
 
@@ -134,9 +134,9 @@
       console.error(`Template not found: ${templateId}`);
       return null;
     }
-    
+
     const clone = template.content.cloneNode(true);
-    
+
     // 填充带有 data-field 属性的元素
     Object.keys(data).forEach(key => {
       const elements = clone.querySelectorAll(`[data-field="${key}"]`);
@@ -148,7 +148,7 @@
         }
       });
     });
-    
+
     return clone;
   }
 
@@ -191,7 +191,7 @@
     // Connect button
     connectBtn.addEventListener('click', () => {
       const selectedProject = projectSelect.value;
-      
+
       if (!selectedProject) {
         showMessage('请先选择一个项目', 'error');
         return;
@@ -212,7 +212,7 @@
     // Refresh button
     refreshBtn.addEventListener('click', () => {
       if (isRefreshing) {return;} // 防止重复点击
-      
+
       isRefreshing = true;
       refreshBtn.disabled = true;
       const refreshIcon = document.getElementById('refresh-icon');
@@ -473,7 +473,7 @@
   function renderInterfaceTree() {
     const treeContent = interfaceTree.querySelector('.tree-content');
     if (!treeContent) {return;}
-    
+
     if (currentCategories.length === 0) {
       treeContent.innerHTML = '<div class="loading">暂无数据</div>';
       return;
@@ -545,8 +545,8 @@
 
     const tableHeader = `
       <div class="interface-table-header">
-        <input type="checkbox" class="select-all-checkbox" 
-               ${allSelected ? 'checked' : ''} 
+        <input type="checkbox" class="select-all-checkbox"
+               ${allSelected ? 'checked' : ''}
                ${someSelected && !allSelected ? 'data-indeterminate="true"' : ''}>
         <span class="header-method">方法</span>
         <span class="header-title">接口名称</span>
@@ -560,11 +560,11 @@
       const statusIndicator = getStatusIndicator(iface.status);
       const friendlyTime = getFriendlyTime(iface.up_time || iface.add_time);
       const fullTime = getFullDateTime(iface.up_time || iface.add_time);
-      
+
       return `
         <div class="interface-item">
-          <input type="checkbox" class="interface-checkbox" 
-                 data-interface-id="${iface._id}" 
+          <input type="checkbox" class="interface-checkbox"
+                 data-interface-id="${iface._id}"
                  ${isSelected ? 'checked' : ''}>
           <span class="interface-method ${methodClass}">${iface.method.toUpperCase()}</span>
           <span class="interface-status" title="${statusIndicator.text}">${statusIndicator.html}</span>
@@ -620,7 +620,7 @@
     // 添加全选复选框事件监听
     selectAllCheckbox.addEventListener('change', (e) => {
       const isChecked = e.target.checked;
-      
+
       interfaces.forEach(iface => {
         if (isChecked) {
           selectedInterfaces.add(iface._id);
@@ -642,7 +642,7 @@
     tableContent.querySelectorAll('.interface-checkbox').forEach(checkbox => {
       checkbox.addEventListener('change', (e) => {
         const interfaceId = parseInt(e.target.dataset.interfaceId);
-        
+
         if (e.target.checked) {
           selectedInterfaces.add(interfaceId);
         } else {
@@ -653,7 +653,7 @@
         const selectAllCheckbox = tableContent.querySelector('.select-all-checkbox');
         const allSelected = interfaces.every(iface => selectedInterfaces.has(iface._id));
         const someSelected = interfaces.some(iface => selectedInterfaces.has(iface._id));
-        
+
         selectAllCheckbox.checked = allSelected;
         selectAllCheckbox.indeterminate = someSelected && !allSelected;
 
@@ -666,9 +666,9 @@
       btn.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const path = e.currentTarget.dataset.path;
-        
+
         // 发送消息给VSCode扩展处理复制和显示提示
         vscode.postMessage({
           type: 'copyPath',
@@ -682,9 +682,9 @@
       btn.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const interfaceId = e.currentTarget.dataset.interfaceId;
-        
+
         // 发送消息给VSCode扩展处理复制YAPI地址
         vscode.postMessage({
           type: 'copyYapiUrl',
@@ -698,15 +698,15 @@
       btn.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const interfaceId = parseInt(e.currentTarget.dataset.interfaceId);
         const templateId = templateSelect.value;
-        
+
         if (!templateId) {
           showMessage('请先选择模板', 'error');
           return;
         }
-        
+
         // 发送消息给VSCode扩展处理代码预览
         vscode.postMessage({
           type: 'previewCode',
@@ -723,7 +723,7 @@
   function filterInterfacesByPath(interfaces, term) {
     if (!term) {return interfaces;}
     const trimmedTerm = term.trim();
-    
+
     // 如果是纯数字，优先按接口ID精确匹配
     if (/^\d+$/.test(trimmedTerm)) {
       const targetId = parseInt(trimmedTerm, 10);
@@ -732,7 +732,7 @@
         return idMatch;
       }
     }
-    
+
     // 按路径进行模糊匹配
     const tokens = trimmedTerm.toLowerCase().split(/\s+/).filter(Boolean);
     return interfaces.filter(iface => {
@@ -751,7 +751,7 @@
     if (!generateApiBtn.classList.contains('loading')) {
       generateApiBtn.disabled = !hasSelection || !templateSelect.value;
     }
-    
+
     // 更新选中数量显示
     const selectedCountElement = document.getElementById('selected-count');
     if (selectedCountElement) {
@@ -776,12 +776,12 @@
   }
 
   function renderTemplateSelect() {
-    const options = currentTemplates.map(template => 
+    const options = currentTemplates.map(template =>
       `<option value="${template.id}">${template.name}</option>`
     ).join('');
-    
+
     templateSelect.innerHTML = `<option value="">选择模板</option>${options}`;
-    
+
     templateSelect.addEventListener('change', updateGenerateButtons);
   }
 
@@ -820,10 +820,10 @@
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const templateId = e.target.closest('.copy-template-btn').dataset.templateId;
         const template = currentTemplates.find(t => t.id === templateId);
-        
+
         if (template) {
           // 发送消息给VSCode扩展处理复制模板内容
           vscode.postMessage({
@@ -852,18 +852,18 @@
   function showTemplateEditor(template = null) {
     const isEdit = !!template;
     const title = isEdit ? '编辑模板' : '新增模板';
-    
+
     // Create modal dialog using HTML template
     const modal = document.createElement('div');
     modal.className = 'template-modal';
-    
+
     const templateContent = createFromTemplate('template-editor-modal-template', {
       title,
       templateName: template?.name || '',
       templateDescription: template?.description || '',
       templateContent: template?.content || (currentTemplates.length > 0 ? currentTemplates[0].content : '')
     });
-    
+
     modal.appendChild(templateContent);
     document.body.appendChild(modal);
 
@@ -889,7 +889,7 @@
         e.preventDefault();
         const variableItem = btn.closest('.variable-item');
         const variable = variableItem.dataset.variable;
-        
+
         // 复制到剪贴板
         navigator.clipboard.writeText(variable).then(() => {
           // 显示复制成功提示
@@ -905,7 +905,7 @@
           textArea.select();
           document.execCommand('copy');
           document.body.removeChild(textArea);
-          
+
           // 显示复制成功提示
           btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
           setTimeout(() => {
@@ -958,20 +958,20 @@
     // 创建遮罩层
     const overlay = document.createElement('div');
     overlay.className = 'confirm-overlay';
-    
+
     // 创建对话框
     const dialog = document.createElement('div');
     dialog.className = 'confirm-dialog';
-    
+
     // 创建消息内容
     const messageEl = document.createElement('div');
     messageEl.className = 'confirm-message';
     messageEl.textContent = message;
-    
+
     // 创建按钮容器
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'confirm-buttons';
-    
+
     // 创建确认按钮
     const confirmBtn = document.createElement('button');
     confirmBtn.className = 'confirm-btn confirm-btn-primary';
@@ -980,7 +980,7 @@
       document.body.removeChild(overlay);
       if (onConfirm) {onConfirm();}
     };
-    
+
     // 创建取消按钮
     const cancelBtn = document.createElement('button');
     cancelBtn.className = 'confirm-btn confirm-btn-secondary';
@@ -989,17 +989,17 @@
       document.body.removeChild(overlay);
       if (onCancel) {onCancel();}
     };
-    
+
     // 组装对话框
     buttonContainer.appendChild(cancelBtn);
     buttonContainer.appendChild(confirmBtn);
     dialog.appendChild(messageEl);
     dialog.appendChild(buttonContainer);
     overlay.appendChild(dialog);
-    
+
     // 添加到页面
     document.body.appendChild(overlay);
-    
+
     // 点击遮罩层关闭
     overlay.onclick = (e) => {
       if (e.target === overlay) {
@@ -1007,7 +1007,7 @@
         if (onCancel) {onCancel();}
       }
     };
-    
+
     // ESC键关闭
     const handleKeydown = (e) => {
       if (e.key === 'Escape') {
@@ -1037,16 +1037,16 @@
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.textContent = message;
-    
+
     document.body.appendChild(toast);
-    
+
     // Auto remove after 3 seconds
     setTimeout(() => {
       if (document.body.contains(toast)) {
         document.body.removeChild(toast);
       }
     }, 3000);
-    
+
     // Also log to console for debugging
     console.log(`[${type.toUpperCase()}] ${message}`);
   }
@@ -1085,25 +1085,25 @@
     const noConfigGuide = document.getElementById('no-config-guide');
     const configSection = document.querySelector('.config-section');
     const interfaceSection = document.querySelector('.interface-section');
-    
+
     if (!currentProjects || currentProjects.length === 0) {
       if (noConfigGuide) {noConfigGuide.style.display = 'block';}
       if (configSection) {configSection.style.display = 'none';}
       if (interfaceSection) {interfaceSection.style.display = 'none';}
       return;
     }
-    
+
     if (noConfigGuide) {noConfigGuide.style.display = 'none';}
     if (configSection) {configSection.style.display = 'block';}
     if (interfaceSection) {interfaceSection.style.display = 'flex';}
 
     const defaultOption = '<option value="">选择项目</option>';
-    const options = currentProjects.map(project => 
+    const options = currentProjects.map(project =>
       `<option value="${project.id}">${project.name}</option>`
     ).join('');
-    
+
     projectSelect.innerHTML = defaultOption + options;
-    
+
     // Auto restore last selected project, or auto select if there is only one
     if (selectedProjectId && currentProjects.some(p => p.id === selectedProjectId)) {
       projectSelect.value = selectedProjectId;
@@ -1118,19 +1118,19 @@
   function findFoldRanges(code) {
     const lines = code.split(/\r?\n/);
     const ranges = [];
-    
+
     let inString = null;
     let inLineComment = false;
     let inBlockComment = false;
     let blockCommentStartLine = -1;
     const braceStack = [];
-    
+
     let lineIdx = 0;
     let i = 0;
     while (i < code.length) {
       const char = code[i];
       const nextChar = code[i + 1];
-      
+
       if (char === '\n') {
         lineIdx++;
         inLineComment = false;
@@ -1149,7 +1149,7 @@
         }
         continue;
       }
-      
+
       if (inString === null) {
         if (inLineComment) {
           i++;
@@ -1167,7 +1167,7 @@
           }
           continue;
         }
-        
+
         if (char === '/' && nextChar === '/') {
           inLineComment = true;
           i += 2;
@@ -1180,7 +1180,7 @@
           continue;
         }
       }
-      
+
       if (inString !== null) {
         if (char === '\\') {
           i += 2;
@@ -1192,13 +1192,13 @@
         }
         continue;
       }
-      
+
       if (char === '"' || char === "'" || char === '`') {
         inString = char;
         i++;
         continue;
       }
-      
+
       if (char === '{') {
         braceStack.push(lineIdx);
       } else if (char === '}') {
@@ -1209,20 +1209,20 @@
           }
         }
       }
-      
+
       i++;
     }
-    
+
     return ranges;
   }
 
   // Helper to render code with editor-like features (line numbers, inline indent guides, toggle chevrons)
   function renderFoldableCode(container, code) {
     container.innerHTML = '';
-    
+
     const lines = code.split(/\r?\n/);
     const ranges = findFoldRanges(code);
-    
+
     // Detect indent size
     let indentSize = 2; // Default to 2
     let minIndent = Infinity;
@@ -1235,13 +1235,13 @@
     if (minIndent !== Infinity && minIndent > 0) {
       indentSize = minIndent;
     }
-    
+
     // Pre-calculate indentation level of each line
     const lineIndents = lines.map(line => {
       const leadingSpaces = line.match(/^ */)[0].length;
       return Math.floor(leadingSpaces / indentSize);
     });
-    
+
     // Map start line -> end line for folding
     const rangeMap = new Map();
     ranges.forEach(r => {
@@ -1250,26 +1250,26 @@
         rangeMap.set(r.start, r.end);
       }
     });
-    
+
     const foldedLines = new Set();
     const rowElements = [];
-    
+
     lines.forEach((lineText, idx) => {
       const row = document.createElement('div');
       row.className = 'editor-row';
       row.dataset.line = idx;
-      
+
       const gutter = document.createElement('div');
       gutter.className = 'gutter-cell';
-      
+
       const lineNum = document.createElement('div');
       lineNum.className = 'line-number-gutter';
       lineNum.textContent = idx + 1;
       gutter.appendChild(lineNum);
-      
+
       const foldToggleGutter = document.createElement('div');
       foldToggleGutter.className = 'fold-toggle-gutter';
-      
+
       if (rangeMap.has(idx)) {
         const toggle = document.createElement('span');
         toggle.className = 'fold-toggle';
@@ -1289,27 +1289,27 @@
         placeholder.style.height = '22px';
         foldToggleGutter.appendChild(placeholder);
       }
-      
+
       gutter.appendChild(foldToggleGutter);
       row.appendChild(gutter);
-      
+
       const lineCell = document.createElement('div');
       lineCell.className = 'line-cell';
-      
+
       // Render inline indentation cells and guidelines
       const indentCount = lineIndents[idx];
       const leadingSpaces = indentCount * indentSize;
-      
+
       for (let col = 0; col < indentCount; col++) {
         const indentCell = document.createElement('div');
         indentCell.className = 'indent-cell';
-        
+
         // Is there an active range spanning line `idx` (r.start < idx <= r.end)
         // whose start line has indentation level `col`?
         const activeRange = ranges.find(r => {
           return r.start < idx && idx <= r.end && lineIndents[r.start] === col;
         });
-        
+
         if (activeRange) {
           const guideLine = document.createElement('div');
           guideLine.className = 'indent-guide-line';
@@ -1318,16 +1318,16 @@
           }
           indentCell.appendChild(guideLine);
         }
-        
+
         lineCell.appendChild(indentCell);
       }
-      
+
       const lineSpan = document.createElement('span');
       lineSpan.className = 'line-text';
       // Strip leading spaces since they are rendered via indent cells
       lineSpan.textContent = lineText.substring(leadingSpaces) || ' ';
       lineCell.appendChild(lineSpan);
-      
+
       if (rangeMap.has(idx)) {
         const indicator = document.createElement('span');
         indicator.className = 'fold-indicator';
@@ -1338,12 +1338,12 @@
         });
         lineCell.appendChild(indicator);
       }
-      
+
       row.appendChild(lineCell);
       container.appendChild(row);
       rowElements.push(row);
     });
-    
+
     function toggleFold(startLine) {
       if (foldedLines.has(startLine)) {
         foldedLines.delete(startLine);
@@ -1352,7 +1352,7 @@
       }
       updateVisibility();
     }
-    
+
     function updateVisibility() {
       rowElements.forEach((row, idx) => {
         let isLineVisible = true;
@@ -1363,13 +1363,13 @@
             break;
           }
         }
-        
+
         if (isLineVisible) {
           row.style.display = 'flex';
         } else {
           row.style.display = 'none';
         }
-        
+
         if (rangeMap.has(idx)) {
           const toggleElements = row.querySelectorAll('.fold-toggle');
           if (foldedLines.has(idx)) {
@@ -1395,17 +1395,17 @@
         container.classList.remove('gutter-hovered');
       }
     });
-    
+
     container.addEventListener('mouseleave', () => {
       container.classList.remove('gutter-hovered');
     });
   }
 
   // Code Preview Modal Functions
-  function showCodePreview(code, type = 'api') {
+  function showCodePreview(code, type = 'api', interfaceId, path) {
     const modal = document.createElement('div');
     modal.className = 'code-preview-modal';
-    
+
     const previewContent = createFromTemplate('code-preview-modal-template', {});
     modal.appendChild(previewContent);
     document.body.appendChild(modal);
@@ -1439,7 +1439,7 @@
     // 复制按钮
     copyBtn.addEventListener('click', () => {
       const currentCode = code;
-      
+
       navigator.clipboard.writeText(currentCode).then(() => {
         const originalHTML = copyBtn.innerHTML;
         copyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="margin-right: 4px; display: inline-block; vertical-align: middle;"><polyline points="20 6 9 17 4 12"></polyline></svg>已复制';
@@ -1455,7 +1455,7 @@
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        
+
         const originalHTML = copyBtn.innerHTML;
         copyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="margin-right: 4px; display: inline-block; vertical-align: middle;"><polyline points="20 6 9 17 4 12"></polyline></svg>已复制';
         setTimeout(() => {
@@ -1564,7 +1564,7 @@
       case 'configResult':
         connectBtn.disabled = false;
         connectBtn.textContent = '连接';
-        
+
         if (message.success) {
           showMessage(message.message, 'success');
           saveConfig();
@@ -1580,7 +1580,7 @@
       case 'interfacesLoaded':
         currentCategories = message.categories;
         currentInterfaces = message.interfaces;
-        
+
         // 更新项目名称显示
         const projectNameElement = document.getElementById('project-name');
         if (projectNameElement) {
@@ -1588,10 +1588,10 @@
             // 获取当前选中的项目配置
             const selectedProject = projectSelect.value;
             const project = currentProjects.find(p => p.id === selectedProject);
-            
+
             let displayText = '';
             let fullText = '';
-            
+
             if (project) {
               // 显示格式：我的项目名-yapi平台项目名
               displayText = `(${project.name}-${message.projectInfo.name})`;
@@ -1601,7 +1601,7 @@
               displayText = `(${message.projectInfo.name})`;
               fullText = message.projectInfo.name;
             }
-            
+
             projectNameElement.textContent = displayText;
             projectNameElement.title = fullText; // 设置tooltip显示完整内容
           } else {
@@ -1610,7 +1610,7 @@
             projectNameElement.title = '';
           }
         }
-        
+
         // 更新时间显示
         const lastUpdateTimeElement = document.getElementById('last-update-time');
         if (lastUpdateTimeElement && message.updateTime) {
@@ -1626,7 +1626,7 @@
           lastUpdateTimeElement.textContent = `更新于 ${timeStr}`;
           lastUpdateTimeElement.title = `上次更新时间: ${updateDate.toLocaleString('zh-CN')}`;
         }
-        
+
         renderInterfaceTree();
         // 显示搜索框
         if (treeSearchWrapper) {
@@ -1735,7 +1735,7 @@
         // 恢复按钮状态
         generateTypesBtn.disabled = false;
         generateTypesBtn.classList.remove('loading');
-        
+
         if (message.success) {
           showMessage(message.message, 'success');
         } else {
@@ -1747,7 +1747,7 @@
         // 恢复按钮状态
         generateApiBtn.disabled = false;
         generateApiBtn.classList.remove('loading');
-        
+
         if (message.success) {
           showMessage(message.message, 'success');
         } else {
@@ -1759,7 +1759,7 @@
         // 恢复按钮状态
         generateAllBtn.disabled = false;
         generateAllBtn.classList.remove('loading');
-        
+
         if (message.success) {
           showMessage(message.message, 'success');
         } else {
@@ -1788,10 +1788,10 @@
     if (interfaceTree) {
       const hasUserExpanded = interfaceTree.classList.contains('user-expanded');
       const hasUserCollapsed = interfaceTree.classList.contains('user-collapsed');
-      
+
       // 清除所有状态类
       interfaceTree.classList.remove('user-expanded', 'user-collapsed');
-      
+
       if (hasUserCollapsed) {
         // 当前是用户手动收缩状态，切换到展开
         interfaceTree.classList.add('user-expanded');
@@ -1802,7 +1802,7 @@
         // 当前处于媒体查询控制状态，需要根据实际显示状态判断
         const computedStyle = window.getComputedStyle(interfaceTree);
         const currentWidth = parseInt(computedStyle.width);
-        
+
         if (currentWidth <= 40) {
           // 当前是收缩状态（媒体查询控制），切换到展开
           interfaceTree.classList.add('user-expanded');

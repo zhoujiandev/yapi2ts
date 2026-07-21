@@ -473,20 +473,20 @@ body {
     width: 40px;
     min-width: 40px;
   }
-  
+
   .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-toggle-btn {
     transform: rotate(-90deg);
   }
-  
+
   .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-title {
     opacity: 0;
   }
-  
+
   .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-content {
     opacity: 0;
     pointer-events: none;
   }
-  
+
   .interface-tree:not(.user-expanded):not(.user-collapsed) .tree-update-time {
     display: none;
   }
@@ -2341,7 +2341,7 @@ body.vscode-light .code-preview-modal-header {
 
 /* 6. List Separators */
 body.vscode-light .interface-item,
-body.vscode-light .tree-item, 
+body.vscode-light .tree-item,
 body.vscode-light .variable-item,
 body.vscode-light .template-item-header,
 body.vscode-light .project-item-header {
@@ -2392,7 +2392,7 @@ body.vscode-light .toast {
 }
 
 body.vscode-light .toast-info {
-  /* Use high contrast colors for info toast in light mode if needed, 
+  /* Use high contrast colors for info toast in light mode if needed,
      but standard button colors should work with the text color fix.
      Ensuring border is visible. */
   border-color: rgba(0, 0, 0, 0.1);
