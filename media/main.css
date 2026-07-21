@@ -2159,12 +2159,20 @@ body.vscode-light .preview-tab-btn.active {
 
 .code-preview-modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 12px;
   padding: 18px 24px;
   border-top: 1px solid rgba(128, 128, 128, 0.1);
   background: var(--vscode-editor-background);
   border-radius: 0 0 8px 8px;
+}
+
+.code-preview-interface-actions,
+.code-preview-code-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .code-preview-modal-footer .btn {
@@ -2221,6 +2229,27 @@ body.vscode-light .preview-tab-btn.active {
 .code-preview-copy-btn svg {
   width: 13px;
   height: 13px;
+}
+
+.code-preview-interface-actions .btn {
+  gap: 6px;
+}
+
+.code-preview-interface-actions .btn svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+  .code-preview-modal-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .code-preview-interface-actions,
+  .code-preview-code-actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
 }
 
 /* Preview button in interface table */

@@ -670,7 +670,10 @@ export class YapiWebviewProvider implements vscode.WebviewViewProvider {
                 type: 'codePreviewResult',
                 success: true,
                 code: completeCode,
-                codeType: 'complete'
+                codeType: 'complete',
+                // 预览入口来自接口表格，附带当前接口信息以复用表格中的复制操作。
+                interfaceId: interfaces.length === 1 ? interfaces[0]._id : undefined,
+                path: interfaces.length === 1 ? interfaces[0].path : undefined
             });
         } catch (error) {
             console.error('Preview code error:', error);

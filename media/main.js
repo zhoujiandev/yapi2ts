@@ -1414,7 +1414,37 @@
     const closeBtn = modal.querySelector('.code-preview-modal-close');
     const cancelBtn = modal.querySelector('.code-preview-modal-cancel');
     const copyBtn = modal.querySelector('.code-preview-copy-btn');
-    
+    const copyPathBtn = modal.querySelector('.code-preview-copy-path-btn');
+    const copyYapiUrlBtn = modal.querySelector('.code-preview-copy-yapi-url-btn');
+
+    // 预览弹窗中的接口操作复用接口列表的消息处理逻辑。
+    if (copyPathBtn && copyYapiUrlBtn && interfaceId && path) {
+      copyPathBtn.dataset.path = path;
+      copyYapiUrlBtn.dataset.interfaceId = String(interfaceId);
+
+      copyPathBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        vscode.postMessage({
+          type: 'copyPath',
+          path: copyPathBtn.dataset.path
+        });
+      });
+
+      copyYapiUrlBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        vscode.postMessage({
+          type: 'copyYapiUrl',
+          interfaceId: copyYapiUrlBtn.dataset.interfaceId
+        });
+      });
+    } else {
+      // 仅在当前预览没有对应接口时隐藏接口操作，避免发送无效消息。
+      if (copyPathBtn) copyPathBtn.hidden = true;
+      if (copyYapiUrlBtn) copyYapiUrlBtn.hidden = true;
+    }
+
     if (copyBtn && !copyBtn.querySelector('svg')) {
       copyBtn.innerHTML = `
         <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
@@ -1775,7 +1805,12 @@
       case 'codePreviewResult':
         // 显示代码预览模态框
         if (message.success && message.code) {
-          showCodePreview(message.code, message.codeType);
+          showCodePreview(
+            message.code,
+            message.codeType,
+            message.interfaceId,
+            message.path
+          );
         } else {
           showMessage(message.message || '生成代码失败', 'error');
         }
