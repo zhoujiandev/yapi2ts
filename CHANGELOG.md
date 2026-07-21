@@ -4,6 +4,16 @@ All notable changes to the "yapi2ts" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.5.2] - 2026-07-21
+
+### Added
+
+- **预览弹窗复制接口信息** - 在代码预览弹窗底部新增“复制接口路径”和“复制 YAPI 地址”按钮，复用接口列表中的复制逻辑与提示反馈。
+
+### Fixed
+
+- **修复 TypeScript 全局类型诊断** - 显式加载 Node 和 Mocha 类型声明，修复 `NodeJS`、`console`、`setTimeout` 等全局类型以及测试函数无法识别的问题。
+
 ## [1.5.1] - 2026-07-15
 
 ### Fixed
